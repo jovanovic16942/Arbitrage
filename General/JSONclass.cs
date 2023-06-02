@@ -67,6 +67,7 @@ namespace Arbitrage.General
     public class MatchResponse
     {
         public List<Match> Matches { get; set; }
+        public int Total { get; set; }
     }
 
 

@@ -1,6 +1,8 @@
 ﻿using Arbitrage.DataGetters;
+using Arbitrage.EntityFramework;
 using System.Runtime.InteropServices;
 
-var getter = new MozzartGetter();
-getter.GetMatches();
-getter.GetOdds();
+
+//var getter = new MozzartGetter();
+//getter.GetMatches(null);
+//getter.GetOdds();

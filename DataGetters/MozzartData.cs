@@ -24,6 +24,19 @@ namespace Arbitrage.DataGetters
         }
     }
 
+    internal class SubGame
+    {
+        public int Id { get; set; }
+        public double Value { get; set; }
+        public string Descritpion { get; set; }
+    }
+
+    internal class Game
+    {
+        public int Id { get; set; }
+        public List<SubGame> SubGames { get; set; }
+    }
+
     internal class MozzartData
     {
          
@@ -46,6 +59,9 @@ namespace Arbitrage.DataGetters
 
         }
 
+        public double participant1WinOdds { get; set; }
+        public double XOdds { get; set; }
+        public double participant2WinOdds { get; set; }
 
     }
 }

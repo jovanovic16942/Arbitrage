@@ -13,8 +13,15 @@ namespace Arbitrage.DataGetters
     {
         List<MozzartData> mozzartData = new List<MozzartData>();
 
-        public void GetMatches()
+        //TODO FIX 1 PARTICIPANT ODDS
+
+        public void GetMatches(DateTime? date)
         {
+            if (date == null)
+            {
+                date = DateTime.Now;
+            }
+
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
 
@@ -30,14 +37,14 @@ namespace Arbitrage.DataGetters
             {
                 activeCompleteOffer = false,
                 competitionIds = new object[] { },
-                date = "2023-03-18",
+                date = date.Value.ToString("yyyy-MM-dd"),
                 lang = "sr",
                 mostPlayed = false,
-                numberOfGames = 304,
+                numberOfGames = 0,
                 offset = 0,
-                size = 50,
+                size = 2000,
                 sort = "bycompetition",
-                specials = false,
+                //specials = null,
                 sportIds = new object[] { 1 },
                 subgames = new object[] { },
                 type = "betting"
@@ -47,14 +54,6 @@ namespace Arbitrage.DataGetters
 
             // execute the request and get the response
             RestResponse response = client.Execute(request);
-
-
-            // print the response content
-            //Console.WriteLine(response.Content);
-            //File.WriteAllText("mozzart-fudbal-betOffer2", response.Content);
-
-
-            //var responseText = File.ReadAllText("mozzart-fudbal-betOffer2");
 
             MatchResponse matchResponse = JsonConvert.DeserializeObject<MatchResponse>(response.Content);
 
@@ -80,6 +79,7 @@ namespace Arbitrage.DataGetters
         public void GetOdds()
         {
 
+
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
 
@@ -90,21 +90,67 @@ namespace Arbitrage.DataGetters
             request.AddParameter("origin", "https://www.mozzartbet.com", ParameterType.HttpHeader);
             request.AddParameter("referer", "https://www.mozzartbet.com/sr/kladjenje-2018", ParameterType.HttpHeader);
 
-            // add request body
-            var requestBody = new
+
+            int numOfSteps = mozzartData.Count / 50 + 1;
+
+            for(int i = 0; i <= numOfSteps; i++)
             {
-                matchIds = mozzartData.Select(x => x.MatchId).ToArray(),
-                // subgames = new object[] { },
-            };
+                // add request body
+                var requestBody = new
+                {
+                    matchIds = mozzartData.Select(x => x.MatchId).Skip(i * 50).Take(50).ToArray(),
+                    subgames = subgamesIds,
+                };
 
 
+                request.AddJsonBody(requestBody);
 
-            request.AddJsonBody(requestBody);
+                // execute the request and get the response
+                RestResponse response = client.Execute(request);
 
-            // execute the request and get the response
-            RestResponse response = client.Execute(request);
+
+            }  
 
         }
+
+        static List<string> subgamesIds = new List<string>
+        {
+            "1001001001",
+            "1001001002",
+            "1001001003",
+            "1001002001",
+            "1001002002",
+            "1001002003",
+            "1001003002",
+            "1001003012",
+            "1001003004",
+            "1001130001",
+            "1001130002",
+            "1001130003",
+            "1001141017",
+            "1001141015",
+            "1001772001",
+            "1001772002",
+            "1001773001",
+            "1001773002",
+            "1001774001",
+            "1001774002",
+            "1001775001",
+            "1001775002",
+            "1001776001",
+            "1001776002",
+            "1001772001",
+            "1001772002",
+            "1001773001",
+            "1001773002",
+            "1001774001",
+            "1001774002",
+            "1001775001",
+            "1001775002",
+            "1001776001",
+            "1001776002"
+        };
+
     }
 }
 //7087955
