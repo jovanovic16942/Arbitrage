@@ -12,6 +12,5 @@ namespace Arbitrage.EntityFramework.Models
         public string Code { get; set; } = null!;
 
         public List<League>? Leagues { get; set; }
-        public List<Team>? Teams { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Arbitrage.General;
+﻿using Arbitrage.EntityFramework.Models;
+using Arbitrage.General;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
@@ -17,10 +18,7 @@ namespace Arbitrage.DataGetters
 
         public void GetMatches(DateTime? date)
         {
-            if (date == null)
-            {
-                date = DateTime.Now;
-            }
+            date ??= DateTime.Now;
 
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
@@ -110,6 +108,21 @@ namespace Arbitrage.DataGetters
 
 
             }  
+
+        }
+
+        public void InsertTeams()
+        {
+            List<Team> teams = new List<Team>();
+
+            foreach (var match in mozzartData)
+            {
+                teams.Add(new Team { Name = match.Participant1.Name, ShortName = match.Participant1.ShortName });
+                teams.Add(new Team { Name = match.Participant2.Name, ShortName = match.Participant2.ShortName });
+            }
+
+            teams = teams.DistinctBy(x => x.Name).ToList();
+
 
         }
 

@@ -8,5 +8,7 @@ namespace Arbitrage.EntityFramework
         public ArbitrageDbContext(DbContextOptions<ArbitrageDbContext> options) : base(options) { }
 
         public DbSet<Game> Games { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<Country> Countries { get; set; }
     }
 }
