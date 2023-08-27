@@ -70,5 +70,35 @@ namespace Arbitrage.General
         public int Total { get; set; }
     }
 
+    public class SubGame
+    {
+        public int id { get; set; }
+        public int subGameId { get; set; }
+        public int gameId { get; set; }
+        public string gameName { get; set; }
+        public string subGameName { get; set; }
+        public string gameShortName { get; set; }
+        public string subGameDescription { get; set; }
+        public string specialOddValueType { get; set; }
+        public bool priority { get; set; }
+    }
+
+    public class Kodds
+    {
+        public int id { get; set; }
+        public string specialOddValue { get; set; }
+        public int matchId { get; set; }
+        public string value { get; set; }
+        public string winStatus { get; set; }
+        public SubGame subGame { get; set; }
+    }
+
+    public class Root
+    {
+        public int id { get; set; }
+        public Dictionary<string, Kodds> kodds { get; set; }
+    }
+
+ 
 
 }

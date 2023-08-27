@@ -7,7 +7,13 @@ namespace Arbitrage.EntityFramework
     // TODO Check before insert if the value 
     public class ArbitrageDb
     {
-        public ArbitrageDb() {
+        private static ArbitrageDb _instance = new ArbitrageDb();
+        public static ArbitrageDb Instance()
+        {
+            return _instance;
+        }
+
+        private ArbitrageDb() {
 
             var arbitrageDbOptions = new DbContextOptionsBuilder<ArbitrageDbContext>()
                 .UseSqlServer("Server=(localdb)\\Local;initial catalog=Arbitrage;" +
@@ -15,6 +21,8 @@ namespace Arbitrage.EntityFramework
                 .Options;
 
             Context = new ArbitrageDbContext(arbitrageDbOptions);
+            _countries = Context.Countries.ToList();
+            _teams = Context.Teams.ToList();
         }
 
         public void InsertGame(Game game)
@@ -39,12 +47,25 @@ namespace Arbitrage.EntityFramework
 
         public void InsertTeam(Team team)
         {
-            InsertEntity(team);
+            
+            if(ShouldInsertTeam(team))
+            {
+                _teams.Add(team);
+                InsertEntity(team);
+            }
         }
 
         public void InsertTeams(IEnumerable<Team> teams)
         {
+            teams = teams.Where(team => ShouldInsertTeam(team));            
             InsertEntityList(teams);
+            _teams.AddRange(teams);
+        }
+
+        private bool ShouldInsertTeam(Team team)
+        {
+            return _teams.FirstOrDefault(t => t.Name.Trim().ToLower() == team.Name.Trim().ToLower()) == null
+                && _countries.FirstOrDefault(x => x.Name.Trim().ToLower() == team.Name.Trim().ToLower()) == null;
         }
 
         public void InsertCountry(Country country)
@@ -84,5 +105,7 @@ namespace Arbitrage.EntityFramework
 
 
         public readonly ArbitrageDbContext Context;
+        private List<Team> _teams;
+        private List<Country> _countries;
     }
 }

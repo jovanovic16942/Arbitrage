@@ -1,4 +1,5 @@
-﻿using Arbitrage.EntityFramework.Models;
+﻿using Arbitrage.EntityFramework;
+using Arbitrage.EntityFramework.Models;
 using Arbitrage.General;
 using Newtonsoft.Json;
 using RestSharp;
@@ -12,11 +13,7 @@ namespace Arbitrage.DataGetters
 {
     public class MozzartGetter
     {
-        List<MozzartData> mozzartData = new List<MozzartData>();
-
-        //TODO FIX 1 PARTICIPANT ODDS
-
-        public void GetMatches(DateTime? date)
+        public MatchResponse GetMatches(DateTime? date)
         {
             date ??= DateTime.Now;
 
@@ -55,76 +52,65 @@ namespace Arbitrage.DataGetters
 
             MatchResponse matchResponse = JsonConvert.DeserializeObject<MatchResponse>(response.Content);
 
-            foreach (var match in matchResponse.Matches)
-            {
-                try
-                {
-                    var participants = match.Participants.ToList();
-                    var p1 = participants[0];
-                    var p2 = participants[1];
-
-                    var participant1 = new Participant(p1.Id, p1.Name, p1.ShortName, p1.Description);
-                    var participant2 = new Participant(p2.Id, p2.Name, p2.ShortName, p2.Description);
-
-                    mozzartData.Add(new MozzartData(match.Id, match.StartTime, participant1, participant2));
-                }
-                catch {
-
-                }
-            }
+            return matchResponse;
         }
 
-        public void GetOdds()
+        public List<Root> GetOdds(IEnumerable<int> matchIds)
         {
-
 
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
 
-            // create a new RestSharp request
-            var request = new RestRequest("/getBettingOdds", Method.Post);
+            int numOfSteps = matchIds.Count() / 50;
 
-            // add parameters to the request body
-            request.AddParameter("origin", "https://www.mozzartbet.com", ParameterType.HttpHeader);
-            request.AddParameter("referer", "https://www.mozzartbet.com/sr/kladjenje-2018", ParameterType.HttpHeader);
-
-
-            int numOfSteps = mozzartData.Count / 50 + 1;
+            List<Root> result = new List<Root>();
 
             for(int i = 0; i <= numOfSteps; i++)
             {
+                // create a new RestSharp request
+                var request = new RestRequest("/getBettingOdds", Method.Post);
+
+                // add parameters to the request body
+                request.AddParameter("origin", "https://www.mozzartbet.com", ParameterType.HttpHeader);
+                request.AddParameter("referer", "https://www.mozzartbet.com/sr/kladjenje-2018", ParameterType.HttpHeader);
+
                 // add request body
                 var requestBody = new
                 {
-                    matchIds = mozzartData.Select(x => x.MatchId).Skip(i * 50).Take(50).ToArray(),
+                    matchIds = matchIds.Select(x => x).Skip(i * 50).Take(50).ToArray(),
                     subgames = subgamesIds,
                 };
-
 
                 request.AddJsonBody(requestBody);
 
                 // execute the request and get the response
                 RestResponse response = client.Execute(request);
 
+                var oddsResponse = JsonConvert.DeserializeObject<List<Root>>(response.Content);
 
-            }  
+                result.AddRange(oddsResponse);
 
-        }
-
-        public void InsertTeams()
-        {
-            List<Team> teams = new List<Team>();
-
-            foreach (var match in mozzartData)
-            {
-                teams.Add(new Team { Name = match.Participant1.Name, ShortName = match.Participant1.ShortName });
-                teams.Add(new Team { Name = match.Participant2.Name, ShortName = match.Participant2.ShortName });
+                Thread.Sleep(2000);
             }
 
-            teams = teams.DistinctBy(x => x.Name).ToList();
 
-
+            return result;
         }
+
+        //public void InsertTeams()
+        //{
+        //    List<Team> teams = new List<Team>();
+
+        //    foreach (var match in mozzartData)
+        //    {
+        //        teams.Add(new Team { Name = match.Participant1.Name, ShortName = match.Participant1.ShortName });
+        //        teams.Add(new Team { Name = match.Participant2.Name, ShortName = match.Participant2.ShortName });
+        //    }
+
+        //    teams = teams.DistinctBy(x => x.Name).ToList();
+
+        //    ArbitrageDb.Instance().InsertTeams(teams);
+        //}
 
         static List<string> subgamesIds = new List<string>
         {

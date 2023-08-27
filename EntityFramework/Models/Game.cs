@@ -8,6 +8,7 @@ namespace Arbitrage.EntityFramework.Models
     {
         [Key]
         public int Id { get; set; }
+        public int? MozzartID { get; set; }
         public string Name { get; set; } = null!;
         public string ShortName { get; set; } = null!;
 
