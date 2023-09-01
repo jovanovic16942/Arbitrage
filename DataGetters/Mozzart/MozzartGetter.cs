@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters
+namespace Arbitrage.DataGetters.Mozzart
 {
     public class MozzartGetter
     {
@@ -65,7 +65,7 @@ namespace Arbitrage.DataGetters
 
             List<Root> result = new List<Root>();
 
-            for(int i = 0; i <= numOfSteps; i++)
+            for (int i = 0; i <= numOfSteps; i++)
             {
                 // create a new RestSharp request
                 var request = new RestRequest("/getBettingOdds", Method.Post);
@@ -90,7 +90,7 @@ namespace Arbitrage.DataGetters
 
                 result.AddRange(oddsResponse);
 
-                Thread.Sleep(2000);
+                Thread.Sleep(Constants.SleepTime);
             }
 
 

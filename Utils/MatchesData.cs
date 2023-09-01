@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters
+namespace Arbitrage.Utils
 {
     public class Participant
     {
@@ -53,6 +53,7 @@ namespace Arbitrage.DataGetters
 
         //public FootballMatch()
 
+        // TODO izbaci ovaj constructor, logika u mozart parer
         public Match(int matchId, long startTimeMilis, Participant participant1, Participant participant2)
         {
             MatchId = matchId;
@@ -65,25 +66,39 @@ namespace Arbitrage.DataGetters
 
         }
 
-        public void AddSubGame(string name, double value) {
+        public Match(DateTime startTime, Participant participant1, Participant participant2)
+        {
+            MatchId = 0; // beskorisno za sad
+            StartTime = startTime;
+
+            Team1 = participant1;
+            Team2 = participant2;
+
+        }
+
+        public void AddSubGame(string name, double value)
+        {
             SubGames.TryAdd(name, value);
             //SubGames.Add(name, value);
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            return string.Format("{0} vs {1} - '1': {2} 'X': {3} '2': {4}", 
-                Team1.Name, Team2.Name, SubGames["1"], SubGames["X"], SubGames["2"]);    
+            return string.Format("{0} vs {1} - '1': {2} 'X': {3} '2': {4}",
+                Team1.Name, Team2.Name, SubGames["1"], SubGames["X"], SubGames["2"]);
         }
 
     }
 
-    public class MozzartData
+    /// <summary>
+    /// Data obtained from a single source
+    /// </summary>
+    public class MatchesData
     {
         private List<Match> Matches { get; }
 
-        public MozzartData() 
-        { 
+        public MatchesData()
+        {
             Matches = new List<Match>();
         }
         public List<Match> GetMatches()
@@ -107,9 +122,9 @@ namespace Arbitrage.DataGetters
 
     }
 
-    //MozzartData() -> Matches -> foodbal
-    //MozzartData.parse(mozzartGetter)
+    //MatchesData() -> Matches -> foodbal
+    //MatchesData.parse(mozzartGetter)
 
 
-    
+
 }

@@ -1,4 +1,5 @@
 ﻿using Arbitrage.DataGetters;
+using Arbitrage.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,13 @@ namespace Arbitrage.DataLoader
 {
     internal class DataLoader
     {
-        MozzartData _data;
+        MatchesData? _data;
 
-        MozzartParser _parser = new MozzartParser();
+        IParser _parser;
 
-        public DataLoader() {}
+        public DataLoader(IParser parser) {
+            _parser = parser;    
+        }
 
         public List<Match> GetMatches(DateTime? dateTime) {
 
@@ -21,12 +24,12 @@ namespace Arbitrage.DataLoader
 
             UpdateData(dateTime.Value);
 
-            return _data.GetMatches().Where(x => x.StartTime.Date == dateTime.Value.Date).ToList();
+            return _data!.GetMatches().Where(x => x.StartTime.Date == dateTime.Value.Date).ToList();
         }
 
         private void UpdateData(DateTime dateTime)
         {
-            _data = _parser.GetData(dateTime);
+            _data = _parser.GetMatches(dateTime);
 
             // TODO update database
         }

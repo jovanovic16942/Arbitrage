@@ -1,27 +1,17 @@
-﻿using Arbitrage.DataGetters;
+﻿using Arbitrage.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters
+namespace Arbitrage.DataGetters.Mozzart
 {
-    public class MozzartParser
+    public class MozzartParser : Parser
     {
         private MozzartGetter _getter = new MozzartGetter();
-        private MozzartData _data = new MozzartData();
 
-        public MozzartParser() { }
-
-        public MozzartData GetData(DateTime dateTime)
-        {
-            UpdateData(dateTime);
-            
-            return _data;
-        }
-
-        private void UpdateData(DateTime dateTime)
+        protected override void UpdateData(DateTime dateTime)
         {
             var respMatches = _getter.GetMatches(dateTime);
             UpdateMatches(respMatches);
@@ -56,31 +46,24 @@ namespace Arbitrage.DataGetters
 
         private void UpdateOdds(List<General.Root> resp)
         {
-            foreach (var matchOdds in resp) 
+            foreach (var matchOdds in resp)
             {
                 var matchId = matchOdds.id;
                 var kodds = matchOdds.kodds;
 
                 foreach (var kvp in kodds)
                 {
-                    String subGameID = kvp.Key; // Mozzart.com subGameID - trenutno subgamesIds u MozzartGetter
+                    string subGameID = kvp.Key; // Mozzart.com subGameID - trenutno subgamesIds u MozzartGetter
                     General.Kodds kodd = kvp.Value;
-                    
+
                     if (kodd == null) continue;
 
-                    double betValue = Double.Parse(kodd.value); // Kvota
+                    double betValue = double.Parse(kodd.value); // Kvota
 
                     // Game/SubGame Mozzart.com data
-                    // TODO Upariti ovo sa _data
                     General.SubGame sg = kodd.subGame;
 
-                    int gameId = sg.id;
-                    String gameName = sg.gameName;
-                    String gameShortNamme = sg.gameShortName;
-
-                    int subGameId = sg.subGameId;
-                    String subGameName = sg.subGameName;
-                    String subGameDescription = sg.subGameDescription;
+                    string subGameName = sg.subGameName;
 
                     _data.UpdateMatchSubgame(matchId, subGameName, betValue);
                 }
