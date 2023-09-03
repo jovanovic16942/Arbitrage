@@ -58,8 +58,8 @@ namespace Arbitrage.Utils
         {
             MatchId = matchId;
 
-            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(1);
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(2);
 
             Team1 = participant1;
             Team2 = participant2;
@@ -84,8 +84,8 @@ namespace Arbitrage.Utils
 
         public override string ToString()
         {
-            return string.Format("{0} vs {1} - '1': {2} 'X': {3} '2': {4}",
-                Team1.Name, Team2.Name, SubGames["1"], SubGames["X"], SubGames["2"]);
+            return string.Format("{0} vs {1} - {2}",
+                Team1.Name, Team2.Name, StartTime);
         }
 
     }
@@ -95,10 +95,12 @@ namespace Arbitrage.Utils
     /// </summary>
     public class MatchesData
     {
+        public BettingHouses bettingHouse;
         private List<Match> Matches { get; }
 
-        public MatchesData()
+        public MatchesData(BettingHouses bettingHouse)
         {
+            this.bettingHouse = bettingHouse;
             Matches = new List<Match>();
         }
         public List<Match> GetMatches()

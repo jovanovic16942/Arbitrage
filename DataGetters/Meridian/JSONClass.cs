@@ -6,51 +6,51 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.Meridian
 {
-    public class MatchResponse
+    public class JsonMatchResponse
     {
-        public List<Event> events { get; set; }
+        public List<JsonEvent> events { get; set; }
     }
 
-    public class Event
+    public class JsonEvent
     {
         public int leagueId { get; set; }
         public string name { get; set; }
-        public List<Team> team { get; set; }
+        public List<JsonTeam> team { get; set; }
         public string startTime { get; set; }
-        public List<Selection> standardShortMarkets { get; set; }
+        public List<JsonSelection> standardShortMarkets { get; set; }
 
     }
 
-    public class Team
+    public class JsonTeam
     {
         public string id { get; set; }
         public string name { get; set; }
     }
 
 
-    public class Match
+    public class JsonMatch
     {
-        public List<Market> MarketShort { get; set; }
+        public List<JsonMarket> MarketShort { get; set; }
     }
 
-    public class NameTranslation
+    public class JsonNameTranslation
     {
         public string locale { get; set; }
         public string translation { get; set; }
     }
 
-    public class SelectionItem
+    public class JsonSelectionItem
     {
         public string name { get; set; }
         public string price { get; set; }
         public string state { get; set; }
         public string activationPrice { get; set; }
-        public List<NameTranslation> nameTranslations { get; set; }
+        public List<JsonNameTranslation> nameTranslations { get; set; }
     }
 
-    public class Selection
+    public class JsonSelection
     {
-        public List<SelectionItem> selection { get; set; }
+        public List<JsonSelectionItem> selection { get; set; }
         public string id { get; set; }
         public string name { get; set; }
         public string templateId { get; set; }
@@ -59,21 +59,21 @@ namespace Arbitrage.DataGetters.Meridian
         public DateTime creationTime { get; set; }
         public DateTime activationTime { get; set; }
         public double winnerPrice { get; set; }
-        public List<NameTranslation> nameTranslations { get; set; }
+        public List<JsonNameTranslation> nameTranslations { get; set; }
         public int inc { get; set; }
         public string overUnder { get; set; }
         public object handicap { get; set; }
-        public List<SelectionItems> selections { get; set; } // Dodao sam ovo polje za treći objekat u listi
+        public List<JsonSelectionItems> selections { get; set; } // Dodao sam ovo polje za treći objekat u listi
     }
 
-    public class SelectionItems
+    public class JsonSelectionItems
     {
-        public List<SelectionItem> selection { get; set; }
+        public List<JsonSelectionItem> selection { get; set; }
     }
 
-    public class Market
+    public class JsonMarket
     {
-        public List<Selection> Selection { get; set; }
+        public List<JsonSelection> Selection { get; set; }
         public string Id { get; set; }
         public string Name { get; set; }
         public string TemplateId { get; set; }
@@ -82,7 +82,7 @@ namespace Arbitrage.DataGetters.Meridian
         public DateTime CreationTime { get; set; }
         public DateTime ActivationTime { get; set; }
         public string WinnerPrice { get; set; }
-        public List<NameTranslation> NameTranslations { get; set; }
+        public List<JsonNameTranslation> NameTranslations { get; set; }
         public int Inc { get; set; }
         public string OverUnder { get; set; }
         public string ActivationOverUnder { get; set; }

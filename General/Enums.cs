@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.General
 {
+    public enum BettingHouses
+    {
+        Mozzart,
+        Meridian
+    }
+
     public enum Sports
     {
         Fudbal,

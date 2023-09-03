@@ -1,19 +1,12 @@
-﻿using Arbitrage.EntityFramework;
-using Arbitrage.EntityFramework.Models;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.Mozzart
 {
     public class MozzartGetter
     {
-        public MatchResponse GetMatches(DateTime? date)
+        public JsonMatchResponse GetMatches(DateTime? date)
         {
             date ??= DateTime.Now;
 
@@ -50,12 +43,12 @@ namespace Arbitrage.DataGetters.Mozzart
             // execute the request and get the response
             RestResponse response = client.Execute(request);
 
-            MatchResponse matchResponse = JsonConvert.DeserializeObject<MatchResponse>(response.Content);
+            JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
 
             return matchResponse;
         }
 
-        public List<Root> GetOdds(IEnumerable<int> matchIds)
+        public List<JsonRoot> GetOdds(IEnumerable<int> matchIds)
         {
 
             // create a new RestSharp client
@@ -63,7 +56,7 @@ namespace Arbitrage.DataGetters.Mozzart
 
             int numOfSteps = matchIds.Count() / 50;
 
-            List<Root> result = new List<Root>();
+            List<JsonRoot> result = new List<JsonRoot>();
 
             for (int i = 0; i <= numOfSteps; i++)
             {
@@ -86,7 +79,7 @@ namespace Arbitrage.DataGetters.Mozzart
                 // execute the request and get the response
                 RestResponse response = client.Execute(request);
 
-                var oddsResponse = JsonConvert.DeserializeObject<List<Root>>(response.Content);
+                var oddsResponse = JsonConvert.DeserializeObject<List<JsonRoot>>(response.Content);
 
                 result.AddRange(oddsResponse);
 

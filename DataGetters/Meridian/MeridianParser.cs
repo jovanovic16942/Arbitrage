@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Arbitrage.General;
 using Arbitrage.Utils;
 
 namespace Arbitrage.DataGetters.Meridian
@@ -10,6 +11,11 @@ namespace Arbitrage.DataGetters.Meridian
     internal class MeridianParser : Parser
     {
         private MeridianGetter _getter = new MeridianGetter();
+
+        public MeridianParser() 
+        {
+            _data = new MatchesData(BettingHouses.Meridian);
+        }
 
         protected override void UpdateData(DateTime dateTime)
         {
@@ -26,7 +32,7 @@ namespace Arbitrage.DataGetters.Meridian
             }
         }
 
-        private void ParseEvent(Event ev)
+        private void ParseEvent(JsonEvent ev)
         {
             var participants = ev.team;
             var p1 = participants[0];
@@ -44,6 +50,7 @@ namespace Arbitrage.DataGetters.Meridian
 
                 foreach (var sel in ev.standardShortMarkets) 
                 {
+                    if(sel == null) continue;
 
                     if(sel.selection != null)
                     {
@@ -54,12 +61,13 @@ namespace Arbitrage.DataGetters.Meridian
                     {
                         foreach(var sel2 in sel.selections)
                         {
-                            sel2.selection.ForEach(x => match.AddSubGame(x.name, double.Parse(x.price)));
+                            if(sel2 != null)
+                            {
+                                sel2.selection.ForEach(x => match.AddSubGame(x.name, double.Parse(x.price)));
+                            }
                         }
                     }
                 }
-
-
 
                     _data.Insert(match);
             }

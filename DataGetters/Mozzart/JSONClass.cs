@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.General
 {
-    public class GameCounts
+    public class JsonGameCounts
     {
         public int Total { get; set; }
         public int Count1 { get; set; }
@@ -14,7 +14,7 @@ namespace Arbitrage.General
         // Add more properties as necessary
     }
 
-    public class Participant
+    public class JsonParticipant
     {
         public int Id { get; set; }
         public string Description { get; set; }
@@ -22,33 +22,33 @@ namespace Arbitrage.General
         public string ShortName { get; set; }
     }
 
-    public class GroupationItem
+    public class JsonGroupationItem
     {
         public int GroupationId { get; set; }
         public int Rank { get; set; }
     }
 
-    public class PriorityByGroupation
+    public class JsonPriorityByGroupation
     {
-        public List<GroupationItem> OrderItems { get; set; }
+        public List<JsonGroupationItem> OrderItems { get; set; }
     }
 
-    public class Sport
+    public class JsonSport
     {
         public int Id { get; set; }
-        public PriorityByGroupation PriorityByGroupation { get; set; }
+        public JsonPriorityByGroupation PriorityByGroupation { get; set; }
     }
 
-    public class Competition
+    public class JsonCompetition
     {
         public int Id { get; set; }
         public int Priority { get; set; }
-        public PriorityByGroupation PriorityByGroupation { get; set; }
+        public JsonPriorityByGroupation PriorityByGroupation { get; set; }
         public string Name { get; set; }
-        public Sport Sport { get; set; }
+        public JsonSport Sport { get; set; }
     }
 
-    public class Match
+    public class JsonMatch
     {
         public string CompetitionComment_sr { get; set; }
         public int Id { get; set; }
@@ -56,21 +56,21 @@ namespace Arbitrage.General
         public int SpecialType { get; set; }
         public string Competition_name_sr { get; set; }
         public int MatchNumber { get; set; }
-        public GameCounts GameCounts { get; set; }
+        public JsonGameCounts GameCounts { get; set; }
         public int CountKodds { get; set; }
         public int OddsCount { get; set; }
-        public List<Participant> Participants { get; set; }
+        public List<JsonParticipant> Participants { get; set; }
         public string MainMatch { get; set; }
-        public Competition Competition { get; set; }
+        public JsonCompetition Competition { get; set; }
     }
 
-    public class MatchResponse
+    public class JsonMatchResponse
     {
-        public List<Match> Matches { get; set; }
+        public List<JsonMatch> Matches { get; set; }
         public int Total { get; set; }
     }
 
-    public class SubGame
+    public class JsonSubGame
     {
         public int id { get; set; }
         public int subGameId { get; set; }
@@ -83,20 +83,20 @@ namespace Arbitrage.General
         public bool priority { get; set; }
     }
 
-    public class Kodds
+    public class JsonKodds
     {
         public int id { get; set; }
         public string specialOddValue { get; set; }
         public int matchId { get; set; }
         public string value { get; set; }
         public string winStatus { get; set; }
-        public SubGame subGame { get; set; }
+        public JsonSubGame subGame { get; set; }
     }
 
-    public class Root
+    public class JsonRoot
     {
         public int id { get; set; }
-        public Dictionary<string, Kodds> kodds { get; set; }
+        public Dictionary<string, JsonKodds> kodds { get; set; }
     }
 
  

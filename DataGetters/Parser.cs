@@ -10,7 +10,7 @@ namespace Arbitrage.DataGetters
 {
     public abstract class Parser : IParser
     {
-        protected MatchesData _data = new MatchesData();
+        protected MatchesData _data;
 
         public MatchesData GetMatches(DateTime dateTime)
         {

@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Temp\" />
     <Folder Include="SavedResponses\Mozzart\" />
   </ItemGroup>
 

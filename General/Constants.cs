@@ -8,6 +8,6 @@ namespace Arbitrage.General
 { 
     public static class Constants
     {
-        public const int SleepTime = 2000;
+        public const int SleepTime = 1000;
     }
 }

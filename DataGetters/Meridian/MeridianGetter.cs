@@ -14,9 +14,9 @@ namespace Arbitrage.DataGetters.Meridian
     {
         public MeridianGetter() { }
 
-        public List<MatchResponse> GetMatches(DateTime? date)
+        public List<JsonMatchResponse> GetMatches(DateTime? date)
         {
-            var responses = new List<MatchResponse>();
+            var responses = new List<JsonMatchResponse>();
 
             date ??= DateTime.Now;
 
@@ -38,7 +38,7 @@ namespace Arbitrage.DataGetters.Meridian
 
                 responses.Add(response);
 
-                break;//obrisi
+                //break;//obrisi
 
                 Thread.Sleep(Constants.SleepTime);
             }
@@ -46,7 +46,7 @@ namespace Arbitrage.DataGetters.Meridian
             return responses;
         }
 
-        private MatchResponse GetMatchResponse(string url)
+        private JsonMatchResponse GetMatchResponse(string url)
         {
             var client = new RestClient(url);
 
@@ -54,7 +54,7 @@ namespace Arbitrage.DataGetters.Meridian
 
             RestResponse response = client.Execute(request);
 
-            MatchResponse matchResponse = JsonConvert.DeserializeObject<MatchResponse>(response.Content);
+            JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
 
             return matchResponse;
         }
