@@ -1,5 +1,6 @@
 ﻿using Arbitrage.DataGetters;
 using Arbitrage.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +16,16 @@ namespace Arbitrage.DataLoader
         IParser _parser;
 
         public DataLoader(IParser parser) {
-            _parser = parser;    
+            _parser = parser;
         }
 
-        public List<Match> GetMatches(DateTime? dateTime) {
+        public MatchesData GetMatches(DateTime? dateTime) {
 
             dateTime ??= DateTime.Now;
 
             UpdateData(dateTime.Value);
 
-            return _data!.GetMatches().Where(x => x.StartTime.Date == dateTime.Value.Date).ToList();
+            return _data!;
         }
 
         private void UpdateData(DateTime dateTime)

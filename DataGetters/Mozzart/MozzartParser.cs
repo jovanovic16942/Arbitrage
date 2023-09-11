@@ -15,6 +15,10 @@ namespace Arbitrage.DataGetters.Mozzart
         protected override void UpdateData(DateTime dateTime)
         {
             var respMatches = _getter.GetMatches(dateTime);
+
+            //removed matches that expect n+ games in one ticket
+            respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
+
             UpdateMatches(respMatches);
 
             var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
