@@ -46,14 +46,11 @@ namespace Arbitrage.Utils
         public Participant Team1 { get; set; }
         public Participant Team2 { get; set; }
         public DateTime StartTime { get; set; }
-        // 
-        //public List<Game> Games { get; set; }
+        
+        public Dictionary<BettingGames, double> BetGames { get; } = new Dictionary<BettingGames, double>();
 
-        public Dictionary<string, double> SubGames { get; } = new Dictionary<string, double>();
 
-        //public FootballMatch()
-
-        // TODO izbaci ovaj constructor, logika u mozart parer
+        // TODO izbaci ovaj constructor, logika u mozart parser
         public Match(int matchId, long startTimeMilis, Participant participant1, Participant participant2)
         {
             MatchId = matchId;
@@ -76,10 +73,9 @@ namespace Arbitrage.Utils
 
         }
 
-        public void AddSubGame(string name, double value)
+        public void AddBetGame(BettingGames game, double value)
         {
-            SubGames.TryAdd(name, value);
-            //SubGames.Add(name, value);
+            BetGames.Add(game, value);
         }
 
         public override string ToString()
@@ -113,13 +109,18 @@ namespace Arbitrage.Utils
             Matches.Add(match);
         }
 
-        public void UpdateMatchSubgame(int matchID, string subgameName, double value)
+        public void InsertRange(List<Match> newMatches) 
+        { 
+            Matches.AddRange(newMatches);
+        }
+
+        public void UpdateMatchSubgame(int matchID, BettingGames betGame, double value)
         {
             var match = Matches.FirstOrDefault(x => x.MatchId == matchID);
 
             if (match == null) return;
 
-            match.AddSubGame(subgameName, value);
+            match.AddBetGame(betGame, value);
         }
 
     }

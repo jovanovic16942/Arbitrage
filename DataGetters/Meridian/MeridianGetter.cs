@@ -38,8 +38,6 @@ namespace Arbitrage.DataGetters.Meridian
 
                 responses.Add(response);
 
-                //break;//obrisi
-
                 Thread.Sleep(Constants.SleepTime);
             }
 

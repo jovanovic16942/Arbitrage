@@ -9,23 +9,24 @@ namespace Arbitrage.General
     public enum BettingHouses
     {
         Mozzart,
-        Meridian
+        Meridian,
+        DefaultHouse // Dummy house
     }
 
     public enum BettingGames
     {
         // Konacan ishod
-        BG_1,
-        BG_X,
-        BG_2,
+        _1,
+        _X,
+        _2,
         // Dupla sansa
-        BG_1X,
-        BG_X2,
-        BG_12,
+        _1X,
+        _X2,
+        _12,
         // Ukupno golova
-        BG_0_TO_2,
-        BG_2_OR_MORE,
-        BG_3_OR_MORE
+        _0_TO_2,
+        _2_OR_MORE,
+        _3_OR_MORE
     }
 
     public enum Sports

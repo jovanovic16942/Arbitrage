@@ -1,5 +1,7 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
+using System.Reflection.PortableExecutable;
+using System.Text.RegularExpressions;
 
 namespace Arbitrage.DataGetters.Mozzart
 {
@@ -68,11 +70,28 @@ namespace Arbitrage.DataGetters.Mozzart
                     // Game/SubGame Mozzart.com data
                     JsonSubGame sg = kodd.subGame;
 
-                    string subGameName = sg.subGameName;
+                    string subGameName = sg.subGameName.Trim();
 
-                    _data.UpdateMatchSubgame(matchId, subGameName, betValue);
+                    BettingGames game;
+                    if (betGameFromString.TryGetValue(subGameName, out game))
+                    {
+                        _data.UpdateMatchSubgame(matchId, game, betValue);
+                    }
+
                 }
             }
         }
+
+        static Dictionary<string, BettingGames> betGameFromString = new Dictionary<string, BettingGames> { 
+            {"1", BettingGames._1 }, 
+            {"X", BettingGames._X }, 
+            {"2", BettingGames._2 }, 
+            {"0-2", BettingGames._0_TO_2 }, 
+            {"2+", BettingGames._2_OR_MORE },
+            {"3+", BettingGames._3_OR_MORE }, 
+            {"12", BettingGames._12 }, 
+            {"1X", BettingGames._1X }, 
+            {"X2", BettingGames._X2 }
+        };
     }
 }

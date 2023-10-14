@@ -1,4 +1,5 @@
 ﻿using Arbitrage.General;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,6 +24,25 @@ namespace Arbitrage.Utils
             {
                 Games.Add(x, 0);
             }
+        }
+
+        public void AddOdds(BettingGames bettingGame, double value)
+        {
+            Games[bettingGame] = value;
+        }
+
+        public override string ToString()
+        {
+            string houseStr = House.ToString();
+
+            // TODO add bet prices to houseStr
+
+            return houseStr;
+        }
+
+        public double GetValue(BettingGames bettingGame)
+        {
+            return Games[bettingGame];
         }
     }
 
