@@ -11,7 +11,7 @@ namespace Arbitrage.DataGetters.SoccerBet
 {
     public class SoccerBetParser : Parser
     {
-        private SoccerBetGetter _getter = new SoccerBetGetter();
+        private readonly SoccerBetGetter _getter = new();
 
         public SoccerBetParser() : base(BettingHouses.SoccerBet) { }
 

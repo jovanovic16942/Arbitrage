@@ -57,8 +57,6 @@ namespace Arbitrage.Utils
                 }
             }
 
-            //var games = odds.Where(x => x.GetValue(game) Select(x => new )
-
             return new OddData(bestHouse, game, bestValue);
         }
     }

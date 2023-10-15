@@ -12,14 +12,11 @@ namespace Arbitrage.DataLoader
     internal class DataLoader
     {
         MatchesData? _data;
-
-        IParser _parser;
-        readonly string _name;
+        readonly IParser _parser;
 
         public DataLoader(IParser parser)
         {
             _parser = parser;
-            _name = _parser.GetName();
         }
 
         public MatchesData? GetMatches()
@@ -28,10 +25,10 @@ namespace Arbitrage.DataLoader
         }
 
         public async Task Load() {
-            Console.WriteLine(_name + " download started...");
+            Console.WriteLine(_parser.GetName() + " download started...");
 
             await UpdateData();
-            Console.WriteLine(_name + " download complete");
+            Console.WriteLine(_parser.GetName() + " download complete");
         }
 
         private async Task UpdateData()

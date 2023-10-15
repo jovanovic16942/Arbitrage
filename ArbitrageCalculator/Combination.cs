@@ -19,7 +19,7 @@ namespace Arbitrage.ArbitrageCalculator
 
         public List<OddData> oddData;
 
-        public double MaxProfit = 0.0;
+        public double MaxProfit;
 
         public List<Participant> Teams;
 
