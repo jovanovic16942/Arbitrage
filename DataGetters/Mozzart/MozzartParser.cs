@@ -16,16 +16,21 @@ namespace Arbitrage.DataGetters.Mozzart
 
         protected override void UpdateData(DateTime dateTime)
         {
-            var respMatches = _getter.GetMatches(dateTime);
+            int days = 3;
 
-            //removed matches that expect n+ games in one ticket
-            respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
+            for (int i = 0; i < days; i++)
+            {
+                var respMatches = _getter.GetMatches(DateTime.Now.AddDays(i));
 
-            UpdateMatches(respMatches);
+                //removed matches that expect n+ games in one ticket
+                respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
 
-            var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
-            var respOdds = _getter.GetOdds(matchIDs);
-            UpdateOdds(respOdds);
+                UpdateMatches(respMatches);
+
+                var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
+                var respOdds = _getter.GetOdds(matchIDs);
+                UpdateOdds(respOdds);
+            }
         }
 
         private void UpdateMatches(JsonMatchResponse resp)
@@ -75,7 +80,19 @@ namespace Arbitrage.DataGetters.Mozzart
                     BettingGames game;
                     if (betGameFromString.TryGetValue(subGameName, out game))
                     {
-                        _data.UpdateMatchSubgame(matchId, game, betValue);
+                        try
+                        {
+                            _data.UpdateMatchSubgame(matchId, game, betValue);
+                        } 
+                        catch (ArgumentException e)
+                        {
+                            Console.WriteLine("Exception thrown in UpdateMatchSubgame (MozzartParser):");
+                            Console.WriteLine("BettingGame: " + game.ToString());
+                            Console.WriteLine("Incoming value: " + betValue);
+                            Console.WriteLine("Previous value: " + _data.GetSubgameValue(matchId, game));
+                            Console.WriteLine(e.ParamName);
+                            Console.WriteLine(e.Message);
+                        }
                     }
 
                 }

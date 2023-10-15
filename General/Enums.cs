@@ -10,6 +10,7 @@ namespace Arbitrage.General
     {
         Mozzart,
         Meridian,
+        MaxBet,
         DefaultHouse // Dummy house
     }
 

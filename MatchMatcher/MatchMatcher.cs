@@ -26,6 +26,14 @@ namespace Arbitrage.MatchMatcher
                 {
                     MatchMatch(matchedMatches, match, betHouse);
                 }
+
+                foreach (var match in matchedMatches)
+                {
+                    if (match.odds.Count > 1) 
+                    {
+                        
+                    }
+                }
             }
 
             return matchedMatches;
@@ -61,8 +69,22 @@ namespace Arbitrage.MatchMatcher
 
             foreach (var potentialMatch in filteredMatches) 
             {
+                if (potentialMatch.odds.Any(x => x.House == house))
+                {
+                    Console.WriteLine("Warning: Values already inserted for " + house.ToString());
+                    Console.WriteLine();
+                    //continue;
+                }
+
                 if (CompareEvents(ev, potentialMatch))
                 {
+                    if (potentialMatch.odds.Any(x => x.House == house))
+                    {
+                        Console.WriteLine("Warning: Values already inserted for " + house.ToString());
+                        Console.WriteLine();
+                        continue;
+                    }
+
                     File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
                     File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", potentialMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
                     potentialMatch.odds.Add(odds);

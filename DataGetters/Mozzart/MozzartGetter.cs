@@ -4,6 +4,7 @@ using RestSharp;
 
 namespace Arbitrage.DataGetters.Mozzart
 {
+
     public class MozzartGetter
     {
         public JsonMatchResponse GetMatches(DateTime? date)

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Arbitrage.ArbitrageCalculator;
+using Arbitrage.DataGetters.MaxBet;
 
 // TODO Skidanje ostalih kvota sa meridijana !!!
 
@@ -23,53 +24,38 @@ using Arbitrage.ArbitrageCalculator;
 //var a = 1 + 2;
 
 
+Console.WriteLine("Downloading Mozzart...");
 DataLoader loaderMozzart = new DataLoader(new MozzartParser());
 MatchesData mozzartData = loaderMozzart.GetMatches(DateTime.Now);
+Console.WriteLine("Mozzart complete");
 
-
+Console.WriteLine("Downloading Meridian...");
 DataLoader loaderMeridian = new DataLoader(new MeridianParser());
 MatchesData meridianData = loaderMeridian.GetMatches(DateTime.Now);
+Console.WriteLine("Meridian complete");
 
 
-DataLoader loaderMozzart2 = new DataLoader(new MozzartParser());
-MatchesData mozzartData2 = loaderMozzart2.GetMatches(DateTime.Now.AddDays(1));
+Console.WriteLine("Downloading MaxBet...");
+DataLoader loaderMaxBet = new DataLoader(new MaxBetParser());
+MatchesData maxbetData = loaderMaxBet.GetMatches(DateTime.Now);
+Console.WriteLine("MaxBet complete");
 
 
-mozzartData.InsertRange(mozzartData2.GetMatches());
-
-//var matchesMozzart = mozzartData.GetMatches().OrderBy(x => x.StartTime).ThenBy(x => x.Team1.Name).ToList();
-//matchesMozzart.AddRange(mozzartData2.GetMatches().OrderBy(x => x.StartTime).ThenBy(x => x.Team1.Name).ToList());
-
-//var matchesMeridian = meridianData.GetMatches().OrderBy(x => x.StartTime).ThenBy(x => x.Team1.Name).ToList();
-
-//matchesMozzart.ForEach(x => File.AppendAllText("..\\..\\..\\Temp\\mozzartMatches.txt", x.ToString() + Environment.NewLine));
-//matchesMeridian.ForEach(x => File.AppendAllText("..\\..\\..\\Temp\\meridianMatches.txt", x.ToString() + Environment.NewLine));
-
-
-
-
-//foreach (Match match in matchesMozzart)
-//{
-//    File.AppendAllText("..\\..\\..\\Temp\\mozzartTeams.txt", match.Team1.Name + Environment.NewLine);
-//    File.AppendAllText("..\\..\\..\\Temp\\mozzartTeams.txt", match.Team2.Name + Environment.NewLine);
-//}
-
-//foreach (Match match in matchesMeridian)
-//{
-//    File.AppendAllText("..\\..\\..\\Temp\\meridianTeams.txt", match.Team1.Name + Environment.NewLine);
-//    File.AppendAllText("..\\..\\..\\Temp\\meridianTeams.txt", match.Team2.Name + Environment.NewLine);
-//}
 
 
 var unmatched = new List<MatchesData>
 {
     mozzartData,
-    meridianData
+    meridianData,
+    maxbetData,
 };
 
 var matched = MatchMatcher.MatchMatches(unmatched);
 
 var success = matched.Where(x => x.odds.Count > 1).ToList();
+
+var extraSucess = matched.Where(x => x.odds.Count > 2).ToList();
+
 //var fail = matched.Where(x => x.odds.Count <= 1).ToList();
 
 

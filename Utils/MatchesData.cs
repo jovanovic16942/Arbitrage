@@ -24,6 +24,12 @@ namespace Arbitrage.Utils
             ShortName = shortname;
             Description = description;
         }
+        public Participant(string name)
+        {
+            Id = 0;
+            Name = name;
+            ShortName = name;
+        }
     }
 
     public class SubGame
@@ -54,6 +60,18 @@ namespace Arbitrage.Utils
         public Match(int matchId, long startTimeMilis, Participant participant1, Participant participant2)
         {
             MatchId = matchId;
+
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(2);
+
+            Team1 = participant1;
+            Team2 = participant2;
+
+        }
+
+        public Match(long startTimeMilis, Participant participant1, Participant participant2)
+        {
+            MatchId = 0;
 
             DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
             StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(2);
@@ -123,6 +141,14 @@ namespace Arbitrage.Utils
             match.AddBetGame(betGame, value);
         }
 
+        public double GetSubgameValue(int matchID, BettingGames betGame)
+        {
+            var match = Matches.FirstOrDefault(x => x.MatchId == matchID);
+
+            if (match == null) return 0;
+
+            return match.BetGames[betGame];
+        }
     }
 
     //MatchesData() -> Matches -> foodbal
