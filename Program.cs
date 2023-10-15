@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Arbitrage.ArbitrageCalculator;
 using Arbitrage.DataGetters.MaxBet;
+using Arbitrage.DataGetters.Admiralbet;
+using Arbitrage.DataGetters.AdmiralBet;
 
 // TODO Skidanje ostalih kvota sa meridijana !!!
 
@@ -23,6 +25,11 @@ using Arbitrage.DataGetters.MaxBet;
 
 //var a = 1 + 2;
 
+
+Console.WriteLine("Downloading Admiral...");
+DataLoader loaderAdmiral = new DataLoader(new AdmiralBetParser());
+MatchesData admiralData = loaderAdmiral.GetMatches(DateTime.Now);
+Console.WriteLine("Admiral complete");
 
 Console.WriteLine("Downloading Mozzart...");
 DataLoader loaderMozzart = new DataLoader(new MozzartParser());
@@ -47,6 +54,7 @@ var unmatched = new List<MatchesData>
     mozzartData,
     meridianData,
     maxbetData,
+    admiralData
 };
 
 var matched = MatchMatcher.MatchMatches(unmatched);
@@ -63,3 +71,7 @@ var arb = new ArbitrageCalculator();
 arb.GetResults(success);
 
 int a = success.Count;
+
+var nesto = mozzartData.GetMatches().Where(x => x.StartTime == new DateTime(2023, 10, 23, 19, 0, 0)).ToList();
+
+int b = success.Count;

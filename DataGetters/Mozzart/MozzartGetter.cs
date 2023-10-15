@@ -24,9 +24,9 @@ namespace Arbitrage.DataGetters.Mozzart
             // add request body
             var requestBody = new
             {
-                activeCompleteOffer = false,
+                activeCompleteOffer = true,
                 competitionIds = new object[] { },
-                date = date.Value.ToString("yyyy-MM-dd"),
+                date = "all",
                 lang = "sr",
                 mostPlayed = false,
                 numberOfGames = 0,
