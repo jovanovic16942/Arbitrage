@@ -16,7 +16,7 @@ namespace Arbitrage.DataGetters.Mozzart
 
         protected override void UpdateData(DateTime dateTime)
         {
-            int days = 3;
+            int days = 1;
 
             for (int i = 0; i < days; i++)
             {

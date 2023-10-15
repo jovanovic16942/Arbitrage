@@ -34,7 +34,6 @@ DataLoader loaderMeridian = new DataLoader(new MeridianParser());
 MatchesData meridianData = loaderMeridian.GetMatches(DateTime.Now);
 Console.WriteLine("Meridian complete");
 
-
 Console.WriteLine("Downloading MaxBet...");
 DataLoader loaderMaxBet = new DataLoader(new MaxBetParser());
 MatchesData maxbetData = loaderMaxBet.GetMatches(DateTime.Now);

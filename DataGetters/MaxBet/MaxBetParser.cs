@@ -24,6 +24,11 @@ namespace Arbitrage.DataGetters.MaxBet
 
             foreach (var leagueID in leagueIDs)
             {
+                //specials
+                if(leagueID == "138547")
+                {
+                    continue;
+                }
                 JsonMatchResponse resp = _getter.GetMatches(leagueID);
                 if (resp == null)
                 {

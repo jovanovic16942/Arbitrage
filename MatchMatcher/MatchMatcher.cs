@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,14 +26,6 @@ namespace Arbitrage.MatchMatcher
                 foreach (var match in matches)
                 {
                     MatchMatch(matchedMatches, match, betHouse);
-                }
-
-                foreach (var match in matchedMatches)
-                {
-                    if (match.odds.Count > 1) 
-                    {
-                        
-                    }
                 }
             }
 
@@ -61,30 +54,30 @@ namespace Arbitrage.MatchMatcher
             ev.odds.Add(odds);
 
             // Find matching event
-
             bool foundMatch = false;
 
-            // Filter by start time
-            var filteredMatches = matched.Where(x => x.startTime.Equals(ev.startTime)).ToList();
+            /* Filter potential matches based on:
+             * 1. Start time
+             * 2. Whether potential match was already filled with data from current bet house
+            */
+            Func<EventData, bool> matchFilter = candidate =>
+            {
+                List<bool> conditions = new List<bool>()
+                {
+                    candidate.startTime.Equals(ev.startTime),
+                    !candidate.odds.Any(x => x.House == house)
+                };
+
+                return conditions.All(x => x);
+            };
+
+            // Filter matches
+            var filteredMatches = matched.Where(x => matchFilter(x)).ToList();
 
             foreach (var potentialMatch in filteredMatches) 
             {
-                if (potentialMatch.odds.Any(x => x.House == house))
-                {
-                    Console.WriteLine("Warning: Values already inserted for " + house.ToString());
-                    Console.WriteLine();
-                    //continue;
-                }
-
                 if (CompareEvents(ev, potentialMatch))
                 {
-                    if (potentialMatch.odds.Any(x => x.House == house))
-                    {
-                        Console.WriteLine("Warning: Values already inserted for " + house.ToString());
-                        Console.WriteLine();
-                        continue;
-                    }
-
                     File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
                     File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", potentialMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
                     potentialMatch.odds.Add(odds);
@@ -140,9 +133,6 @@ namespace Arbitrage.MatchMatcher
         private static bool MatchTokens(string A, string B)
         {
             bool matching = false;
-
-            //A = new string(A.Where(char.IsLetter).ToArray());
-            //B = new string(B.Where(char.IsLetter).ToArray());
 
             if (A == B)
             {

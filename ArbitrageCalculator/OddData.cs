@@ -16,6 +16,12 @@ namespace Arbitrage.ArbitrageCalculator
             this.value = value;
         }
 
+        public override string ToString()
+        {
+            string sep = " ";
+            return house.ToString() + sep + game.ToString() + sep + value.ToString();
+        }
+
         public BettingHouses house;
         public BettingGames game;
         public double value;
