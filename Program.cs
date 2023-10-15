@@ -68,7 +68,7 @@ var extraSucess = matched.Where(x => x.odds.Count > 2).ToList();
 
 var arb = new ArbitrageCalculator();
 
-arb.GetResults(success);
+var res = arb.GetResults(success);
 
 int a = success.Count;
 

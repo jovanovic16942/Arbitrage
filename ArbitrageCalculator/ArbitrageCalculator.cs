@@ -10,14 +10,18 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class ArbitrageCalculator
     {
+        private List<Combination> winningCombos = new();
+
         public ArbitrageCalculator() { }
 
-        public void GetResults(List<EventData> events)
+        public List<Combination> GetResults(List<EventData> events)
         {
             foreach (EventData eventData in events)
             {
                 ProcessEvent(eventData);
             }
+
+            return winningCombos.OrderByDescending(x => x.MaxProfit).ToList();
         }
 
         public void ProcessEvent(EventData eventData)
@@ -45,6 +49,7 @@ namespace Arbitrage.ArbitrageCalculator
                 if (arbScore > 0.0)
                 {
                     PrintSuccess(eventData, combination, arbScore);
+                    winningCombos.Add(new Combination(combination, arbScore, eventData.teams, eventData.startTime));
                 }
             }
         }
