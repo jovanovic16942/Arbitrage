@@ -14,13 +14,11 @@ namespace Arbitrage.DataGetters.Meridian
     {
         public MeridianGetter() { }
 
-        public List<JsonMatchResponse> GetMatches(DateTime? date)
+        public List<JsonMatchResponse> GetMatches()
         {
             var responses = new List<JsonMatchResponse>();
 
-            date ??= DateTime.Now;
-
-            string formattedDateTime = date.Value.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            string formattedDateTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
             string baseUrl = "https://meridianbet.rs/sails/sport/58/date/";
             string urlFilter = "/filter/oneDay/offset/";

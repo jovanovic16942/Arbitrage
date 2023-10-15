@@ -7,10 +7,8 @@ namespace Arbitrage.DataGetters.Mozzart
 
     public class MozzartGetter
     {
-        public JsonMatchResponse GetMatches(DateTime? date)
+        public JsonMatchResponse GetMatches()
         {
-            date ??= DateTime.Now;
-
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
 

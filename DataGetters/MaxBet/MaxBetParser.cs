@@ -18,7 +18,7 @@ namespace Arbitrage.DataGetters.MaxBet
             _data = new MatchesData(BettingHouses.MaxBet);
         }
 
-        protected override void UpdateData(DateTime dateTime)
+        protected override void UpdateData()
         {
             var leagueIDs = _getter.GetLeagues();
 

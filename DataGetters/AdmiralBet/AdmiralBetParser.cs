@@ -20,7 +20,7 @@ namespace Arbitrage.DataGetters.AdmiralBet
             _data = new MatchesData(BettingHouses.AdmiralBet);
         }
 
-        protected override void UpdateData(DateTime dateTime)
+        protected override void UpdateData()
         {
             var matchResponses = _getter.GetMatches();
 

@@ -21,9 +21,9 @@ namespace Arbitrage.DataGetters.Meridian
             _data = new MatchesData(BettingHouses.Meridian);
         }
 
-        protected override void UpdateData(DateTime dateTime)
+        protected override void UpdateData()
         {
-            var responses = _getter.GetMatches(dateTime);
+            var responses = _getter.GetMatches();
 
             foreach (var response in responses )
             {

@@ -14,23 +14,18 @@ namespace Arbitrage.DataGetters.Mozzart
             _data = new MatchesData(BettingHouses.Mozzart);
         }
 
-        protected override void UpdateData(DateTime dateTime)
+        protected override void UpdateData()
         {
-            int days = 1;
+            var respMatches = _getter.GetMatches();
 
-            for (int i = 0; i < days; i++)
-            {
-                var respMatches = _getter.GetMatches(DateTime.Now.AddDays(i));
+            //removed matches that expect n+ games in one ticket
+            respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
 
-                //removed matches that expect n+ games in one ticket
-                respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
+            UpdateMatches(respMatches);
 
-                UpdateMatches(respMatches);
-
-                var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
-                var respOdds = _getter.GetOdds(matchIDs);
-                UpdateOdds(respOdds);
-            }
+            var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
+            var respOdds = _getter.GetOdds(matchIDs);
+            UpdateOdds(respOdds);
         }
 
         private void UpdateMatches(JsonMatchResponse resp)

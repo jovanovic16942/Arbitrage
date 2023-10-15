@@ -15,22 +15,29 @@ namespace Arbitrage.DataLoader
 
         IParser _parser;
 
-        public DataLoader(IParser parser) {
-            _parser = parser;
-        }
+        string _name;
 
-        public MatchesData GetMatches(DateTime? dateTime) {
-
-            dateTime ??= DateTime.Now;
-
-            UpdateData(dateTime.Value);
-
-            return _data!;
-        }
-
-        private void UpdateData(DateTime dateTime)
+        public DataLoader(IParser parser, string name)
         {
-            _data = _parser.GetMatches(dateTime);
+            _parser = parser;
+            _name = name;
+        }
+
+        public MatchesData? GetMatches()
+        {
+            return _data;
+        }
+
+        public async Task Load() {
+            Console.WriteLine(_name + " download started...");
+
+            await UpdateData();
+            Console.WriteLine(_name + " download complete");
+        }
+
+        private async Task UpdateData()
+        {
+            _data = _parser.Parse();
 
             // TODO update database
         }

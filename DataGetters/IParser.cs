@@ -5,6 +5,10 @@ namespace Arbitrage.DataGetters
 {
     public interface IParser
     {
-        MatchesData GetMatches(DateTime dateTime);
+        /// <summary>
+        /// This method uses DataGetter internally and parses resulting JSON data
+        /// </summary>
+        /// <returns>MatchesData structure that contains list of matches</returns>
+        MatchesData Parse();
     }
 }

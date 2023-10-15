@@ -12,9 +12,9 @@ namespace Arbitrage.DataGetters
     {
         protected MatchesData _data;
 
-        public MatchesData GetMatches(DateTime dateTime)
+        public MatchesData Parse()
         {
-            UpdateData(dateTime);
+            UpdateData();
 
             return _data;
         }
@@ -22,7 +22,6 @@ namespace Arbitrage.DataGetters
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dateTime"></param>
-        protected abstract void UpdateData(DateTime dateTime);
+        protected abstract void UpdateData();
     }
 }
