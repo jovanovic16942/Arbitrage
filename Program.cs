@@ -12,29 +12,19 @@ using Arbitrage.ArbitrageCalculator;
 using Arbitrage.DataGetters.MaxBet;
 using Arbitrage.DataGetters.Admiralbet;
 using Arbitrage.DataGetters.AdmiralBet;
+using Arbitrage.DataGetters.SoccerBet;
 
 // TODO Skidanje ostalih kvota sa meridijana !!!
-
-
 // TODO LOGGING
-//var log = Logger.GetLogger();
-
-//log.LogDebug("This is a debug");
-//log.LogInformation("This is an information");
-//log.LogWarning("This is a warning");
-//log.LogError("This is an error");
-//log.LogCritical("This is a critical");
-
-//var a = 1 + 2;
-
 
 // Prepare data loaders
 List<DataLoader> dataLoaders = new List<DataLoader>()
 {
-    new DataLoader(new AdmiralBetParser(), "Admiral"),
     new DataLoader(new MozzartParser(), "Mozzart"),
     new DataLoader(new MeridianParser(), "Meridian"),
-    new DataLoader(new MaxBetParser(), "MaxBet")
+    new DataLoader(new MaxBetParser(), "MaxBet"),
+    new DataLoader(new AdmiralBetParser(), "Admiral"),
+    new DataLoader(new SoccerBetParser(), "SoccerBet")
 };
 
 // Load the data in parallel

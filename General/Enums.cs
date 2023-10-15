@@ -12,6 +12,7 @@ namespace Arbitrage.General
         Meridian,
         MaxBet,
         AdmiralBet,
+        SoccerBet,
         DefaultHouse // Dummy house
     }
 

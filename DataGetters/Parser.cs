@@ -10,6 +10,7 @@ namespace Arbitrage.DataGetters
 {
     public abstract class Parser : IParser
     {
+        // TODO for all parsers - check if responses are null everywhere - handle exceptions and runtime errors
         protected MatchesData _data;
 
         public MatchesData Parse()
