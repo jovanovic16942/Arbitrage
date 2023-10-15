@@ -14,18 +14,15 @@ namespace Arbitrage.DataGetters.Meridian
 
     internal class MeridianParser : Parser
     {
-        private MeridianGetter _getter = new MeridianGetter();
+        private readonly MeridianGetter _getter = new();
 
-        public MeridianParser() 
-        {
-            _data = new MatchesData(BettingHouses.Meridian);
-        }
+        public MeridianParser(): base(BettingHouses.Meridian) { }
 
         protected override void UpdateData()
         {
             var responses = _getter.GetMatches();
 
-            foreach (var response in responses )
+            foreach (var response in responses)
             {
                 foreach (var ev in response.events)
                 {
@@ -50,6 +47,7 @@ namespace Arbitrage.DataGetters.Meridian
             {
                 var match = new Utils.Match(startTime, participant1, participant2);
 
+                // Add odds
                 foreach (var sel in ev.standardShortMarkets) 
                 {
                     if(sel == null) continue;
@@ -71,7 +69,7 @@ namespace Arbitrage.DataGetters.Meridian
                     }
                 }
 
-                    _data.Insert(match);
+                _data.Insert(match);
             }
             else
             {

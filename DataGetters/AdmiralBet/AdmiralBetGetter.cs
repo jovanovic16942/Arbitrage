@@ -21,6 +21,7 @@ namespace Arbitrage.DataGetters.Admiralbet
 
             while (true)
             {
+                //Console.WriteLine("AdmiralBetGetter page offset: " + offset);
                 var respose = GetPage(offset);
 
                 if (respose == null || respose.competitions == null || respose.competitions.Count == 0) 
@@ -31,6 +32,8 @@ namespace Arbitrage.DataGetters.Admiralbet
                 matches.Add(respose);
 
                 offset += 25;
+
+                Thread.Sleep(General.Constants.SleepTime);
             }
 
             return matches;
@@ -38,7 +41,6 @@ namespace Arbitrage.DataGetters.Admiralbet
 
         private JsonMatchResponse GetPage(int offset, int perPage = 25)
         {
-            Thread.Sleep(General.Constants.SleepTime);
             string footballUrl = "https://sport-webapi.admiralbet.rs/SportBookCacheWeb/api/offer/competitionsWithEventsStartingSoonForSportV2/"
                 + perPage + "/" + offset +
                 "/false/2026-07-11T13:02:32.666/1";

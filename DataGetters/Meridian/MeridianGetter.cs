@@ -36,6 +36,7 @@ namespace Arbitrage.DataGetters.Meridian
 
                 responses.Add(response);
 
+                //Console.WriteLine("MeridianGetter request offset: " + offset);
                 Thread.Sleep(Constants.SleepTime);
             }
 

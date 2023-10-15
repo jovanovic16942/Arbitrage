@@ -7,12 +7,9 @@ namespace Arbitrage.DataGetters.Mozzart
 {
     public class MozzartParser : Parser
     {
-        private MozzartGetter _getter = new MozzartGetter();
+        private readonly MozzartGetter _getter = new();
 
-        public MozzartParser()
-        {
-            _data = new MatchesData(BettingHouses.Mozzart);
-        }
+        public MozzartParser() : base(BettingHouses.Mozzart) { }
 
         protected override void UpdateData()
         {
@@ -38,10 +35,12 @@ namespace Arbitrage.DataGetters.Mozzart
                     var p1 = participants[0];
                     var p2 = participants[1];
 
-                    var participant1 = new Utils.Participant(p1.Id, p1.Name, p1.ShortName, p1.Description);
-                    var participant2 = new Utils.Participant(p2.Id, p2.Name, p2.ShortName, p2.Description);
+                    var participant1 = new Participant(p1.Id, p1.Name, p1.ShortName, p1.Description);
+                    var participant2 = new Participant(p2.Id, p2.Name, p2.ShortName, p2.Description);
 
-                    _data.Insert(new Utils.Match(match.Id, match.StartTime, participant1, participant2));
+                    DateTime startTime = DateTimeConverter.DateTimeFromLong(match.StartTime, 2);
+
+                    _data.Insert(new Utils.Match(match.Id, startTime, participant1, participant2));
                 }
                 catch
                 {
@@ -94,7 +93,8 @@ namespace Arbitrage.DataGetters.Mozzart
             }
         }
 
-        static Dictionary<string, BettingGames> betGameFromString = new Dictionary<string, BettingGames> { 
+        static readonly Dictionary<string, BettingGames> betGameFromString = new()
+        { 
             {"1", BettingGames._1 }, 
             {"X", BettingGames._X }, 
             {"2", BettingGames._2 }, 

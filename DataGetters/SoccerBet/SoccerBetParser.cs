@@ -13,41 +13,48 @@ namespace Arbitrage.DataGetters.SoccerBet
     {
         private SoccerBetGetter _getter = new SoccerBetGetter();
 
-        public SoccerBetParser()
+        public SoccerBetParser() : base(BettingHouses.SoccerBet) { }
+
+        private void ParseMatch(JsonMatch jsonMatch)
         {
-            _data = new MatchesData(BettingHouses.SoccerBet);
+            Participant participant1 = new(jsonMatch.home.Trim());
+
+            Participant participant2 = new(jsonMatch.away.Trim());
+
+            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 2);
+
+            var match = new Match(startTime, participant1, participant2);
+
+            // Add odds
+            foreach (var x in jsonMatch.betMap.Values)
+            {
+                var oddJson = x.Values.First();
+                var bpc = oddJson.bpc;
+
+                if (betGameFromBPC.Keys.Contains(bpc))
+                {
+                    match.AddBetGame(betGameFromBPC[bpc], oddJson.ov);
+                }
+            }
+
+            _data.Insert(match);
         }
+
         protected override void UpdateData()
         {
             var resp = _getter.GetMatches();
 
             foreach (var jsonMatch in resp.esMatches)
             {
-                Participant participant1 = new Participant(jsonMatch.home.Trim());
-                
-                Participant participant2 = new Participant(jsonMatch.away.Trim());
-
-                DateTime dateTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime);
-
-                var match = new Match(jsonMatch.kickOffTime, participant1, participant2);
-
-                foreach (var x in jsonMatch.betMap.Values)
-                {
-                    var oddJson = x.Values.First();
-                    var bpc = oddJson.bpc;
-
-                    if (betGameFromBPC.Keys.Contains(bpc))
-                    {
-                        match.AddBetGame(betGameFromBPC[bpc], oddJson.ov);
-                    }
-                }
-
-                _data.Insert(match);
+                ParseMatch(jsonMatch);
             }
         }
 
-        // Map betGames from json response bpc to BettingGames enum
-        static Dictionary<int, BettingGames> betGameFromBPC = new Dictionary<int, BettingGames> {
+        /// <summary>
+        /// Map betGames from json response bpc to BettingGames enum
+        /// </summary>
+        static readonly Dictionary<int, BettingGames> betGameFromBPC = new()
+        {
             {92212, BettingGames._1 },
             {92213, BettingGames._X },
             {92214, BettingGames._2 },

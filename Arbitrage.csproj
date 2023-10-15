@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SavedResponses\**" />
+    <EmbeddedResource Remove="SavedResponses\**" />
+    <None Remove="SavedResponses\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
@@ -20,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Temp\" />
-    <Folder Include="SavedResponses\Mozzart\" />
   </ItemGroup>
 
 </Project>

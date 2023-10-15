@@ -82,6 +82,7 @@ namespace Arbitrage.DataGetters.Mozzart
 
                 result.AddRange(oddsResponse);
 
+                //Console.WriteLine("MozzartGetter GetOdds iteration: " + i);
                 Thread.Sleep(Constants.SleepTime);
             }
 
@@ -89,22 +90,7 @@ namespace Arbitrage.DataGetters.Mozzart
             return result;
         }
 
-        //public void InsertTeams()
-        //{
-        //    List<Team> teams = new List<Team>();
-
-        //    foreach (var match in mozzartData)
-        //    {
-        //        teams.Add(new Team { Name = match.Participant1.Name, ShortName = match.Participant1.ShortName });
-        //        teams.Add(new Team { Name = match.Participant2.Name, ShortName = match.Participant2.ShortName });
-        //    }
-
-        //    teams = teams.DistinctBy(x => x.Name).ToList();
-
-        //    ArbitrageDb.Instance().InsertTeams(teams);
-        //}
-
-        static List<string> subgamesIds = new List<string>
+        static readonly List<string> subgamesIds = new()
         {
             "1001001001",
             "1001001002",
@@ -144,4 +130,3 @@ namespace Arbitrage.DataGetters.Mozzart
 
     }
 }
-//7087955

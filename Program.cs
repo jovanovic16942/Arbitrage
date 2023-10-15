@@ -20,17 +20,17 @@ using Arbitrage.DataGetters.SoccerBet;
 // Prepare data loaders
 List<DataLoader> dataLoaders = new List<DataLoader>()
 {
-    new DataLoader(new MozzartParser(), "Mozzart"),
-    new DataLoader(new MeridianParser(), "Meridian"),
-    new DataLoader(new MaxBetParser(), "MaxBet"),
-    new DataLoader(new AdmiralBetParser(), "Admiral"),
-    new DataLoader(new SoccerBetParser(), "SoccerBet")
+    new DataLoader(new MozzartParser()),
+    new DataLoader(new MeridianParser()),
+    new DataLoader(new MaxBetParser()),
+    new DataLoader(new AdmiralBetParser()),
+    new DataLoader(new SoccerBetParser())
 };
 
 // Load the data in parallel
 Parallel.ForEach(dataLoaders, loader =>
 {
-    loader.Load();
+    _ = loader.Load();
 });
 
 var unmatched = dataLoaders.Select(x => x.GetMatches()).Where(x => x != null).ToList();

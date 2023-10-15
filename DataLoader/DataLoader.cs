@@ -14,13 +14,12 @@ namespace Arbitrage.DataLoader
         MatchesData? _data;
 
         IParser _parser;
+        readonly string _name;
 
-        string _name;
-
-        public DataLoader(IParser parser, string name)
+        public DataLoader(IParser parser)
         {
             _parser = parser;
-            _name = name;
+            _name = _parser.GetName();
         }
 
         public MatchesData? GetMatches()

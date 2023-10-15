@@ -11,24 +11,43 @@ namespace Arbitrage.DataGetters.MaxBet
 {
     internal class MaxBetParser : Parser
     {
-        private MaxBetGetter _getter = new MaxBetGetter();
+        private readonly MaxBetGetter _getter = new();
 
-        public MaxBetParser()
+        public MaxBetParser() : base(BettingHouses.MaxBet) { }
+
+        private void ParseMatch(JsonMatch jsonMatch)
         {
-            _data = new MatchesData(BettingHouses.MaxBet);
+            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 2);
+
+            Participant participant1 = new(jsonMatch.home);
+            Participant participant2 = new(jsonMatch.away);
+
+            Match match = new(startTime, participant1, participant2);
+
+            // Add odds
+            foreach (var (id, betGame) in betGameFromInt)
+            {
+                if (jsonMatch.odds.ContainsKey(id))
+                {
+                    match.AddBetGame(betGame, jsonMatch.odds[id]);
+                }
+            }
+
+            _data.Insert(match);
         }
 
-        protected override void UpdateData()
+        private void ParseLeagues(List<string> leagueIDs)
         {
-            var leagueIDs = _getter.GetLeagues();
-
             foreach (var leagueID in leagueIDs)
             {
                 //specials
-                if(leagueID == "138547")
+                if (leagueID == "138547")
                 {
                     continue;
                 }
+
+                //Console.WriteLine("MaxBetParser leagueID: " + leagueID);
+
                 JsonMatchResponse resp = _getter.GetMatches(leagueID);
                 if (resp == null)
                 {
@@ -37,28 +56,22 @@ namespace Arbitrage.DataGetters.MaxBet
 
                 foreach (var match in resp.esMatches)
                 {
-                    //DateTime startTime = new DateTime(match.kickOffTime);
-
-                    Participant participant1 = new Participant(match.home);
-                    Participant participant2 = new Participant(match.away);
-
-                    Match newMatch = new Match(match.kickOffTime, participant1, participant2);
-
-                    foreach (var (id, betGame) in betGameFromString)
-                    { 
-                        if (match.odds.ContainsKey(id))
-                        { 
-                            newMatch.AddBetGame(betGame, match.odds[id]);
-                        }
-                    }
-
-                    _data.Insert(newMatch);
+                    ParseMatch(match);
                 }
             }
-
         }
 
-        static Dictionary<int, BettingGames> betGameFromString = new Dictionary<int, BettingGames> {
+        protected override void UpdateData()
+        {
+            var leagueIDs = _getter.GetLeagues();
+            ParseLeagues(leagueIDs);
+        }
+
+        /// <summary>
+        /// Map bet game id from json response to BettingGames enum
+        /// </summary>
+        static readonly Dictionary<int, BettingGames> betGameFromInt = new()
+        {
             {1, BettingGames._1 },
             {2, BettingGames._X },
             {3, BettingGames._2 },
@@ -67,7 +80,7 @@ namespace Arbitrage.DataGetters.MaxBet
             {24, BettingGames._3_OR_MORE },
             {8, BettingGames._12 },
             {7, BettingGames._1X },
-            {9, BettingGames._X2 } // TODO kvote
+            {9, BettingGames._X2 }
         };
     }
 }

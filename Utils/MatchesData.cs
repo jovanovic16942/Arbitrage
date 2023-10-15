@@ -56,25 +56,17 @@ namespace Arbitrage.Utils
         public Dictionary<BettingGames, double> BetGames { get; } = new Dictionary<BettingGames, double>();
 
 
-        // TODO izbaci ovaj constructor, logika u mozart parser
-        public Match(int matchId, long startTimeMilis, Participant participant1, Participant participant2)
+        /// <summary>
+        /// This constructor is used by MozzartParser, because matchID from json response needs to be saved
+        /// </summary>
+        /// <param name="matchId"></param>
+        /// <param name="startTime"></param>
+        /// <param name="participant1"></param>
+        /// <param name="participant2"></param>
+        public Match(int matchId, DateTime startTime, Participant participant1, Participant participant2)
         {
             MatchId = matchId;
-
-            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
-            StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(2);
-
-            Team1 = participant1;
-            Team2 = participant2;
-
-        }
-
-        public Match(long startTimeMilis, Participant participant1, Participant participant2)
-        {
-            MatchId = 0;
-
-            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
-            StartTime = unixEpoch.AddMilliseconds(startTimeMilis).AddHours(2);
+            StartTime = startTime;
 
             Team1 = participant1;
             Team2 = participant2;

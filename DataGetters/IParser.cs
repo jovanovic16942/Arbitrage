@@ -10,5 +10,11 @@ namespace Arbitrage.DataGetters
         /// </summary>
         /// <returns>MatchesData structure that contains list of matches</returns>
         MatchesData Parse();
+
+        /// <summary>
+        /// Get betting house name
+        /// </summary>
+        /// <returns>string name of current betting house</returns>
+        string GetName();
     }
 }

@@ -28,9 +28,9 @@ namespace Arbitrage.DataGetters.SoccerBet
             return matchResponse;
         }
 
-        public void GetMatchesInLeague(string leagueId)
-        {
-            string url = "https://www.soccerbet.rs/restapi/offer/sr/sport/S/league-group/" + leagueId + "/mob?annex=0&desktopVersion=2.24.46&locale=sr";
-        }
+        //public void GetMatchesInLeague(string leagueId)
+        //{
+        //    string url = "https://www.soccerbet.rs/restapi/offer/sr/sport/S/league-group/" + leagueId + "/mob?annex=0&desktopVersion=2.24.46&locale=sr";
+        //}
     }
 }

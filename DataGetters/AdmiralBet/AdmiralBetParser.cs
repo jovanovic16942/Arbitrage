@@ -13,59 +13,66 @@ namespace Arbitrage.DataGetters.AdmiralBet
 {
     public class AdmiralBetParser : Parser
     {
-        private AdmiralBetGetter _getter = new AdmiralBetGetter();
+        private readonly AdmiralBetGetter _getter = new();
 
-        public AdmiralBetParser()
+        public AdmiralBetParser() : base(BettingHouses.AdmiralBet) { }
+
+        private void ParseMatchEvent(JsonEvent matchEvent)
         {
-            _data = new MatchesData(BettingHouses.AdmiralBet);
+            if (matchEvent.isTopOffer) { return; } // Skip special offfers
+
+            DateTime dt = DateTime.Parse(matchEvent.dateTime).AddHours(2);
+
+            var participants = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
+
+            if (participants.Count < 2) { return; } // For now skip matches with < 2 teams, since football only has 2 teams
+
+            Participant p1 = new(participants[0]);
+            Participant p2 = new(participants[1]);
+
+            Match match = new(dt, p1, p2);
+
+            // Add odds
+            foreach (var betGame in matchEvent.bets)
+            {
+                foreach (var outcome in betGame.betOutcomes)
+                {
+                    if (betGameFromInt.Keys.Contains(outcome.betTypeOutcomeId))
+                    {
+                        match.AddBetGame(betGameFromInt[outcome.betTypeOutcomeId], outcome.odd);
+                    }
+                }
+            }
+
+            _data.Insert(match);
         }
 
+        private void ParseMatchResponse(JsonMatchResponse response)
+        {
+            foreach (var competition in response.competitions)
+            {
+                if (competition.events == null || competition.events.Count == 0) { continue; }
+
+                foreach (var matchEvent in competition.events)
+                {
+                    if (matchEvent == null) { continue; }
+
+                    ParseMatchEvent(matchEvent);
+                }
+            }
+        }
         protected override void UpdateData()
         {
             var matchResponses = _getter.GetMatches();
 
             foreach (var matchResponse in matchResponses)
             {
-                foreach (var competition in matchResponse.competitions)
-                {
-                    if (competition.events == null || competition.events.Count == 0) { continue; }
-
-                    foreach (var matchEvent in competition.events)
-                    {
-
-                        if (matchEvent.isTopOffer) { continue; }
-
-                        DateTime dt = DateTime.Parse(matchEvent.dateTime).AddHours(2);
-
-                        var participants = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
-
-                        if(participants.Count < 2) { continue; }
-
-                        Participant p1 = new Participant(participants[0]);
-                        Participant p2 = new Participant(participants[1]);
-
-                        Match match = new Match(dt, p1, p2);
-
-                        // Add odds
-                        foreach (var betGame in matchEvent.bets)
-                        {
-                            foreach (var outcome in betGame.betOutcomes)
-                            {
-                                if (betGameFromInt.Keys.Contains(outcome.betTypeOutcomeId))
-                                {
-                                    match.AddBetGame(betGameFromInt[outcome.betTypeOutcomeId], outcome.odd);
-                                }
-                            }
-                        }
-
-                        _data.Insert(match);
-
-                    }
-                }
+                ParseMatchResponse(matchResponse);
             }
         }
 
-        static Dictionary<int, BettingGames> betGameFromInt = new Dictionary<int, BettingGames> {
+        static readonly Dictionary<int, BettingGames> betGameFromInt = new()
+        {
             {424, BettingGames._1 },
             {425, BettingGames._X },
             {426, BettingGames._2 },
