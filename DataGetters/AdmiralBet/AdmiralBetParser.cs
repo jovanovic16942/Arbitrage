@@ -39,6 +39,17 @@ namespace Arbitrage.DataGetters.AdmiralBet
                 {
                     if (betGameFromInt.Keys.Contains(outcome.betTypeOutcomeId))
                     {
+                        // Special parsing for over-under with sbv
+                        // TODO refactor to take all odds
+                        if (outcome.betTypeOutcomeId == 429) // under
+                        {
+                            if (outcome.sBV.Trim() != "1.5") { continue; }
+                        }
+                        if (outcome.betTypeOutcomeId == 430) // over
+                        {
+                            if (outcome.sBV.Trim() != "1.5") { continue; }
+                        }
+
                         match.AddBetGame(betGameFromInt[outcome.betTypeOutcomeId], outcome.odd);
                     }
                 }
@@ -76,8 +87,8 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {424, BettingGames._1 },
             {425, BettingGames._X },
             {426, BettingGames._2 },
-            //{0, BettingGames._0_TO_2 },
-            //{0, BettingGames._2_OR_MORE },
+            {429, BettingGames._0_TO_2 },
+            {430, BettingGames._2_OR_MORE },
             //{0, BettingGames._3_OR_MORE },
             {501, BettingGames._12 },
             {500, BettingGames._1X },

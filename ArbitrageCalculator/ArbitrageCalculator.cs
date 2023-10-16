@@ -10,7 +10,7 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class ArbitrageCalculator
     {
-        private List<Combination> winningCombos = new();
+        private List<Combination> _winningCombos = new();
 
         public ArbitrageCalculator() { }
 
@@ -21,11 +21,14 @@ namespace Arbitrage.ArbitrageCalculator
                 ProcessEvent(eventData);
             }
 
-            return winningCombos.OrderByDescending(x => x.MaxProfit).ToList();
+            _winningCombos = _winningCombos.OrderByDescending(x => x.MaxProfit).ToList();
+
+            return _winningCombos;
         }
 
         public void ProcessEvent(EventData eventData)
         {
+            // Get the maximum values for all relevant odds
             var best1 = eventData.GetBestOdd(General.BettingGames._1);
             var bestX = eventData.GetBestOdd(General.BettingGames._X);
             var best2 = eventData.GetBestOdd(General.BettingGames._2);
@@ -34,33 +37,50 @@ namespace Arbitrage.ArbitrageCalculator
             var bestX2 = eventData.GetBestOdd(General.BettingGames._X2);
             var best12 = eventData.GetBestOdd(General.BettingGames._12);
 
+            var bestUnder2 = eventData.GetBestOdd(General.BettingGames._0_TO_2);
+            var bestOver2 = eventData.GetBestOdd(General.BettingGames._2_OR_MORE);
+
+            // Define potential arbitrage combinations
             var combinations = new List<List<OddData>>()
             {
                 new List<OddData>() { best1, bestX, best2 }, // 1 X 2
                 new List<OddData>() { best1, bestX2 }, // 1 X2
                 new List<OddData>() { best1X, best2 }, // 1X 2
                 new List<OddData>() { best12, bestX }, // 12 X
+                new List<OddData>() { bestUnder2, bestOver2 }, // <2 >=2 // TODO check this for every source
             };
 
+            // Calculate score for each combo and save those with positive score
             foreach (var combination in combinations)
             {
                 var arbScore = ArbitrageScore(combination);
 
                 if (arbScore > 0.0)
                 {
-                    PrintSuccess(eventData, combination, arbScore);
-                    winningCombos.Add(new Combination(combination, arbScore, eventData.teams, eventData.startTime));
+                    _winningCombos.Add(new Combination(combination, arbScore, eventData.teams, eventData.startTime));
                 }
             }
         }
 
-
-        public static void PrintSuccess(EventData eventData, List<OddData> combination, double score)
+        public static void PrintAllCombinations(List<Combination> winningCombos, double profit_threshold = 0.0)
         {
-            Console.WriteLine("NASO SAM NASO SAM HAJHAJAJHAHAHA");
-            Console.WriteLine("Maximum profit: " + score.ToString());
-            Console.WriteLine(string.Format("{0} vs {1} @ {2}", eventData.teams[0].Name, eventData.teams[1].Name, eventData.startTime.ToString()));
-            combination.ForEach(x => Console.WriteLine(x.ToString()));
+            foreach (var combination in winningCombos)
+            {
+                if (combination.MaxProfit > profit_threshold)
+                {
+                    PrintCombination(combination);
+                }
+            }
+        }
+
+        public static void PrintCombination(Combination winCombo)
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Winning combination found");
+            Console.WriteLine("Maximum profit: " + winCombo.MaxProfit.ToString());
+            Console.WriteLine(string.Format("{0} vs {1} @ {2}", winCombo.Teams[0].Name, winCombo.Teams[1].Name, winCombo.StartTime.ToString()));
+            winCombo.oddData.ForEach(x => Console.WriteLine(x.ToString()));
+            Console.WriteLine("");
         }
 
         /// <summary>

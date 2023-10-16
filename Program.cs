@@ -27,7 +27,6 @@ Parallel.ForEach(dataLoaders, loader =>
     _ = loader.Load();
 });
 
-
 // Match data from different sources
 var unmatched = dataLoaders.Select(x => x.GetMatches()).Where(x => x != null).ToList();
 var matched = MatchMatcher.MatchMatches(unmatched!);
@@ -37,4 +36,4 @@ var success = matched.Where(x => x.odds.Count > 1).ToList();
 var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
 
-Console.WriteLine(res.Count);
+ArbitrageCalculator.PrintAllCombinations(res);
