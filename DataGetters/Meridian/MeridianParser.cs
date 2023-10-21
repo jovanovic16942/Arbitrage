@@ -95,9 +95,9 @@ namespace Arbitrage.DataGetters.Meridian
             {"x", BettingGames._X },
             {"2", BettingGames._2 },
             {"[[Rival2]]", BettingGames._2 },
-            {"0-2", BettingGames._0_TO_2 },  // TODO pokupiti ispravan string za meridijan kvote //under
-            {"2+", BettingGames._2_OR_MORE },
-            {"3+", BettingGames._3_OR_MORE },
+            {"0-2", BettingGames._UG_0_2 },  // TODO pokupiti ispravan string za meridijan kvote //under
+            {"2+", BettingGames._UG_2_PLUS },
+            {"3+", BettingGames._UG_3_PLUS },
             {"12", BettingGames._12 },
             {"1X", BettingGames._1X },
             {"X2", BettingGames._X2 } // TODO kvote

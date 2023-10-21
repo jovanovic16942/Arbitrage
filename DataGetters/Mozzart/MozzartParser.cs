@@ -66,13 +66,8 @@ namespace Arbitrage.DataGetters.Mozzart
 
                     double betValue = double.Parse(kodd.value); // Kvota
 
-                    // Game/SubGame Mozzart.com data
-                    JsonSubGame sg = kodd.subGame;
-
-                    string subGameName = sg.subGameName.Trim();
-
                     BettingGames game;
-                    if (betGameFromString.TryGetValue(subGameName, out game))
+                    if (betGameFromID.TryGetValue(subGameID.Trim(), out game))
                     {
                         try
                         {
@@ -93,17 +88,32 @@ namespace Arbitrage.DataGetters.Mozzart
             }
         }
 
-        static readonly Dictionary<string, BettingGames> betGameFromString = new()
-        { 
-            {"1", BettingGames._1 }, 
-            {"X", BettingGames._X }, 
-            {"2", BettingGames._2 }, 
-            {"0-2", BettingGames._0_TO_2 }, 
-            {"2+", BettingGames._2_OR_MORE },
-            {"3+", BettingGames._3_OR_MORE }, 
-            {"12", BettingGames._12 }, 
-            {"1X", BettingGames._1X }, 
-            {"X2", BettingGames._X2 }
+        static readonly Dictionary<string, BettingGames> betGameFromID = new()
+        {
+            {"1001130001", BettingGames._GG },
+            {"1001130002", BettingGames._NG },
+            {"1001130004", BettingGames._GG_I },
+            {"1001130010", BettingGames._NG_I },
+            {"1001130005", BettingGames._GG_II },
+            {"1001130011", BettingGames._NG_II },
+            {"1001001001", BettingGames._1 },
+            {"1001001002", BettingGames._X },
+            {"1001001003", BettingGames._2 },
+            {"1001002002", BettingGames._12 },
+            {"1001002001", BettingGames._1X },
+            {"1001002003", BettingGames._X2 },
+            {"1001297002", BettingGames._12_I },
+            {"1001297001", BettingGames._1X_I },
+            {"1001297003", BettingGames._X2_I },
+            {"1001003001", BettingGames._UG_0_1 },
+            {"1001003002", BettingGames._UG_0_2 },
+            {"1001003013", BettingGames._UG_0_3 },
+            {"1001003026", BettingGames._UG_0_4 },
+            {"1001003003", BettingGames._UG_2_3 },
+            {"1001003012", BettingGames._UG_2_PLUS },
+            {"1001003004", BettingGames._UG_3_PLUS },
+            {"1001003005", BettingGames._UG_4_PLUS },
+            {"1001003007", BettingGames._UG_5_PLUS },
         };
     }
 }

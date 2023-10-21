@@ -1,4 +1,5 @@
-﻿using Arbitrage.Utils;
+﻿using Arbitrage.General;
+using Arbitrage.Utils;
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,64 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class ArbitrageCalculator
     {
+
+        public static readonly List<List<BettingGames>> ArbitrageCombinations = new()
+        {
+            // Match result - overall
+            new List<BettingGames>() {BettingGames._1, BettingGames._X, BettingGames._2},
+            new List<BettingGames>() {BettingGames._1X, BettingGames._2},
+            new List<BettingGames>() {BettingGames._12, BettingGames._X},
+            new List<BettingGames>() {BettingGames._1, BettingGames._X2},
+
+            // First half result
+            new List<BettingGames>() {BettingGames._1_I, BettingGames._X_I, BettingGames._2_I},
+            new List<BettingGames>() {BettingGames._1X_I, BettingGames._2_I},
+            new List<BettingGames>() {BettingGames._12_I, BettingGames._X_I},
+            new List<BettingGames>() {BettingGames._1_I, BettingGames._X2_I},
+
+            // Second half result
+            new List<BettingGames>() {BettingGames._1_II, BettingGames._X_II, BettingGames._2_II},
+            new List<BettingGames>() {BettingGames._1X_II, BettingGames._2_II},
+            new List<BettingGames>() {BettingGames._12_II, BettingGames._X_II},
+            new List<BettingGames>() {BettingGames._1_II, BettingGames._X2_II},
+
+            // Goals
+            new List<BettingGames>() {BettingGames._GG, BettingGames._NG},
+            new List<BettingGames>() {BettingGames._GG_I, BettingGames._NG_I},
+            new List<BettingGames>() {BettingGames._GG_II, BettingGames._NG_II},
+
+            // Total goals - overall
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_3, BettingGames._UG_4_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_4, BettingGames._UG_5_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_5, BettingGames._UG_6_PLUS},
+
+            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_3, BettingGames._UG_4_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_4, BettingGames._UG_5_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_5, BettingGames._UG_6_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3_4, BettingGames._UG_5_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3_5, BettingGames._UG_6_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_3, BettingGames._UG_4_5, BettingGames._UG_6_PLUS},
+
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1, BettingGames._UG_2_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_2, BettingGames._UG_3_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_3, BettingGames._UG_4_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_4, BettingGames._UG_5_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_5, BettingGames._UG_6_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2, BettingGames._UG_3_PLUS},
+
+            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3, BettingGames._UG_4_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_3, BettingGames._UG_4, BettingGames._UG_5_PLUS},
+            new List<BettingGames>() {BettingGames._UG_0_4, BettingGames._UG_5, BettingGames._UG_6_PLUS},
+
+            // TODO - Total goals - first half
+            // TODO - Total goals - second half
+            // TODO - Total goals - home team
+            // TODO - Total goals - away team
+        };
+
         private List<Combination> _winningCombos = new();
 
         public ArbitrageCalculator() { }
@@ -28,27 +87,13 @@ namespace Arbitrage.ArbitrageCalculator
 
         public void ProcessEvent(EventData eventData)
         {
-            // Get the maximum values for all relevant odds
-            var best1 = eventData.GetBestOdd(General.BettingGames._1);
-            var bestX = eventData.GetBestOdd(General.BettingGames._X);
-            var best2 = eventData.GetBestOdd(General.BettingGames._2);
+            // Prepare combinations
+            var combinations = new List<List<OddData>>();
 
-            var best1X = eventData.GetBestOdd(General.BettingGames._1X);
-            var bestX2 = eventData.GetBestOdd(General.BettingGames._X2);
-            var best12 = eventData.GetBestOdd(General.BettingGames._12);
-
-            var bestUnder2 = eventData.GetBestOdd(General.BettingGames._0_TO_2);
-            var bestOver2 = eventData.GetBestOdd(General.BettingGames._2_OR_MORE);
-
-            // Define potential arbitrage combinations
-            var combinations = new List<List<OddData>>()
+            foreach (var betGameComb in ArbitrageCombinations)
             {
-                new List<OddData>() { best1, bestX, best2 }, // 1 X 2
-                new List<OddData>() { best1, bestX2 }, // 1 X2
-                new List<OddData>() { best1X, best2 }, // 1X 2
-                new List<OddData>() { best12, bestX }, // 12 X
-                new List<OddData>() { bestUnder2, bestOver2 }, // <2 >=2 // TODO check this for every source
-            };
+                combinations.Add(betGameComb.Select(betGame => eventData.GetBestOdd(betGame)).ToList());
+            }
 
             // Calculate score for each combo and save those with positive score
             foreach (var combination in combinations)

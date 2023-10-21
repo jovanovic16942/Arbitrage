@@ -7,18 +7,52 @@ using Arbitrage.ArbitrageCalculator;
 using Arbitrage.DataGetters.MaxBet;
 using Arbitrage.DataGetters.AdmiralBet;
 using Arbitrage.DataGetters.SoccerBet;
+using Arbitrage.DataGetters.MerkurXTip;
+using Arbitrage.General;
+using Arbitrage.DataGetters.Bet365;
+using Arbitrage.DataGetters.Pinnbet;
+using System.ComponentModel.Design;
+
+void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double investAmount, double initialSum, double profitPerTransaction)
+{
+    double total = initialSum;
+    double totalInvest = initialSum;
+
+    int betsPerMonth = weeklyBets * 4;
+
+    for (int i = 0; i < betsPerMonth * numMonths; i++)
+    {
+        if (i % betsPerMonth == 0 && numInvestments-- > 0) 
+        {
+            total += investAmount;
+            totalInvest += investAmount;
+        }
+
+        total += total * profitPerTransaction / 100;
+
+        if (i % betsPerMonth == 0)
+        {
+            Console.WriteLine("Invest: " + totalInvest);
+            Console.WriteLine("Return: " + total);
+            Console.WriteLine();
+        }
+    }
+}
 
 // TODO Skidanje ostalih kvota sa meridijana !!!
 // TODO LOGGING
+//EstimateProfit(3, 12, 6, 200, 2000, 3);
 
 // Prepare data loaders
-List<DataLoader> dataLoaders = new()
+List <DataLoader> dataLoaders = new()
 {
     new DataLoader(new MozzartParser()),
-    new DataLoader(new MeridianParser()),
+    new DataLoader(new MeridianParser()), // TODO In some cases odds are wrong, multiple instances of same betting game
     new DataLoader(new MaxBetParser()),
     new DataLoader(new AdmiralBetParser()),
-    new DataLoader(new SoccerBetParser())
+    new DataLoader(new SoccerBetParser()),
+    new DataLoader(new MerkurXTipParser()),
+    new DataLoader(new PinnBetParser())
 };
 
 // Load the data in parallel
@@ -37,3 +71,5 @@ var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
 
 ArbitrageCalculator.PrintAllCombinations(res);
+
+var a = 2;

@@ -58,9 +58,9 @@ namespace Arbitrage.DataGetters.SoccerBet
             {92212, BettingGames._1 },
             {92213, BettingGames._X },
             {92214, BettingGames._2 },
-            {92277, BettingGames._0_TO_2 },
-            {92289, BettingGames._2_OR_MORE },
-            {92279, BettingGames._3_OR_MORE },
+            {92277, BettingGames._UG_0_2 }, // TODO CHECK
+            {92289, BettingGames._UG_2_PLUS },
+            {92279, BettingGames._UG_3_PLUS },
             {92216, BettingGames._12 },
             {92215, BettingGames._1X },
             {92217, BettingGames._X2 } // TODO kvote

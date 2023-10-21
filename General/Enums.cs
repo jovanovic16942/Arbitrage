@@ -13,43 +13,22 @@ namespace Arbitrage.General
         MaxBet,
         AdmiralBet,
         SoccerBet,
+        MerkurXTip,
+        PinnBet,
         DefaultHouse // Dummy house
     }
 
     public enum BettingGames
     {
-        // Konacan ishod
+        // Match result
         _1,
         _X,
         _2,
-        // Dupla sansa
         _1X,
         _X2,
         _12,
 
-        // Oba tima daju gol
-        _GG, // oba tima daju barem 1 gol na mecu
-        _NG, // bar 1 tim ne postize gol na mecu
-        _GG1, // oba tima daju barem 1 gol u prvom poluvremenu
-        _NG1, // bar 1 tim ne postize gol u prvom poluvremenu
-        _GG2, // oba tima daju barem 1 gol u drugom poluvremenu
-        _NG2, // bar 1 tim ne postize gol u drugom poluvremenu
-
-        //  Ukupno golova - TODO razmislilit da li ovako ili _X_TO_Y za svaki opseg (mozzart npr ima i [2-4]
-        _OVER_0_5,      // 1+
-        _UNDER_0_5,     // 0
-        _OVER_1_5,      // 2+
-        _UNDER_1_5,     // [0-1]
-        _OVER_2_5,      // 3+
-        _UNDER_2_5,     // [0-2]
-                        // ...
-
-        // TODO izbaci ova 3
-        _0_TO_2,
-        _2_OR_MORE,
-        _3_OR_MORE,
-
-        // Prvo poluvreme
+        // First half result
         _1_I,
         _X_I,
         _2_I,
@@ -57,13 +36,62 @@ namespace Arbitrage.General
         _X2_I,
         _12_I,
 
-        // Drugo poluvreme
+        // Second half result
         _1_II,
         _X_II,
         _2_II,
         _1X_II,
         _X2_II,
         _12_II,
+
+        // Both teams score - At least one doesn't
+        _GG,
+        _NG,
+        _GG_I,
+        _NG_I,
+        _NG_II,
+        _GG_II,
+
+        // _UG_X_Y = Total goals in [X, Y] inclusive
+        _UG_0_1,
+        _UG_0_2,
+        _UG_0_3,
+        _UG_0_4,
+        _UG_0_5,
+        _UG_0_6,
+        _UG_1_2,
+        _UG_1_3,
+        _UG_1_4,
+        _UG_1_5,
+        _UG_1_6,
+        _UG_2_3,
+        _UG_2_4,
+        _UG_2_5,
+        _UG_2_6,
+        _UG_3_4,
+        _UG_3_5,
+        _UG_3_6,
+        _UG_4_5,
+        _UG_4_6,
+        _UG_5_6,
+
+        // _UG_X_PLUS = Total goals >= X
+        _UG_1_PLUS,
+        _UG_2_PLUS,
+        _UG_3_PLUS,
+        _UG_4_PLUS,
+        _UG_5_PLUS,
+        _UG_6_PLUS,
+
+        // _UG_X = Total goals = X
+        _UG_0,
+        _UG_1,
+        _UG_2,
+        _UG_3,
+        _UG_4,
+        _UG_5,
+        _UG_6,
+
 
         // TODO ukupno golova za prvo i drugo poluvreme (ukupno i za svaki tim posebno)
 
