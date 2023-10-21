@@ -11,6 +11,9 @@ using Arbitrage.DataGetters.SoccerBet;
 // TODO Skidanje ostalih kvota sa meridijana !!!
 // TODO LOGGING
 
+int proba = 213;
+proba += proba;
+
 // Prepare data loaders
 List<DataLoader> dataLoaders = new()
 {
