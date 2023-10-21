@@ -32,7 +32,7 @@ namespace Arbitrage.DataGetters.Pinnbet
         public List<JsonSelection> GetSingleMatchResponse(int eventId, int roundId)
         {
             Thread.Sleep(Constants.SleepTimeShort); // TODO maybe randomize wait time
-            string url = "https://www.pinnbet.rs/apiprematch/selections/1223/" + eventId; //TODO proveriti broj 1223 u req 
+            string url = "https://www.pinnbet.rs/apiprematch/selections/" + roundId + "/" + eventId;
 
             var client = new RestClient(url);
 
