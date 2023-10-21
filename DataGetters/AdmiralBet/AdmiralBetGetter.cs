@@ -41,9 +41,12 @@ namespace Arbitrage.DataGetters.Admiralbet
 
         private JsonMatchResponse GetPage(int offset, int perPage = 25)
         {
+            var dateTime = DateTime.Now.AddDays(1000).AddHours(-2);
+            var dateTimeString = dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fff");
+
             string footballUrl = "https://sport-webapi.admiralbet.rs/SportBookCacheWeb/api/offer/competitionsWithEventsStartingSoonForSportV2/"
                 + perPage + "/" + offset +
-                "/false/2026-07-11T13:02:32.666/1";
+                "/false/" + dateTimeString + "/1";
 
             var client = new RestClient(footballUrl);
 
@@ -66,8 +69,6 @@ namespace Arbitrage.DataGetters.Admiralbet
             RestResponse response = client.Execute(request);
 
             JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
-
-
 
             return matchResponse;
         }
