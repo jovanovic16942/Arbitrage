@@ -29,6 +29,7 @@ namespace Arbitrage.Utils
             Id = 0;
             Name = name;
             ShortName = name;
+            Description = "";
         }
     }
 

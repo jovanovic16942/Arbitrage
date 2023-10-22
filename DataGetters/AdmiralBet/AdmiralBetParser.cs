@@ -37,21 +37,18 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {
                 foreach (var outcome in betGame.betOutcomes)
                 {
-                    if (betGameFromInt.Keys.Contains(outcome.betTypeOutcomeId))
+                    int betGameId = outcome.betTypeOutcomeId;
+
+                    // Special parsing for over-under with sbv
+                    if (betGameId == 429 || betGameId == 430)
                     {
-                        var bg = betGameFromInt[outcome.betTypeOutcomeId];
+                        // ex. 429 with sbv 2.5 -> 2429
+                        betGameId += 1000 * int.Parse(outcome.sBV.Trim()[..1]); 
+                    }
 
-                        // Special parsing for over-under with sbv
-                        if (outcome.betTypeOutcomeId == 429) // under
-                        {
-                            bg = betGameFromSbvUnder[outcome.sBV.Trim()];
-
-                        }
-                        if (outcome.betTypeOutcomeId == 430) // over
-                        {
-                            bg = betGameFromSbvOver[outcome.sBV.Trim()];
-                        }
-
+                    if (betGameFromInt.Keys.Contains(betGameId))
+                    {
+                        var bg = betGameFromInt[betGameId];
                         match.AddBetGame(bg, outcome.odd);
                     }
                 }
@@ -97,29 +94,20 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {499, BettingGames._NG },
             {501, BettingGames._12 },
             {500, BettingGames._1X },
-            {502, BettingGames._X2 }
-            // 429 betGameFromSbvUnder
-            // 430 betGameFromSbvOver
-        };
-
-        static readonly Dictionary<string, BettingGames> betGameFromSbvUnder = new()
-        {
-            {"1.5", BettingGames._UG_0_1 },
-            {"2.5", BettingGames._UG_0_2 },
-            {"3.5", BettingGames._UG_0_3 },
-            {"4.5", BettingGames._UG_0_4 },
-            {"5.5", BettingGames._UG_0_5 },
-            {"6.5", BettingGames._UG_0_6 },
-        };
-
-        static readonly Dictionary<string, BettingGames> betGameFromSbvOver = new()
-        {
-            {"1.5", BettingGames._UG_1_PLUS },
-            {"2.5", BettingGames._UG_2_PLUS },
-            {"3.5", BettingGames._UG_3_PLUS },
-            {"4.5", BettingGames._UG_4_PLUS },
-            {"5.5", BettingGames._UG_5_PLUS },
-            {"6.5", BettingGames._UG_6_PLUS },
+            {502, BettingGames._X2 },
+            // 429 is outcome id for subgame UNDER
+            {1429, BettingGames._UG_0_1 },
+            {2429, BettingGames._UG_0_2 },
+            {3429, BettingGames._UG_0_3 },
+            {4429, BettingGames._UG_0_4 },
+            {5429, BettingGames._UG_0_5 },
+            {6429, BettingGames._UG_0_6 },
+            // 430 is outcome id for subgame OVER
+            {1430, BettingGames._UG_2_PLUS },
+            {2430, BettingGames._UG_3_PLUS },
+            {3430, BettingGames._UG_4_PLUS },
+            {4430, BettingGames._UG_5_PLUS },
+            {5430, BettingGames._UG_6_PLUS },
         };
     }
 }

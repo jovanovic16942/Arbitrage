@@ -14,12 +14,12 @@ namespace Arbitrage.ArbitrageCalculator
             this.oddData = oddDatas;
             this.Teams = teams;
             this.StartTime = starTime;
-            this.MaxProfit = profit;
+            this.Profit = profit;
         }
 
         public List<OddData> oddData;
 
-        public double MaxProfit;
+        public double Profit;
 
         public List<Participant> Teams;
 

@@ -80,7 +80,7 @@ namespace Arbitrage.ArbitrageCalculator
                 ProcessEvent(eventData);
             }
 
-            _winningCombos = _winningCombos.OrderByDescending(x => x.MaxProfit).ToList();
+            _winningCombos = _winningCombos.OrderByDescending(x => x.Profit).ToList();
 
             return _winningCombos;
         }
@@ -111,7 +111,7 @@ namespace Arbitrage.ArbitrageCalculator
         {
             foreach (var combination in winningCombos)
             {
-                if (combination.MaxProfit > profit_threshold)
+                if (combination.Profit > profit_threshold)
                 {
                     PrintCombination(combination);
                 }
@@ -122,7 +122,7 @@ namespace Arbitrage.ArbitrageCalculator
         {
             Console.WriteLine("");
             Console.WriteLine("Winning combination found");
-            Console.WriteLine("Maximum profit: " + winCombo.MaxProfit.ToString());
+            Console.WriteLine("Maximum profit: " + winCombo.Profit.ToString());
             Console.WriteLine(string.Format("{0} vs {1} @ {2}", winCombo.Teams[0].Name, winCombo.Teams[1].Name, winCombo.StartTime.ToString()));
             winCombo.oddData.ForEach(x => Console.WriteLine(x.ToString()));
             Console.WriteLine("");

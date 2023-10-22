@@ -47,12 +47,12 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 List <DataLoader> dataLoaders = new()
 {
     new DataLoader(new MozzartParser()),
-    new DataLoader(new MeridianParser()), // TODO In some cases odds are wrong, multiple instances of same betting game
-    new DataLoader(new MaxBetParser()),
-    new DataLoader(new AdmiralBetParser()),
-    new DataLoader(new SoccerBetParser()),
+    new DataLoader(new MeridianParser()),
+    //new DataLoader(new MaxBetParser()),
+   // new DataLoader(new AdmiralBetParser()),
+    //new DataLoader(new SoccerBetParser()),
     new DataLoader(new MerkurXTipParser()),
-    new DataLoader(new PinnBetParser())
+    //new DataLoader(new PinnBetParser())
 };
 
 // Load the data in parallel
@@ -69,7 +69,12 @@ var success = matched.Where(x => x.odds.Count > 1).ToList();
 // Get betting advice
 var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
+var best = res.Where(x => x.Profit > 0.01).ToList();
 
 ArbitrageCalculator.PrintAllCombinations(res);
 
 var a = 2;
+
+var mer = res.Where(x => x.oddData.FirstOrDefault(y => y.house == BettingHouses.Meridian) != null).ToList();
+
+var b = 2;

@@ -12,34 +12,16 @@ namespace Arbitrage.Utils
 {
     public class EventData
     {
+        public DateTime startTime;
+
+        public List<Participant> teams = new();
+
+        public List<HouseOdds> odds = new();
         public EventData(DateTime time, List<Participant> participants) 
         {
             startTime = time;
             teams = participants;
         }
-
-        public override string ToString() 
-        {
-            string eventString = "<" + startTime.ToString() + ">";
-
-            foreach (Participant participant in teams)
-            {
-                eventString += "{" + participant.Name + "}";
-            }
-
-            foreach (HouseOdds house in odds)
-            {
-                eventString += "[" + house.ToString() + "]";
-            }
-
-            return eventString;
-        }
-
-        public DateTime startTime;
-
-        public List<Participant> teams = new List<Participant>();
-
-        public List<HouseOdds> odds = new List<HouseOdds>();
 
         public OddData GetBestOdd(BettingGames game)
         {
@@ -58,6 +40,23 @@ namespace Arbitrage.Utils
             }
 
             return new OddData(bestHouse, game, bestValue);
+        }
+
+        public override string ToString()
+        {
+            string eventString = "<" + startTime.ToString() + ">";
+
+            foreach (Participant participant in teams)
+            {
+                eventString += "{" + participant.Name + "}";
+            }
+
+            foreach (HouseOdds house in odds)
+            {
+                eventString += "[" + house.ToString() + "]";
+            }
+
+            return eventString;
         }
     }
 }

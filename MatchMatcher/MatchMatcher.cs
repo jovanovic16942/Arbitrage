@@ -54,7 +54,6 @@ namespace Arbitrage.MatchMatcher
             ev.odds.Add(odds);
 
             // Find matching event
-            bool foundMatch = false;
 
             /* Filter potential matches based on:
              * 1. Start time
@@ -74,39 +73,54 @@ namespace Arbitrage.MatchMatcher
             // Filter matches
             var filteredMatches = matched.Where(x => matchFilter(x)).ToList();
 
+            EventData? bestMatch = null;
+            int bestMatchScore = 0;
+
             foreach (var potentialMatch in filteredMatches) 
             {
-                if (CompareEvents(ev, potentialMatch))
+                int score = CompareEvents(ev, potentialMatch);
+
+                if (score > bestMatchScore)
                 {
-                    File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
-                    File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", potentialMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
-                    potentialMatch.odds.Add(odds);
-                    foundMatch = true;
-                    break;
+                    bestMatch = potentialMatch;
+                    bestMatchScore = score;
                 }
             }
 
-            if (!foundMatch)
+            if (bestMatch != null)
+            {
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", bestMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+                bestMatch.odds.Add(odds);
+            } else
             {
                 matched.Add(ev);
             }
 
         }
 
-        private static bool CompareEvents(EventData eventA, EventData eventB)
+        /// <summary>
+        /// Return similarity score of two events, based on string similarity of their participant names
+        /// It is assumed that in both events, participant lists are in the same order
+        /// </summary>
+        /// <param name="eventA">First event</param>
+        /// <param name="eventB">Second event</param>
+        /// <returns></returns>
+        private static int CompareEvents(EventData eventA, EventData eventB)
         {
-            int score = 0;
-            int minScore = 0;
+            int totalScore = 0;
 
             for (int i = 0; i < eventA.teams.Count; i++)
             {
+                int score = 0;
+
                 var teamA = eventA.teams[i].Name;
                 var tokensA = TokenizeString(teamA);
 
                 var teamB = eventB.teams[i].Name;
                 var tokensB = TokenizeString(teamB);
 
-                minScore += Math.Min(tokensA.Length, tokensB.Length);
+                int minScore = Math.Min(tokensA.Length, tokensB.Length);
 
                 foreach (var tokenA in tokensA)
                 {
@@ -119,14 +133,27 @@ namespace Arbitrage.MatchMatcher
                         }
                     }
                 }
+
+                if (score > 0)
+                {
+                    Console.WriteLine("");
+                }
+
+                if (score >= minScore)
+                {
+                    totalScore += score;
+                } else
+                {
+                    return 0;
+                }
             }
 
-            return score >= minScore;
+            return totalScore;
         }
 
         private static string[] TokenizeString(string str, char[]? separators = null)
         {
-            separators ??= new char[] { ' ', '.' };
+            separators ??= new char[] { ' ', '.', '-' };
             return str.Split(separators).Where(x => x.Length > 0).ToArray();
         }
 
@@ -138,11 +165,11 @@ namespace Arbitrage.MatchMatcher
             {
                 matching = true;
             }
-            else if ((A.Length > B.Length) && A.Contains(B))
+            else if ((A.Length > B.Length) && A.StartsWith(B))
             {
                 matching = true;
             }
-            else if ((A.Length < B.Length) && B.Contains(A))
+            else if ((A.Length < B.Length) && B.StartsWith(A))
             {
                 matching = true;
             }
