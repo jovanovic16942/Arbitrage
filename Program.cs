@@ -44,15 +44,15 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 //EstimateProfit(3, 12, 6, 200, 2000, 3);
 
 // Prepare data loaders
-List <DataLoader> dataLoaders = new()
+List<DataLoader> dataLoaders = new()
 {
     new DataLoader(new MozzartParser()),
     new DataLoader(new MeridianParser()),
-    //new DataLoader(new MaxBetParser()),
-   // new DataLoader(new AdmiralBetParser()),
-    //new DataLoader(new SoccerBetParser()),
+    new DataLoader(new MaxBetParser()),
+    new DataLoader(new AdmiralBetParser()),
+    new DataLoader(new SoccerBetParser()),
     new DataLoader(new MerkurXTipParser()),
-    //new DataLoader(new PinnBetParser())
+    new DataLoader(new PinnBetParser())
 };
 
 // Load the data in parallel
@@ -69,12 +69,12 @@ var success = matched.Where(x => x.odds.Count > 1).ToList();
 // Get betting advice
 var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
-var best = res.Where(x => x.Profit > 0.01).ToList();
+var best = res.Where(x => x.profit > 0.01).ToList();
 
-ArbitrageCalculator.PrintAllCombinations(res);
+ArbitrageCalculator.PrintCombinations(arb.GetBetList());
+ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);
+
 
 var a = 2;
 
-var mer = res.Where(x => x.oddData.FirstOrDefault(y => y.house == BettingHouses.Meridian) != null).ToList();
 
-var b = 2;

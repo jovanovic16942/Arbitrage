@@ -1,11 +1,5 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
-using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.ArbitrageCalculator
 {
@@ -80,7 +74,7 @@ namespace Arbitrage.ArbitrageCalculator
                 ProcessEvent(eventData);
             }
 
-            _winningCombos = _winningCombos.OrderByDescending(x => x.Profit).ToList();
+            _winningCombos = _winningCombos.OrderByDescending(x => x.profit).ToList();
 
             return _winningCombos;
         }
@@ -88,7 +82,7 @@ namespace Arbitrage.ArbitrageCalculator
         public void ProcessEvent(EventData eventData)
         {
             // Prepare combinations
-            var combinations = new List<List<OddData>>();
+            var combinations = new List<List<Ticket>>();
 
             foreach (var betGameComb in ArbitrageCombinations)
             {
@@ -107,24 +101,58 @@ namespace Arbitrage.ArbitrageCalculator
             }
         }
 
-        public static void PrintAllCombinations(List<Combination> winningCombos, double profit_threshold = 0.0)
+        public static void ShowStakes(List<Combination> combos, double budget)
         {
-            foreach (var combination in winningCombos)
+            foreach(var combination in combos)
             {
-                if (combination.Profit > profit_threshold)
+                combination.CalculateStakes(budget);
+                PrintCombination(combination);
+            }
+        }
+
+        public static void PrintCombinations(List<Combination> combos, double profit_threshold = 0.0)
+        {
+            foreach (var combination in combos)
+            {
+                if (combination.profit > profit_threshold)
                 {
                     PrintCombination(combination);
                 }
             }
         }
 
+        /// <summary>
+        /// Get the list of combinations that can be staked on at the same time for maximum profit
+        /// </summary>
+        /// <returns>List of combinations</returns>
+        public List<Combination> GetBetList()
+        {
+            List<Combination> bet_list = new();
+            List<BettingHouses> houses = new();
+
+            var potential_combos = new List<Combination>(_winningCombos);
+
+            while(potential_combos.Any())
+            {
+                var best_bet = potential_combos.First();
+
+                foreach (var ticket in best_bet.tickets)
+                {
+                    houses.Add(ticket.house);
+                    potential_combos = potential_combos.Where(x => x.tickets.FirstOrDefault(y => y.house == ticket.house) == null).ToList();
+                }
+
+                bet_list.Add(best_bet);
+            }
+
+            return bet_list;
+        }
+
         public static void PrintCombination(Combination winCombo)
         {
             Console.WriteLine("");
             Console.WriteLine("Winning combination found");
-            Console.WriteLine("Maximum profit: " + winCombo.Profit.ToString());
-            Console.WriteLine(string.Format("{0} vs {1} @ {2}", winCombo.Teams[0].Name, winCombo.Teams[1].Name, winCombo.StartTime.ToString()));
-            winCombo.oddData.ForEach(x => Console.WriteLine(x.ToString()));
+            Console.WriteLine(winCombo.ToString());
             Console.WriteLine("");
         }
 
@@ -133,7 +161,7 @@ namespace Arbitrage.ArbitrageCalculator
         /// </summary>
         /// <param name="combination"></param>
         /// <returns>True if combination is valid</returns>
-        public static bool ValidateCombination(List<OddData> combination)
+        public static bool ValidateCombination(List<Ticket> combination)
         {
             if (combination.Any(x => x.value == 0.0))
             {
@@ -150,7 +178,7 @@ namespace Arbitrage.ArbitrageCalculator
         /// </summary>
         /// <param name="combination">Combination off OddDatas</param>
         /// <returns>Maximum profit from given combination, 0.0 if invalid</returns>
-        public static double ArbitrageScore(List<OddData> combination)
+        public static double ArbitrageScore(List<Ticket> combination)
         {
             if (!ValidateCombination(combination)) { return 0.0; }
 

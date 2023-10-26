@@ -23,7 +23,7 @@ namespace Arbitrage.Utils
             teams = participants;
         }
 
-        public OddData GetBestOdd(BettingGames game)
+        public Ticket GetBestOdd(BettingGames game)
         {
             BettingHouses bestHouse = BettingHouses.DefaultHouse;
             double bestValue = 0.0;
@@ -39,7 +39,7 @@ namespace Arbitrage.Utils
                 }
             }
 
-            return new OddData(bestHouse, game, bestValue);
+            return new Ticket(bestHouse, game, bestValue);
         }
 
         public override string ToString()
