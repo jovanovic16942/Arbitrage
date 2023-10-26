@@ -15,6 +15,7 @@ namespace Arbitrage.General
         SoccerBet,
         MerkurXTip,
         PinnBet,
+        SuperBet,
         DefaultHouse // Dummy house
     }
 
