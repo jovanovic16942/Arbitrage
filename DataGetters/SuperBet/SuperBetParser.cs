@@ -1,10 +1,5 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.SuperBet
 {
@@ -113,7 +108,7 @@ namespace Arbitrage.DataGetters.SuperBet
             {5151888, BettingGames._UG_0_5 },
             {5151889, BettingGames._UG_6_PLUS },
             {6151888, BettingGames._UG_0_6 },
-            {6151889, BettingGames._UG_7_PLUS },
+            {6151889, BettingGames._UG_7_PLUS }
         };
     }
 }
