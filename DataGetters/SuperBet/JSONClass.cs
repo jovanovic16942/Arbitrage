@@ -38,5 +38,12 @@ namespace Arbitrage.DataGetters.SuperBet
         public double ov;
         public int oof;
         public string oc;
+        public string tags;
+        public JsonSpc spc;
+    }
+
+    public class JsonSpc
+    {
+        public double total;
     }
 }

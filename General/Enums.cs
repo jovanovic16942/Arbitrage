@@ -83,6 +83,7 @@ namespace Arbitrage.General
         _UG_4_PLUS,
         _UG_5_PLUS,
         _UG_6_PLUS,
+        _UG_7_PLUS,
 
         // _UG_X = Total goals = X
         _UG_0,
