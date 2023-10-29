@@ -12,6 +12,7 @@ using Arbitrage.General;
 using Arbitrage.DataGetters.Bet365;
 using Arbitrage.DataGetters.Pinnbet;
 using System.ComponentModel.Design;
+using Arbitrage.DataGetters.SuperBet;
 
 void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double investAmount, double initialSum, double profitPerTransaction)
 {
@@ -43,8 +44,12 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 // TODO LOGGING
 //EstimateProfit(3, 12, 6, 200, 2000, 3);
 
+
+await new DataLoader(new SuperBetParser()).Load();
+
+
 // Prepare data loaders
-List<DataLoader> dataLoaders = new()
+List <DataLoader> dataLoaders = new()
 {
     new DataLoader(new MozzartParser()),
     new DataLoader(new MeridianParser()),
@@ -52,7 +57,8 @@ List<DataLoader> dataLoaders = new()
     new DataLoader(new AdmiralBetParser()),
     new DataLoader(new SoccerBetParser()),
     new DataLoader(new MerkurXTipParser()),
-    new DataLoader(new PinnBetParser())
+    new DataLoader(new PinnBetParser()),
+    new DataLoader(new SuperBetParser())
 };
 
 // Load the data in parallel
