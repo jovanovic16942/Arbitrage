@@ -45,9 +45,6 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 //EstimateProfit(3, 12, 6, 200, 2000, 3);
 
 
-await new DataLoader(new SuperBetParser()).Load();
-
-
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
