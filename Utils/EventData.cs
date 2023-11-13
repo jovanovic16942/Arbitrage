@@ -27,19 +27,27 @@ namespace Arbitrage.Utils
         {
             BettingHouses bestHouse = BettingHouses.DefaultHouse;
             double bestValue = 0.0;
+            double sumWithoutBest = 0.0;
 
             foreach (var houseOdds in odds)
             {
                 var value = houseOdds.GetValue(game);
-                
+                // Add odd value to total sumWithoutBest
+                sumWithoutBest += value;
+
                 if (value > bestValue)
                 {
+                    sumWithoutBest -= value;
+                    sumWithoutBest += bestValue;
                     bestValue = value;
                     bestHouse = houseOdds.House;
                 }
             }
 
-            return new Ticket(bestHouse, game, bestValue);
+            double avg = sumWithoutBest / (odds.Count - 1);
+            double risk = bestValue - avg;
+
+            return new Ticket(bestHouse, game, bestValue, risk);
         }
 
         public override string ToString()

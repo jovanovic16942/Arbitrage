@@ -9,11 +9,12 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class Ticket
     {
-        public Ticket(BettingHouses house, BettingGames game, double value)
+        public Ticket(BettingHouses house, BettingGames game, double value, double risk)
         {
             this.house = house;
             this.game = game;
             this.value = value;
+            this.risk = risk;
         }
 
         public void SetStake(double totalWinnings)
@@ -37,5 +38,6 @@ namespace Arbitrage.ArbitrageCalculator
         public BettingGames game;
         public double value;
         public double stake = 0;
+        public double risk;
     }
 }
