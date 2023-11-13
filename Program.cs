@@ -74,8 +74,8 @@ var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
 var best = res.Where(x => x.profit > 0.01).ToList();
 
-ArbitrageCalculator.PrintCombinations(arb.GetBetList());
-ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);
+//ArbitrageCalculator.PrintCombinations(arb.GetBetList());
+//ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);
 
 
 var a = 2;

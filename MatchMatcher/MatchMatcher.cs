@@ -91,6 +91,7 @@ namespace Arbitrage.MatchMatcher
             {
                 File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
                 File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", bestMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+
                 bestMatch.odds.Add(odds);
             } else
             {
