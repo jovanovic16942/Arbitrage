@@ -89,6 +89,11 @@ namespace Arbitrage.Utils
             BetGames.Add(game, value);
         }
 
+        public void TryAddBetGame(BettingGames game, double value)
+        {
+            BetGames.TryAdd(game, value);
+        }
+
         public override string ToString()
         {
             return string.Format("{0} vs {1} - {2}",
