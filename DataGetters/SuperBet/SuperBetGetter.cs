@@ -14,7 +14,11 @@ namespace Arbitrage.DataGetters.SuperBet
 
         public JsonMatchResponse GetMatches()
         {
-            string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/offer/getOfferByDate?offerState=prematch&startDate=2023-10-26+07:21:00&endDate=2024-10-27+09:00:00";
+
+            string startDate = DateTime.Now.ToString("yyyy-MM-dd+HH:mm:ss");
+            string endDate = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd+HH:mm:ss");
+
+            string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/offer/getOfferByDate?offerState=prematch&startDate=" + startDate + "&endDate=" + endDate;
 
             var client = new RestClient(url);
 
