@@ -17,6 +17,7 @@ namespace Arbitrage.General
         PinnBet,
         SuperBet,
         BalkanBet,
+        StarBet,
         DefaultHouse // Dummy house
     }
 

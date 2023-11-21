@@ -17,6 +17,8 @@ namespace Arbitrage.DataGetters.MaxBet
 
         private void ParseMatch(JsonMatch jsonMatch)
         {
+            if (jsonMatch == null || jsonMatch.odds == null) return;
+
             DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 2);
 
             Participant participant1 = new(jsonMatch.home);

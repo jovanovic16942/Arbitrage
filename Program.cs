@@ -14,6 +14,7 @@ using Arbitrage.DataGetters.Pinnbet;
 using System.ComponentModel.Design;
 using Arbitrage.DataGetters.SuperBet;
 using Arbitrage.DataGetters.BalkanBet;
+using Arbitrage.DataGetters.StarBet;
 
 void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double investAmount, double initialSum, double profitPerTransaction)
 {
@@ -45,6 +46,7 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 // TODO LOGGING
 //EstimateProfit(3, 12, 6, 200, 2000, 3);
 
+
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
@@ -57,6 +59,7 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(new PinnBetParser()),
     new DataLoader(new SuperBetParser()),
     new DataLoader(new BalkanBetParser()),
+    new DataLoader(new StarBetParser()),
 };
 
 // Load the data in parallel

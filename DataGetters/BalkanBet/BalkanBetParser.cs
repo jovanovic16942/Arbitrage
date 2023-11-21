@@ -46,9 +46,9 @@ namespace Arbitrage.DataGetters.BalkanBet
                 foreach (var jsonOdd in jsonMarket.outcomes)
                 {
                     var sgName = jsonOdd.name;
-                    if (betGameFromInt.ContainsKey(sgName))
+                    if (betGameFromString.ContainsKey(sgName))
                     {
-                        match.TryAddBetGame(betGameFromInt[sgName], jsonOdd.odd);
+                        match.TryAddBetGame(betGameFromString[sgName], jsonOdd.odd);
                     }
                 }
             }
@@ -59,7 +59,7 @@ namespace Arbitrage.DataGetters.BalkanBet
         /// <summary>
         /// Map bet game name from json response to BettingGames enum
         /// </summary>
-        static readonly Dictionary<string, BettingGames> betGameFromInt = new()
+        static readonly Dictionary<string, BettingGames> betGameFromString = new()
         {
             {"1", BettingGames._1 },
             {"X", BettingGames._X },
