@@ -29,7 +29,13 @@ namespace Arbitrage.DataGetters.SuperBet
 
                 foreach(var jsonMatch in fullResponse.data) 
                 {
-                    ParseJsonMatch(jsonMatch);
+                    try
+                    {
+                        ParseJsonMatch(jsonMatch);
+                    } catch(Exception e)
+                    {
+                        // Loggovanje
+                    }
                 }
             }
         }

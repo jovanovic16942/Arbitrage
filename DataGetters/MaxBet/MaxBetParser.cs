@@ -19,7 +19,7 @@ namespace Arbitrage.DataGetters.MaxBet
         {
             if (jsonMatch == null || jsonMatch.odds == null) return;
 
-            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 2);
+            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 1); // TODO SUS 
 
             Participant participant1 = new(jsonMatch.home);
             Participant participant2 = new(jsonMatch.away);

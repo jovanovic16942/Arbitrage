@@ -21,7 +21,7 @@ namespace Arbitrage.DataGetters.SoccerBet
 
             Participant participant2 = new(jsonMatch.away.Trim());
 
-            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 2);
+            DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 1);
 
             var match = new Match(startTime, participant1, participant2);
 

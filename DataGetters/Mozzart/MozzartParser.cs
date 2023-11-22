@@ -38,7 +38,7 @@ namespace Arbitrage.DataGetters.Mozzart
                     var participant1 = new Participant(p1.Id, p1.Name, p1.ShortName, p1.Description);
                     var participant2 = new Participant(p2.Id, p2.Name, p2.ShortName, p2.Description);
 
-                    DateTime startTime = DateTimeConverter.DateTimeFromLong(match.StartTime, 2);
+                    DateTime startTime = DateTimeConverter.DateTimeFromLong(match.StartTime, 1); // TODO SUUUSSSSSS  Promena sata daylight savings bblabla
 
                     _data.Insert(new Utils.Match(match.Id, startTime, participant1, participant2));
                 }

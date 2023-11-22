@@ -39,7 +39,7 @@ namespace Arbitrage.DataGetters.StarBet
                         ParseJsonPair(jsonPair);
                     } catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
+                        //Console.WriteLine(e.ToString());
                     }
                 }
             }

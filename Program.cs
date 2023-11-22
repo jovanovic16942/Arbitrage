@@ -73,6 +73,8 @@ var unmatched = dataLoaders.Select(x => x.GetMatches()).Where(x => x != null).To
 var matched = MatchMatcher.MatchMatches(unmatched!);
 var success = matched.Where(x => x.odds.Count > 1).ToList();
 
+var x = matched.MaxBy(x => x.odds.Count);
+
 // Get betting advice
 var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);

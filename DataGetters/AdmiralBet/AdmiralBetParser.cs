@@ -21,7 +21,7 @@ namespace Arbitrage.DataGetters.AdmiralBet
         {
             if (matchEvent.isTopOffer) { return; } // Skip special offfers
 
-            DateTime dt = DateTime.Parse(matchEvent.dateTime).AddHours(2);
+            DateTime dt = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
 
             var participants = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
 
