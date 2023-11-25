@@ -15,6 +15,7 @@ using System.ComponentModel.Design;
 using Arbitrage.DataGetters.SuperBet;
 using Arbitrage.DataGetters.BalkanBet;
 using Arbitrage.DataGetters.StarBet;
+using Arbitrage.DataGetters.OktagonBet;
 
 void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double investAmount, double initialSum, double profitPerTransaction)
 {
@@ -60,6 +61,7 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(new SuperBetParser()),
     new DataLoader(new BalkanBetParser()),
     new DataLoader(new StarBetParser()),
+    new DataLoader(new OktagonBetParser()),
 };
 
 // Load the data in parallel
@@ -73,12 +75,12 @@ var unmatched = dataLoaders.Select(x => x.GetMatches()).Where(x => x != null).To
 var matched = MatchMatcher.MatchMatches(unmatched!);
 var success = matched.Where(x => x.odds.Count > 1).ToList();
 
-var x = matched.MaxBy(x => x.odds.Count);
+var bestMatched = matched.MaxBy(x => x.odds.Count);
 
 // Get betting advice
 var arb = new ArbitrageCalculator();
 var res = arb.GetResults(success);
-var best = res.Where(x => x.profit > 0.01).ToList();
+var best = res.Where(x => x.profit > 0.02).ToList();
 
 //ArbitrageCalculator.PrintCombinations(arb.GetBetList());
 //ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);

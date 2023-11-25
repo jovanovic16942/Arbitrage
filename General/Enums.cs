@@ -18,6 +18,7 @@ namespace Arbitrage.General
         SuperBet,
         BalkanBet,
         StarBet,
+        OktagonBet,
         DefaultHouse // Dummy house
     }
 
