@@ -19,7 +19,10 @@ namespace Arbitrage.General
         BalkanBet,
         StarBet,
         OktagonBet,
-        DefaultHouse // Dummy house
+        BetOle,
+        Olimp,
+        Bet365,
+        DefaultHouse, // Dummy house
     }
 
     public enum BettingGames

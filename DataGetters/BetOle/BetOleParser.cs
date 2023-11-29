@@ -1,5 +1,4 @@
-﻿using Arbitrage.DataGetters.OktagonBet;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters.OktagonBet
+namespace Arbitrage.DataGetters.BetOle
 {
-    internal class OktagonBetParser : Parser
+    internal class BetOleParser : Parser
     {
 
-        private readonly OktagonBetGetter _getter = new();
+        private readonly BetOleGetter _getter = new();
 
-        public OktagonBetParser() : base(BettingHouses.OktagonBet) { }
+        public BetOleParser() : base(BettingHouses.BetOle) { }
 
         protected override void UpdateData()
         {
@@ -36,7 +35,8 @@ namespace Arbitrage.DataGetters.OktagonBet
                     ParseJsonMatch(match);
                 } catch (Exception e)
                 {
-                    continue; 
+                    // TODO handle
+                    continue;
                 }
             }
         }

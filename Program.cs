@@ -16,6 +16,8 @@ using Arbitrage.DataGetters.SuperBet;
 using Arbitrage.DataGetters.BalkanBet;
 using Arbitrage.DataGetters.StarBet;
 using Arbitrage.DataGetters.OktagonBet;
+using Arbitrage.DataGetters.BetOle;
+using Arbitrage.DataGetters.Olimp;
 
 void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double investAmount, double initialSum, double profitPerTransaction)
 {
@@ -47,21 +49,24 @@ void EstimateProfit(int weeklyBets, int numMonths, int numInvestments, double in
 // TODO LOGGING
 //EstimateProfit(3, 12, 6, 200, 2000, 3);
 
-
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
-    new DataLoader(new MozzartParser()),
-    new DataLoader(new MeridianParser()),
-    new DataLoader(new MaxBetParser()),
-    new DataLoader(new AdmiralBetParser()),
-    new DataLoader(new SoccerBetParser()),
-    new DataLoader(new MerkurXTipParser()),
-    new DataLoader(new PinnBetParser()),
-    new DataLoader(new SuperBetParser()),
-    new DataLoader(new BalkanBetParser()),
-    new DataLoader(new StarBetParser()),
-    new DataLoader(new OktagonBetParser()),
+    //new DataLoader(new MozzartParser()),
+    //new DataLoader(new MeridianParser()),
+    //new DataLoader(new MaxBetParser()),
+    //new DataLoader(new AdmiralBetParser()),
+    //new DataLoader(new SoccerBetParser()),
+    //new DataLoader(new MerkurXTipParser()),
+    //new DataLoader(new PinnBetParser()),
+    //new DataLoader(new SuperBetParser()),
+    //new DataLoader(new BalkanBetParser()),
+    //new DataLoader(new StarBetParser()),
+    //new DataLoader(new OktagonBetParser()),
+    //new DataLoader(new BetOleParser()),
+    //new DataLoader(new OlimpParser()),
+    new DataLoader(new Bet365Parser()),
+
 };
 
 // Load the data in parallel

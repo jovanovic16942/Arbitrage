@@ -1,4 +1,5 @@
 ﻿using Arbitrage.EntityFramework.Models;
+using Arbitrage.General;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
@@ -11,9 +12,10 @@ namespace Arbitrage.DataGetters.Bet365
 {
     public class Bet365Getter
     {
-        public void GetResponse()
+        // TODO Get all matches
+        public JsonMatchesResponse GetResponse()
         {
-            string url = "https://www.365.rs/ibet-web-client/#/home/leaguesWithMatches";
+            string url = "https://www.365.rs/ibet/async/offer/lastMinuteMatches/0.json?v=4.52.76&locale=sr&ttgIds=";
             //string url = "https://www.365.rs/ibet/offer/league/2222612/-1/0/false.json?v=4.52.76&locale=sr&ttgIds=";
 
             var client = new RestClient(url);
@@ -22,9 +24,27 @@ namespace Arbitrage.DataGetters.Bet365
 
             RestResponse response = client.Execute(request);
 
-            //JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
+            JsonMatchesResponse matchesResponse = JsonConvert.DeserializeObject<JsonMatchesResponse>(response.Content);
 
-            //return matchResponse;
+            return matchesResponse;
+        }
+
+        public JsonMatch GetMatchResponse(long matchId)
+        {
+            Thread.Sleep(Constants.SleepTimeShort);
+
+            string url = "https://www.365.rs/ibet/offer/special/null/" + matchId + ".json?v=4.52.76&locale=sr";
+            //string url = "https://www.365.rs/ibet/offer/league/2222612/-1/0/false.json?v=4.52.76&locale=sr&ttgIds=";
+
+            var client = new RestClient(url);
+
+            var request = new RestRequest("", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            JsonMatch matchResponse = JsonConvert.DeserializeObject<JsonMatch>(response.Content);
+
+            return matchResponse;
         }
     }
 }
