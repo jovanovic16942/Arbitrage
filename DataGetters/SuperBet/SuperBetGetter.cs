@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Arbitrage.DataGetters.SuperBet
 {
@@ -38,6 +39,9 @@ namespace Arbitrage.DataGetters.SuperBet
             var idsString = string.Join(",", matchIds);
 
             string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/matches/byId?matchIds=" + idsString;
+
+            //string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/" + idsString + "?matchIds=" + idsString;
+
 
             var client = new RestClient(url);
 

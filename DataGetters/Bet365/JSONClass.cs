@@ -15,6 +15,25 @@ namespace Arbitrage.DataGetters.Bet365
         public List<JsonMatch> matches;
     }
 
+    public class JsonSport
+    {
+        public string name;
+        public string sportType;
+        public List<JsonLeague> leagues;
+    }
+
+    public class JsonLeague
+    {
+        public long betLeagueId;
+        public string name;
+        public int numOfMatches;
+    }
+
+    public class JsonLeagueMatchesResponse
+    {
+        public List<JsonMatch> matchList;
+    }
+
     public class JsonMatch
     {
         public long id;

@@ -28,7 +28,13 @@ namespace Arbitrage.DataGetters
 
         public MatchesData Parse()
         {
-            UpdateData();
+            try
+            {
+                UpdateData();
+            } catch (Exception ex)
+            {
+                // TODO serious logging
+            }
 
             return _data;
         }

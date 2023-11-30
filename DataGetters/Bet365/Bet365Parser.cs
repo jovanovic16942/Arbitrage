@@ -18,13 +18,45 @@ namespace Arbitrage.DataGetters.Bet365
 
         protected override void UpdateData()
         {
-            var jsonResp = _getter.GetResponse();
+            var jsonResp = _getter.GetLeagues();
 
-            if (jsonResp == null || jsonResp.matches == null) { return; }
+            if (jsonResp == null || jsonResp.Count == 0) { return; }
 
-            foreach (var jsonMatch in jsonResp.matches) 
+            foreach (var jsonSport in jsonResp) 
             {
-                TryParseJsonMatch(jsonMatch);
+                ParseJsonSport(jsonSport);
+            }
+        }
+
+        private void ParseJsonSport(JsonSport jsonSport)
+        {
+            if (jsonSport == null || jsonSport.leagues == null) { return; }
+            if (jsonSport.sportType != "S" || jsonSport.leagues.Count == 0) { return; }
+
+            foreach (var jsonLeague in jsonSport.leagues)
+            {
+                ParseJsonLeague(jsonLeague);
+            }
+        }
+
+        private void ParseJsonLeague(JsonLeague jsonLeague)
+        {
+            if (jsonLeague == null || jsonLeague.numOfMatches == 0) { return; }
+
+            var leagueId = jsonLeague.betLeagueId;
+
+            try
+            {
+                var leagueMatchesResp = _getter.GetMatchesInLeague(leagueId);
+                
+                foreach (var jsonMatch in leagueMatchesResp.matchList)
+                {
+                    TryParseJsonMatch(jsonMatch);
+                }
+
+            } catch (Exception e)
+            {
+                // log
             }
         }
 

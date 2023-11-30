@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.SuperBet
         {
             var resp = _getter.GetMatches();
 
-            var footballMatches = resp.data.Where(x => x.si == 5).ToList();
+            var footballMatches = resp.data.Where(x => x.si == 5).ToList(); // sportId 5 - fudbal
 
             List<int> footbalIds = new();
 
