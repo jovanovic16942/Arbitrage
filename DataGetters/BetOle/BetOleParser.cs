@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.BetOle
 
         private readonly BetOleGetter _getter = new();
 
-        public BetOleParser() : base(BettingHouses.BetOle) { }
+        public BetOleParser() : base(BettingHouse.BetOle) { }
 
         protected override void UpdateData()
         {
@@ -66,7 +66,7 @@ namespace Arbitrage.DataGetters.BetOle
 
         // SAME AS MAXBET !!!
         /// <summary>
-        /// Map bet game id from json response to BettingGames enum
+        /// Map bet game id_str from json response to BettingGames enum
         /// </summary>
         static readonly Dictionary<int, BettingGames> betGameFromInt = new()
         {

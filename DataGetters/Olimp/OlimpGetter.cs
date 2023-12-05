@@ -37,7 +37,7 @@ namespace Arbitrage.DataGetters.Olimp
 
             var request = new RestRequest("", Method.Post);
 
-            request.AddHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            request.AddHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.AddHeader("Host", "online.kladioniceolimp.com");
             request.AddHeader("Origin", "https://online.kladioniceolimp.com");
             request.AddHeader("Referer", "https://online.kladioniceolimp.com/zns_pocetna.php?dsm=1");
@@ -66,7 +66,7 @@ namespace Arbitrage.DataGetters.Olimp
             request.AddHeader("Accept-Encoding", "gzip, deflate, br");
             request.AddHeader("Accept-Language", "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7");
             request.AddHeader("Connection", "keep-alive");
-            request.AddHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            request.AddHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.AddHeader("Host", "online.kladioniceolimp.com");
             request.AddHeader("Origin", "https://online.kladioniceolimp.com");
             request.AddHeader("Referer", "https://online.kladioniceolimp.com/zns_pocetna.php");
@@ -122,7 +122,7 @@ namespace Arbitrage.DataGetters.Olimp
             request.AddHeader("Accept-Encoding", "gzip, deflate, br");
             request.AddHeader("Accept-Language", "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7");
             request.AddHeader("Connection", "keep-alive");
-            request.AddHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            request.AddHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.AddHeader("Host", "online.kladioniceolimp.com");
             request.AddHeader("Origin", "https://online.kladioniceolimp.com");
             request.AddHeader("Referer", "https://online.kladioniceolimp.com/zns_pocetna.php");

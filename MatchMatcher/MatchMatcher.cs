@@ -1,155 +1,170 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.MatchMatcher
 {
     public class MatchMatcher
     {
-        public static List<EventData> MatchMatches(List<MatchesData> datas)
+        private static readonly double MIN_SCORE_THR = 0.5;
+        private static readonly double BEST_SCORE_THR = 0.9;
+
+        public static List<EventData> MatchMatches(List<List<HouseMatchData>> datas)
         {
             var matchedMatches = new List<EventData>();
 
             foreach (var houseData in datas)
             {
-                var betHouse = houseData.bettingHouse;
-                var matches = houseData.GetMatches();
-
-                foreach (var match in matches)
+                foreach (var matchData in houseData)
                 {
-                    MatchMatch(matchedMatches, match, betHouse);
+                    MatchMatch(matchedMatches, matchData);
                 }
             }
 
             return matchedMatches;
         }
 
-        private static void MatchMatch(List<EventData> matched, Match match, BettingHouses house) 
+        private static void MatchMatch(List<EventData> matched, HouseMatchData match)
         {
-            // Create EventData from match
-
-            List<Participant> participants = new List<Participant>
+            bool matchFilter(EventData candidate)
             {
-                match.Team1,
-                match.Team2
-            };
-
-            EventData ev = new EventData(match.StartTime, participants);
-
-            HouseOdds odds = new HouseOdds(house);
-
-            foreach (var (betGame, value) in match.BetGames)
-            {
-                odds.AddOdds(betGame, value);
-            }
-
-            ev.odds.Add(odds);
-
-            // Find matching event
-
-            /* Filter potential matches based on:
-             * 1. Start time
-             * 2. Whether potential match was already filled with data from current bet house
-            */
-            Func<EventData, bool> matchFilter = candidate =>
-            {
-                List<bool> conditions = new List<bool>()
+                List<bool> conditions = new()
                 {
-                    candidate.startTime.Equals(ev.startTime),
-                    !candidate.odds.Any(x => x.House == house)
+                    candidate.startTime.Equals(match.startTime),
+                    candidate.sport.Equals(match.sport),
+                    !candidate.data.Any(x => x.house == match.house),
                 };
 
                 return conditions.All(x => x);
-            };
+            }
 
             // Filter matches
             var filteredMatches = matched.Where(x => matchFilter(x)).ToList();
 
             EventData? bestMatch = null;
-            int bestMatchScore = 0;
+            var bestMatchScore = 0.0;
 
-            foreach (var potentialMatch in filteredMatches) 
+            foreach (var potentialMatch in filteredMatches)
             {
-                int score = CompareEvents(ev, potentialMatch);
+                var score = CompareMatchToEvent(match, potentialMatch);
 
                 if (score > bestMatchScore)
                 {
                     bestMatch = potentialMatch;
                     bestMatchScore = score;
+
+                    if (score > BEST_SCORE_THR)
+                    {
+                        break;
+                    }
                 }
             }
 
             if (bestMatch != null)
             {
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", ev.ToString() + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatched.txt", bestMatch.ToString() + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", match.MatchDataString() + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", bestMatch.MatchDataString() + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
+                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
 
-                bestMatch.odds.Add(odds);
-            } else
+                bestMatch.data.Add(match);
+            }
+            else
             {
-                matched.Add(ev);
+                matched.Add(new(match));
+            }
+        }
+
+        private static double CompareMatchToEvent(HouseMatchData match, EventData potentialMatch)
+        {
+            var totalScore = 0.0;
+
+            foreach(var houseData in potentialMatch.data)
+            {
+                var score = CompareMatches(match, houseData);
+                
+                if (score < MIN_SCORE_THR)
+                {
+                    // TODO This may be excessive 
+                    return 0;
+                }
+
+                totalScore += score;
             }
 
+            return totalScore / potentialMatch.data.Count;
         }
 
         /// <summary>
-        /// Return similarity score of two events, based on string similarity of their participant names
-        /// It is assumed that in both events, participant lists are in the same order
+        /// Calculate match similarity score [0,1] based on team names 
+        /// TODO Add league information in getters to improve matching
         /// </summary>
-        /// <param name="eventA">First event</param>
-        /// <param name="eventB">Second event</param>
+        /// <param name="matchA"></param>
+        /// <param name="matchB"></param>
         /// <returns></returns>
-        private static int CompareEvents(EventData eventA, EventData eventB)
+        private static double CompareMatches(HouseMatchData matchA, HouseMatchData matchB)
         {
-            int totalScore = 0;
+            var s1 = CompareStrings(matchA.team1, matchB.team1);
+            if (s1 < MIN_SCORE_THR) return 0;
 
-            for (int i = 0; i < eventA.teams.Count; i++)
+            var s2 = CompareStrings(matchA.team2, matchB.team2);
+            if (s2 < MIN_SCORE_THR) return 0;
+
+            return (s1 + s2) / 2;
+        }
+
+        /// <summary>
+        /// Return string similarity score in a range [0,1]
+        /// </summary>
+        /// <param name="name1">Name of the first team (including separators)</param>
+        /// <param name="name2">Name of the second team (including separators)</param>
+        /// <returns></returns>
+        private static double CompareStrings(string name1, string name2)
+        {
+            if (name1 == name2) return 1.0;
+            if (name1.Length > name2.Length && name1.Contains(name2)) return 1.0;
+            if (name1.Length < name2.Length && name2.Contains(name1)) return 1.0;
+
+            var tokensA = TokenizeString(name1);
+            var tokensB = TokenizeString(name2);
+
+            string[] tokens1 = tokensA;
+            string[] tokens2 = tokensB;
+
+            if (tokensB.Length > tokensA.Length)
             {
-                int score = 0;
+                tokens1 = tokensB;
+                tokens2 = tokensA;
+            }
 
-                var teamA = eventA.teams[i].Name;
-                var tokensA = TokenizeString(teamA);
+            var score = 0.0;
+            var totalLength = 0.0;
 
-                var teamB = eventB.teams[i].Name;
-                var tokensB = TokenizeString(teamB);
+            foreach (var t in tokens2)
+            {
+                var tokenScore = 0.0;
+                var mod = 0.0;
 
-                int minScore = Math.Min(tokensA.Length, tokensB.Length);
-
-                foreach (var tokenA in tokensA)
+                foreach (var t2 in tokens1)
                 {
-                    foreach (var tokenB in tokensB)
+                    var tmpScore = MatchTokens(t, t2);
+                    tokenScore = Math.Max(tokenScore, tmpScore);
+                    mod = t2.Length;
+
+                    if (tokenScore > BEST_SCORE_THR)
                     {
-                        if (MatchTokens(tokenA, tokenB))
-                        {
-                            score++;
-                            break;
-                        }
+                        break;
                     }
                 }
 
-                if (score > 0)
-                {
-                    Console.WriteLine("");
-                }
-
-                if (score >= minScore)
-                {
-                    totalScore += score;
-                } else
-                {
-                    return 0;
-                }
+                mod += t.Length;
+                totalLength += mod;
+                score += tokenScore * mod;
             }
 
-            return totalScore;
+            return score / totalLength;
         }
 
         private static string[] TokenizeString(string str, char[]? separators = null)
@@ -158,24 +173,49 @@ namespace Arbitrage.MatchMatcher
             return str.Split(separators).Where(x => x.Length > 0).ToArray();
         }
 
-        private static bool MatchTokens(string A, string B)
+        /// <summary>
+        /// Return similarity score between two tokens
+        /// </summary>
+        /// <param name="A">Token A</param>
+        /// <param name="B">Token B</param>
+        /// <returns></returns>
+        private static double MatchTokens(string A, string B)
         {
-            bool matching = false;
-
             if (A == B)
             {
-                matching = true;
+                return 1.0;
             }
-            else if ((A.Length > B.Length) && A.StartsWith(B))
+            
+            if ((B.Length > A.Length))
             {
-                matching = true;
-            }
-            else if ((A.Length < B.Length) && B.StartsWith(A))
-            {
-                matching = true;
+                var tmp = B;
+                B = A;
+                A = tmp;
             }
 
-            return matching;
+            if (A.StartsWith(B))
+            {
+                return 0.5 * (1.0 + (double)B.Length / A.Length);
+            }
+
+            if (B[0] == A[0])
+            {
+                var idxB = 1;
+                for (var idxA = 1; idxA < A.Length && idxB < B.Length; idxA++)
+                {
+                    if (A[idxA] == B[idxB])
+                    {
+                        idxB++;
+                    }
+                }
+
+                if (idxB == B.Length)
+                {
+                    return 0.5 * (1.0 + (double)B.Length / A.Length);
+                }
+            }
+
+            return 0.0;
         }
     }
 }

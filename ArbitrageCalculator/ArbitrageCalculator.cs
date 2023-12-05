@@ -5,23 +5,22 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class ArbitrageCalculator
     {
-
         public static readonly List<List<BettingGames>> ArbitrageCombinations = new()
         {
             // Match result - overall
-            new List<BettingGames>() {BettingGames._1, BettingGames._X, BettingGames._2},
+            //new List<BettingGames>() {BettingGames._1, BettingGames._X, BettingGames._2},
             new List<BettingGames>() {BettingGames._1X, BettingGames._2},
             new List<BettingGames>() {BettingGames._12, BettingGames._X},
             new List<BettingGames>() {BettingGames._1, BettingGames._X2},
 
             // First half result
-            new List<BettingGames>() {BettingGames._1_I, BettingGames._X_I, BettingGames._2_I},
+            //new List<BettingGames>() {BettingGames._1_I, BettingGames._X_I, BettingGames._2_I},
             new List<BettingGames>() {BettingGames._1X_I, BettingGames._2_I},
             new List<BettingGames>() {BettingGames._12_I, BettingGames._X_I},
             new List<BettingGames>() {BettingGames._1_I, BettingGames._X2_I},
 
             // Second half result
-            new List<BettingGames>() {BettingGames._1_II, BettingGames._X_II, BettingGames._2_II},
+            //new List<BettingGames>() {BettingGames._1_II, BettingGames._X_II, BettingGames._2_II},
             new List<BettingGames>() {BettingGames._1X_II, BettingGames._2_II},
             new List<BettingGames>() {BettingGames._12_II, BettingGames._X_II},
             new List<BettingGames>() {BettingGames._1_II, BettingGames._X2_II},
@@ -39,66 +38,61 @@ namespace Arbitrage.ArbitrageCalculator
             new List<BettingGames>() {BettingGames._UG_0_4, BettingGames._UG_5_PLUS},
             new List<BettingGames>() {BettingGames._UG_0_5, BettingGames._UG_6_PLUS},
 
-            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_3, BettingGames._UG_4_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_4, BettingGames._UG_5_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2_5, BettingGames._UG_6_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3_4, BettingGames._UG_5_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3_5, BettingGames._UG_6_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_3, BettingGames._UG_4_5, BettingGames._UG_6_PLUS},
-
-            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1, BettingGames._UG_2_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_2, BettingGames._UG_3_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_3, BettingGames._UG_4_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_4, BettingGames._UG_5_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0, BettingGames._UG_1_5, BettingGames._UG_6_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_1, BettingGames._UG_2, BettingGames._UG_3_PLUS},
-
-            new List<BettingGames>() {BettingGames._UG_0_2, BettingGames._UG_3, BettingGames._UG_4_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_3, BettingGames._UG_4, BettingGames._UG_5_PLUS},
-            new List<BettingGames>() {BettingGames._UG_0_4, BettingGames._UG_5, BettingGames._UG_6_PLUS},
-
-            // TODO - Total goals - first half
-            // TODO - Total goals - second half
-            // TODO - Total goals - home team
-            // TODO - Total goals - away team
         };
 
         private List<Combination> _winningCombos = new();
 
         public ArbitrageCalculator() { }
 
-        public List<Combination> GetResults(List<EventData> events)
+        public void ProcessResults(List<EventData> events)
         {
             foreach (EventData eventData in events)
             {
                 ProcessEvent(eventData);
             }
-
-            _winningCombos = _winningCombos.OrderByDescending(x => x.profit).ToList();
-
-            return _winningCombos;
         }
 
         public void ProcessEvent(EventData eventData)
         {
-            // Prepare combinations
-            var combinations = new List<List<Ticket>>();
+            HashSet<BetGame> games = new();
 
-            foreach (var betGameComb in ArbitrageCombinations)
+            foreach (var houseData in eventData.data)
             {
-                combinations.Add(betGameComb.Select(betGame => eventData.GetBestOdd(betGame)).ToList());
+                games.UnionWith(houseData.betGames);
             }
 
-            // Calculate score for each combo and save those with positive score
-            foreach (var combination in combinations)
+            foreach (var betGame in games)
             {
-                var arbScore = ArbitrageScore(combination);
+                var bestGame = eventData.GetBestOdd(betGame);
+                var bestOppGame = eventData.GetBestOdd(betGame.GetOppositeGame());
+
+                // Calculate Arbitrage
+                var arbScore = CalculateArbitrage(bestGame.Game.Value, bestOppGame.Game.Value);
 
                 if (arbScore > 0.0)
                 {
-                    _winningCombos.Add(new Combination(combination, arbScore, eventData.teams, eventData.startTime));
+                    // Create Combination
+                    // TODO risk assesment
+                    List<Ticket> tickets = new()
+                    {
+                        new(bestGame.House,  bestGame.Game),
+                        new(bestOppGame.House, bestOppGame.Game),
+                    };
+
+                    var comb = new Combination(tickets, arbScore);
+                    eventData.combinations.Add(comb);
                 }
             }
+        }
+
+        public static double CalculateArbitrage(double v1, double v2, double investment = 1)
+        {
+            var p1 = 100 / v1;
+            var p2 = 100 / v2;
+
+            var sum_prob = (p1 + p2) / 100;
+
+            return investment / sum_prob - investment;
         }
 
         public static void ShowStakes(List<Combination> combos, double budget)
@@ -128,7 +122,7 @@ namespace Arbitrage.ArbitrageCalculator
         public List<Combination> GetBetList()
         {
             List<Combination> bet_list = new();
-            List<BettingHouses> houses = new();
+            List<BettingHouse> houses = new();
 
             var potential_combos = new List<Combination>(_winningCombos);
 
@@ -163,7 +157,7 @@ namespace Arbitrage.ArbitrageCalculator
         /// <returns>True if combination is valid</returns>
         public static bool ValidateCombination(List<Ticket> combination)
         {
-            if (combination.Any(x => x.value == 0.0))
+            if (combination.Any(x => x.game.Value == 0.0))
             {
                 //Console.WriteLine("Warning: Incorrect combination: 0.0 odd value present");
                 //combination.ForEach(x => Console.WriteLine(x.ToString()));
@@ -174,6 +168,7 @@ namespace Arbitrage.ArbitrageCalculator
         }
 
         /// <summary>
+        /// Deprecated and has errors 
         /// Calculate arbitrage score (profit) from given combination, with validity check
         /// </summary>
         /// <param name="combination">Combination off OddDatas</param>
@@ -182,7 +177,7 @@ namespace Arbitrage.ArbitrageCalculator
         {
             if (!ValidateCombination(combination)) { return 0.0; }
 
-            var arbScore = 1.0 - ProbabilitySum(combination.Select(x => x.value).ToList());
+            var arbScore = 1.0 - ProbabilitySum(combination.Select(x => x.game.Value).ToList());
 
             return arbScore;
         }

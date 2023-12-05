@@ -1,20 +1,12 @@
 ﻿using Arbitrage.Utils;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.ArbitrageCalculator
 {
     public class Combination
     {
-        public Combination(List<Ticket> tickets, double profit, List<Participant> teams, DateTime starTime) 
+        public Combination(List<Ticket> tickets, double profit) 
         {
             this.tickets = tickets;
-            this.teams = teams;
-            this.startTime = starTime;
             this.profit = profit;
         }
 
@@ -32,9 +24,9 @@ namespace Arbitrage.ArbitrageCalculator
 
         public override string ToString()
         {
-            var combStr = string.Format("{0} vs {1} @ {2}", teams[0].Name, teams[1].Name, startTime.ToString()) + Environment.NewLine;
+            //var combStr = string.Format("{0} vs {1} @ {2}", teams[0].Name, teams[1].Name, startTime.ToString()) + Environment.NewLine;
 
-            combStr += string.Format("Profit: {0}", profit) + Environment.NewLine;
+            var combStr = string.Format("Profit: {0}", profit) + Environment.NewLine;
 
             foreach (var t in tickets)
             {
@@ -47,9 +39,5 @@ namespace Arbitrage.ArbitrageCalculator
         public List<Ticket> tickets;
 
         public double profit;
-
-        public List<Participant> teams;
-
-        public DateTime startTime;
     }
 }

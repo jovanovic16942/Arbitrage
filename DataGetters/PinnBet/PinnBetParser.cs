@@ -14,7 +14,7 @@ namespace Arbitrage.DataGetters.Pinnbet
     {
         private readonly PinnBetGetter _getter = new();
 
-        public PinnBetParser(): base(BettingHouses.PinnBet) { }
+        public PinnBetParser(): base(BettingHouse.PinnBet) { }
 
         protected override void UpdateData()
         {

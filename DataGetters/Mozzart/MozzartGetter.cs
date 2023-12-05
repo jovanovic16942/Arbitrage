@@ -78,9 +78,14 @@ namespace Arbitrage.DataGetters.Mozzart
                 // execute the request and get the response
                 RestResponse response = client.Execute(request);
 
-                var oddsResponse = JsonConvert.DeserializeObject<List<JsonRoot>>(response.Content);
-
-                result.AddRange(oddsResponse);
+                try
+                {
+                    var oddsResponse = JsonConvert.DeserializeObject<List<JsonRoot>>(response.Content);
+                    result.AddRange(oddsResponse);
+                } catch (Exception ex)
+                {
+                    // log
+                }
 
                 //Console.WriteLine("MozzartGetter GetOdds iteration: " + i);
                 Thread.Sleep(Constants.SleepTime);

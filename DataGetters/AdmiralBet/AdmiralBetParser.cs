@@ -1,13 +1,6 @@
 ﻿using Arbitrage.DataGetters.Admiralbet;
-using Arbitrage.DataGetters.MaxBet;
 using Arbitrage.General;
 using Arbitrage.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Arbitrage.DataGetters.AdmiralBet
 {
@@ -15,22 +8,19 @@ namespace Arbitrage.DataGetters.AdmiralBet
     {
         private readonly AdmiralBetGetter _getter = new();
 
-        public AdmiralBetParser() : base(BettingHouses.AdmiralBet) { }
+        public AdmiralBetParser() : base(BettingHouse.AdmiralBet) { }
 
         private void ParseMatchEvent(JsonEvent matchEvent)
         {
             if (matchEvent.isTopOffer) { return; } // Skip special offfers
 
-            DateTime dt = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
+            DateTime startTime = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
 
-            var participants = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
+            var teams = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
 
-            if (participants.Count < 2) { return; } // For now skip matches with < 2 teams, since football only has 2 teams
+            if (teams.Count < 2) { return; } // For now skip matches with < 2 teams
 
-            Participant p1 = new(participants[0]);
-            Participant p2 = new(participants[1]);
-
-            Match match = new(dt, p1, p2);
+            HouseMatchData matchData = new(House, Sport.Football, startTime, teams[0], teams[1]);
 
             // Add odds
             foreach (var betGame in matchEvent.bets)
@@ -39,22 +29,26 @@ namespace Arbitrage.DataGetters.AdmiralBet
                 {
                     int betGameId = outcome.betTypeOutcomeId;
 
+                    if (!betGameFromInt.Keys.Contains(betGameId)) continue;
+
+                    double? thr = null;
+
                     // Special parsing for over-under with sbv
                     if (betGameId == 429 || betGameId == 430)
                     {
-                        // ex. 429 with sbv 2.5 -> 2429
-                        betGameId += 1000 * int.Parse(outcome.sBV.Trim()[..1]); 
+                        thr = double.Parse(outcome.sBV.Trim());
                     }
 
-                    if (betGameFromInt.Keys.Contains(betGameId))
+                    BetGame bg = new(betGameFromInt[betGameId], thr)
                     {
-                        var bg = betGameFromInt[betGameId];
-                        match.AddBetGame(bg, outcome.odd);
-                    }
+                        Value = outcome.odd
+                    };
+
+                    matchData.AddBetGame(bg);
                 }
             }
 
-            _data.Insert(match);
+            _parsedData.Add(matchData);
         }
 
         private void ParseMatchResponse(JsonMatchResponse response)
@@ -71,7 +65,7 @@ namespace Arbitrage.DataGetters.AdmiralBet
                 }
             }
         }
-        protected override void UpdateData()
+        protected override void ParseFootball()
         {
             var matchResponses = _getter.GetMatches();
 
@@ -82,10 +76,29 @@ namespace Arbitrage.DataGetters.AdmiralBet
         }
 
         /// <summary>
-        /// Map betGames from json response bet type outcome id to BettingGames enum
+        /// Map betGames from json response bet type outcome id_str to BetGameConfig
         /// over-under (total goals) odds have special rules
         /// </summary>
-        static readonly Dictionary<int, BettingGames> betGameFromInt = new()
+        static readonly Dictionary<int, BetGameConfig> betGameFromInt = new()
+        {
+            {424, new(BetGameType.WX1) },
+            {425, new(BetGameType.WXX) },
+            {426, new(BetGameType.WX2) },
+            {501, new(BetGameType.D12) },
+            {500, new(BetGameType.D1X) },
+            {502, new(BetGameType.DX2) },
+            {498, new(BetGameType.GG) },
+            {499, new(BetGameType.NG) },
+
+            {429, new(BetGameType.UNDER)},
+            {430, new(BetGameType.OVER)},
+        };
+
+        /// <summary>
+        /// Map betGames from json response bet type outcome id_str to BettingGames enum
+        /// over-under (total goals) odds have special rules
+        /// </summary>
+        static readonly Dictionary<int, BettingGames> betGameFromIntOld = new()
         {
             {424, BettingGames._1 },
             {425, BettingGames._X },
@@ -95,14 +108,14 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {501, BettingGames._12 },
             {500, BettingGames._1X },
             {502, BettingGames._X2 },
-            // 429 is outcome id for subgame UNDER
+            // 429 is outcome id_str for subgame UNDER
             {1429, BettingGames._UG_0_1 },
             {2429, BettingGames._UG_0_2 },
             {3429, BettingGames._UG_0_3 },
             {4429, BettingGames._UG_0_4 },
             {5429, BettingGames._UG_0_5 },
             {6429, BettingGames._UG_0_6 },
-            // 430 is outcome id for subgame OVER
+            // 430 is outcome id_str for subgame OVER
             {1430, BettingGames._UG_2_PLUS },
             {2430, BettingGames._UG_3_PLUS },
             {3430, BettingGames._UG_4_PLUS },

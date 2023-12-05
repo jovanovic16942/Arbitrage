@@ -10,13 +10,17 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.Utils
 {
+
+    /// <summary>
+    /// DEPRECATED
+    /// </summary>
     public class HouseOdds
     {
-        public BettingHouses House;
+        public BettingHouse House;
 
         public Dictionary<BettingGames, double> Games;
 
-        public HouseOdds(BettingHouses house) 
+        public HouseOdds(BettingHouse house) 
         {
             House = house;
             Games = new Dictionary<BettingGames, double>();

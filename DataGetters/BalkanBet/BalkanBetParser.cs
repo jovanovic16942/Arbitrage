@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.BalkanBet
     {
         private readonly BalkanBetGetter _getter = new();
 
-        public BalkanBetParser() : base(BettingHouses.BalkanBet) { }
+        public BalkanBetParser() : base(BettingHouse.BalkanBet) { }
 
         protected override void UpdateData()
         {
@@ -57,7 +57,7 @@ namespace Arbitrage.DataGetters.BalkanBet
         }
 
         /// <summary>
-        /// Map bet game name from json response to BettingGames enum
+        /// Map bet game name from json response to BetGameConfig
         /// </summary>
         static readonly Dictionary<string, BettingGames> betGameFromString = new()
         {

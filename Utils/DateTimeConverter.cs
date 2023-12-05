@@ -10,7 +10,7 @@ namespace Arbitrage.Utils
     {
         public static DateTime DateTimeFromLong(long dateTimeLong, int offsetHours = 0)
         {
-            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            DateTime unixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
             var dateTime = unixEpoch.AddMilliseconds(dateTimeLong).AddHours(offsetHours);
             return dateTime;
         }

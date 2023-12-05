@@ -35,7 +35,7 @@ namespace Arbitrage.DataGetters.BalkanBet
         public JsonMatchResponse GetMatchResponse(long matchId)
         {
             Thread.Sleep(Constants.SleepTimeShort);
-            string url = "https://sports-sm-distribution-api.de-2.nsoftcdn.com/api/v1/events/" + matchId + "?companyUuid=4f54c6aa-82a9-475d-bf0e-dc02ded89225&id=" + matchId + "&language=%7B%22default%22:%22sr-Latn%22,%22events%22:%22sr-Latn%22,%22sport%22:%22sr-Latn%22,%22category%22:%22sr-Latn%22,%22tournament%22:%22sr-Latn%22,%22team%22:%22sr-Latn%22,%22market%22:%22sr-Latn%22%7D&timezone=Europe%2FBelgrade&dataFormat=%7B%22default%22:%22array%22,%22markets%22:%22array%22,%22events%22:%22array%22%7D";
+            string url = "https://sports-sm-distribution-api.de-2.nsoftcdn.com/api/v1/events/" + matchId + "?companyUuid=4f54c6aa-82a9-475d-bf0e-dc02ded89225&id_str=" + matchId + "&language=%7B%22default%22:%22sr-Latn%22,%22events%22:%22sr-Latn%22,%22sport%22:%22sr-Latn%22,%22category%22:%22sr-Latn%22,%22tournament%22:%22sr-Latn%22,%22team%22:%22sr-Latn%22,%22market%22:%22sr-Latn%22%7D&timezone=Europe%2FBelgrade&dataFormat=%7B%22default%22:%22array%22,%22markets%22:%22array%22,%22events%22:%22array%22%7D";
 
             var client = new RestClient(url);
 

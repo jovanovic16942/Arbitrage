@@ -16,7 +16,7 @@ namespace Arbitrage.DataGetters.Meridian
     {
         private readonly MeridianGetter _getter = new();
 
-        public MeridianParser(): base(BettingHouses.Meridian) { }
+        public MeridianParser(): base(BettingHouse.Meridian) { }
 
         protected override void UpdateData()
         {

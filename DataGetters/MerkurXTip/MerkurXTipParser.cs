@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.MerkurXTip
     {
         private readonly MerkurXTipGetter _getter = new();
 
-        public MerkurXTipParser() : base(BettingHouses.MerkurXTip) { }
+        public MerkurXTipParser() : base(BettingHouse.MerkurXTip) { }
 
         private void ParseMatch(JsonMatch jsonMatch)
         {

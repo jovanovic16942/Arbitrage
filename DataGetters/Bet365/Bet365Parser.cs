@@ -12,7 +12,7 @@ namespace Arbitrage.DataGetters.Bet365
     {
         private readonly Bet365Getter _getter = new();
 
-        public Bet365Parser() : base(BettingHouses.Bet365)
+        public Bet365Parser() : base(BettingHouse.Bet365)
         {
         }
 

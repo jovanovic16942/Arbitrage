@@ -15,7 +15,6 @@ namespace Arbitrage.DataGetters.SuperBet
 
         public JsonMatchResponse GetMatches()
         {
-
             string startDate = DateTime.Now.ToString("yyyy-MM-dd+HH:mm:ss");
             string endDate = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd+HH:mm:ss");
 

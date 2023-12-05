@@ -9,18 +9,18 @@ namespace Arbitrage.DataGetters.Mozzart
     {
         private readonly MozzartGetter _getter = new();
 
-        public MozzartParser() : base(BettingHouses.Mozzart) { }
+        public MozzartParser() : base(BettingHouse.Mozzart) { }
 
         protected override void UpdateData()
         {
             var respMatches = _getter.GetMatches();
 
-            //removed matches that expect n+ games in one ticket
+            //removed matches that expect n+ betGames in one ticket
             respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
 
             UpdateMatches(respMatches);
 
-            var matchIDs = _data.GetMatches().Select(x => x.MatchId).ToList();
+            var matchIDs = _data.GetMatches().Select(x => x.matchId).ToList();
             var respOdds = _getter.GetOdds(matchIDs);
             UpdateOdds(respOdds);
         }
@@ -44,7 +44,7 @@ namespace Arbitrage.DataGetters.Mozzart
                 }
                 catch
                 {
-                    // TODO Exception is thrown for Matches with 1 participant
+                    // TODO Exception is thrown for matches with 1 participant
                 }
             }
 

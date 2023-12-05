@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.MaxBet
     {
         private readonly MaxBetGetter _getter = new();
 
-        public MaxBetParser() : base(BettingHouses.MaxBet) { }
+        public MaxBetParser() : base(BettingHouse.MaxBet) { }
 
         private void ParseMatch(JsonMatch jsonMatch)
         {
@@ -70,7 +70,7 @@ namespace Arbitrage.DataGetters.MaxBet
         }
 
         /// <summary>
-        /// Map bet game id from json response to BettingGames enum
+        /// Map bet game id_str from json response to BettingGames enum
         /// </summary>
         static readonly Dictionary<int, BettingGames> betGameFromInt = new()
         {

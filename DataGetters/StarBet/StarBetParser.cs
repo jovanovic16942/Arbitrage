@@ -7,7 +7,7 @@ namespace Arbitrage.DataGetters.StarBet
     {
         private readonly StarBetGetter _getter = new();
 
-        public StarBetParser() : base(BettingHouses.StarBet) { }
+        public StarBetParser() : base(BettingHouse.StarBet) { }
 
         protected override void UpdateData()
         {

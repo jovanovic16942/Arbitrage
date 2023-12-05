@@ -56,7 +56,7 @@ namespace Arbitrage.DataGetters.Admiralbet
             request.AddHeader("Accept-Encoding", "gzip, deflate, br");
             request.AddHeader("Accept-Language", "en-AU,en;q=0.9");
             request.AddHeader("Connection", "keep-alive");
-            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Content-type", "application/json");
             request.AddHeader("Host", "sport-webapi.admiralbet.rs");
             request.AddHeader("Language", "sr-Latn");
             request.AddHeader("Officeid", "138");

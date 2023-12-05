@@ -23,7 +23,7 @@ namespace Arbitrage.DataGetters.SuperBet
         public string mn; //Participant1 and Participant2 names separated by ·
         public string msn; //Participants with short names
         public string uuid;
-        public int si; //id sporta - f(5) , k(4)
+        public int si; //id_str sporta - f(5) , k(4)
         public object cnts;
         public object mtd;
         public List<JsonOdd> odds;

@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.SoccerBet
     {
         private readonly SoccerBetGetter _getter = new();
 
-        public SoccerBetParser() : base(BettingHouses.SoccerBet) { }
+        public SoccerBetParser() : base(BettingHouse.SoccerBet) { }
 
         private void ParseMatch(JsonMatch jsonMatch)
         {

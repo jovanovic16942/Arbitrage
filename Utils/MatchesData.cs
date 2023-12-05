@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.Utils
 {
+    /// <summary>
+    /// DEPRECATED
+    /// </summary>
     public class Participant
     {
         public int Id { get; set; }
@@ -33,28 +36,19 @@ namespace Arbitrage.Utils
         }
     }
 
-    public class SubGame
-    {
-        public int Id { get; set; }
-        public double Value { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class Game
-    {
-        public int Id { get; set; }
-        public List<SubGame> SubGames { get; set; }
-    }
-
+    /// <summary>
+    /// DEPRECATED
+    /// </summary>
     public class Match
     {
-        public int MatchId { get; set; }
+        public Sport sport { get; set; }
+        public int matchId { get; set; }
 
-        public Participant Team1 { get; set; }
-        public Participant Team2 { get; set; }
-        public DateTime StartTime { get; set; }
+        public Participant team1 { get; set; }
+        public Participant team2 { get; set; }
+        public DateTime startTime { get; set; }
         
-        public Dictionary<BettingGames, double> BetGames { get; } = new Dictionary<BettingGames, double>();
+        public Dictionary<BettingGames, double> betGames { get; } = new Dictionary<BettingGames, double>();
 
 
         /// <summary>
@@ -66,73 +60,75 @@ namespace Arbitrage.Utils
         /// <param name="participant2"></param>
         public Match(int matchId, DateTime startTime, Participant participant1, Participant participant2)
         {
-            MatchId = matchId;
-            StartTime = startTime;
+            this.matchId = matchId;
+            this.startTime = startTime;
 
-            Team1 = participant1;
-            Team2 = participant2;
+            team1 = participant1;
+            team2 = participant2;
 
         }
 
-        public Match(DateTime startTime, Participant participant1, Participant participant2)
+        public Match(DateTime startTime, Participant participant1, Participant participant2, Sport sport = Sport.Football)
         {
-            MatchId = 0; // beskorisno za sad
-            StartTime = startTime;
+            matchId = 0; // beskorisno za sad
+            this.startTime = startTime;
 
-            Team1 = participant1;
-            Team2 = participant2;
+            team1 = participant1;
+            team2 = participant2;
 
+            this.sport = sport;
         }
 
         public void AddBetGame(BettingGames game, double value)
         {
-            BetGames.Add(game, value);
+            betGames.Add(game, value);
         }
 
         public void TryAddBetGame(BettingGames game, double value)
         {
-            BetGames.TryAdd(game, value);
+            betGames.TryAdd(game, value);
         }
 
         public override string ToString()
         {
             return string.Format("{0} vs {1} - {2}",
-                Team1.Name, Team2.Name, StartTime);
+                team1.Name, team2.Name, startTime);
         }
 
     }
 
     /// <summary>
+    /// DEPRECATED
     /// Data obtained from a single source
     /// </summary>
     public class MatchesData
     {
-        public BettingHouses bettingHouse;
-        private List<Match> Matches { get; }
+        public BettingHouse bettingHouse;
+        private List<Match> matches { get; }
 
-        public MatchesData(BettingHouses bettingHouse)
+        public MatchesData(BettingHouse bettingHouse)
         {
             this.bettingHouse = bettingHouse;
-            Matches = new List<Match>();
+            matches = new List<Match>();
         }
         public List<Match> GetMatches()
         {
-            return Matches;
+            return matches;
         }
 
         public void Insert(Match match)
         {
-            Matches.Add(match);
+            matches.Add(match);
         }
 
         public void InsertRange(List<Match> newMatches) 
         { 
-            Matches.AddRange(newMatches);
+            matches.AddRange(newMatches);
         }
 
         public void UpdateMatchSubgame(int matchID, BettingGames betGame, double value)
         {
-            var match = Matches.FirstOrDefault(x => x.MatchId == matchID);
+            var match = matches.FirstOrDefault(x => x.matchId == matchID);
 
             if (match == null) return;
 
@@ -141,15 +137,15 @@ namespace Arbitrage.Utils
 
         public double GetSubgameValue(int matchID, BettingGames betGame)
         {
-            var match = Matches.FirstOrDefault(x => x.MatchId == matchID);
+            var match = matches.FirstOrDefault(x => x.matchId == matchID);
 
             if (match == null) return 0;
 
-            return match.BetGames[betGame];
+            return match.betGames[betGame];
         }
     }
 
-    //MatchesData() -> Matches -> foodbal
+    //MatchesData() -> matches -> foodbal
     //MatchesData.parse(mozzartGetter)
 
 

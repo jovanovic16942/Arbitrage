@@ -9,24 +9,23 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class Ticket
     {
-        public Ticket(BettingHouses house, BettingGames game, double value, double risk)
+        public Ticket(BettingHouse house, BetGame game, double risk = 0.0)
         {
             this.house = house;
             this.game = game;
-            this.value = value;
             this.risk = risk;
         }
 
         public void SetStake(double totalWinnings)
         {
-            stake = totalWinnings / value;
+            stake = totalWinnings / game.Value;
         }
 
         public override string ToString()
         {
             string sep = " ";
-            var oddString = house.ToString() + sep + game.ToString() + sep + value.ToString();
-            if (value > 0)
+            var oddString = house.ToString() + sep + game.ToString() + sep + game.Value.ToString();
+            if (stake > 0)
             {
                 oddString += sep + stake.ToString();
             }
@@ -34,9 +33,8 @@ namespace Arbitrage.ArbitrageCalculator
             return oddString;
         }
 
-        public BettingHouses house;
-        public BettingGames game;
-        public double value;
+        public BettingHouse house;
+        public BetGame game;
         public double stake = 0;
         public double risk;
     }

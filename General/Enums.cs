@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Arbitrage.General
 {
-    public enum BettingHouses
+    public enum BettingHouse
     {
         Mozzart,
         Meridian,
@@ -25,8 +25,131 @@ namespace Arbitrage.General
         DefaultHouse, // Dummy house
     }
 
+    public enum BetGameType
+    {
+        /// <summary>
+        /// Team 1 wins the game (No chance of draw)
+        /// </summary>
+        W1,
+        /// <summary>
+        /// Team 2 wins the game (No chance of draw)
+        /// </summary>
+        W2,
+
+        /// <summary>
+        /// Team 1 wins the match (draw is possible)
+        /// </summary>
+        WX1,
+        /// <summary>
+        /// The match ends in a draw
+        /// </summary>
+        WXX,
+        /// <summary>
+        /// Team 2 wins the match (draw is possible)
+        /// </summary>
+        WX2,
+
+        /// <summary>
+        /// Team 1 wins or the match ends in a draw
+        /// </summary>
+        D1X,
+        /// <summary>
+        /// Team 2 wins or the match ends in a draw
+        /// </summary>
+        DX2,
+        /// <summary>
+        /// Team 1 wins or Team 2 wins
+        /// </summary>
+        D12,
+
+        /// <summary>
+        /// Both teams score at least 1 goal
+        /// </summary>
+        GG,
+        /// <summary>
+        /// At least 1 team does not score a goal
+        /// </summary>
+        NG,
+
+        /// <summary>
+        /// Number of scored points is above the given threshold
+        /// </summary>
+        OVER,
+        /// <summary>
+        /// Number of scored points is below the given threshold
+        /// </summary>
+        UNDER,
+    }
+
+    /// <summary>
+    /// Time period of the match
+    /// </summary>
+    public enum GamePeriod
+    {
+        /// <summary>
+        /// Full duration of the match
+        /// </summary>
+        M,
+        /// <summary>
+        /// First half of the match
+        /// </summary>
+        H1,
+        /// <summary>
+        /// Second half of the match
+        /// </summary>
+        H2,
+        /// <summary>
+        /// First quarter of the match
+        /// </summary>
+        Q1,
+        /// <summary>
+        /// Second quarter of the match
+        /// </summary>
+        Q2,
+        /// <summary>
+        /// Third quarter of the match
+        /// </summary>
+        Q3,
+        /// <summary>
+        /// Final quarter of the match
+        /// </summary>
+        Q4,
+        /// <summary>
+        /// Quarter with most scored points
+        /// </summary>
+        QB,
+    }
+
+    /// <summary>
+    /// Team for OVER UNDER bet games
+    /// </summary>
+    public enum Team
+    {
+        /// <summary>
+        /// Total for both teams
+        /// </summary>
+        T,
+        /// <summary>
+        /// Team 1
+        /// </summary>
+        T1,
+        /// <summary>
+        /// Team 2
+        /// </summary>
+        T2,
+    }
+
+    /// <summary>
+    /// Deprecated
+    /// </summary>
     public enum BettingGames
     {
+        /*
+         * 
+         * FOOTBALL BETTING GAMES
+         * 
+         */
+
         // Match result
         _1,
         _X,
@@ -104,12 +227,77 @@ namespace Arbitrage.General
         // TODO ukupno golova za prvo i drugo poluvreme (ukupno i za svaki tim posebno)
 
 
+        /*
+         * 
+         * BASKETBALL BETTING GAMES
+         * 
+         */
+
+        // Winner with time extensions
+        B_W1,
+        B_W2,
+        
+        // Results
+        B_1,
+        B_X,
+        B_2,
+        B_1X,
+        B_12,
+        B_X2,
+        // I half
+        B_1_I,
+        B_X_I,
+        B_2_I,
+        B_1X_I,
+        B_12_I,
+        B_X2_I,
+        // II half
+        B_1_II,
+        B_X_II,
+        B_2_II,
+        B_1X_II,
+        B_12_II,
+        B_X2_II,
+
+        // OVER UNDER
+        B_OVER,
+        B_UNDER,
+        // Half-time
+        B_OVER_I,
+        B_UNDER_I,
+        B_OVER_II,
+        B_UNDER_II,
+        // Quarters (each of 4 and best)
+        B_OVER_Q1,
+        B_UNDER_Q1,
+        B_OVER_Q2,
+        B_UNDER_Q2,
+        B_OVER_Q3,
+        B_UNDER_Q3,
+        B_OVER_Q4,
+        B_UNDER_Q4,
+        B_OVER_QB,
+        B_UNDER_QB,
+        // Teams (total and half-times)
+        B_T1_OVER,
+        B_T1_UNDER,
+        B_T1_OVER_I,
+        B_T1_UNDER_I,
+        B_T1_OVER_II,
+        B_T1_UNDER_II,
+        B_T2_OVER,
+        B_T2_UNDER,
+        B_T2_OVER_I,
+        B_T2_UNDER_I,
+        B_T2_OVER_II,
+        B_T2_UNDER_II,
+
         DEFAULT // Dummy betting game
     }
 
-    public enum Sports
+    public enum Sport
     {
-        Fudbal,
-        Basket
+        Football,
+        Basketball,
     }
 }
