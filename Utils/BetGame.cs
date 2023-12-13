@@ -10,17 +10,8 @@ namespace Arbitrage.General
 
         public BetGameConfig(BetGameType b,
                              GamePeriod p = GamePeriod.M,
-                             Team? t = null)
-        {
-            type = b;
-            period = p;
-            team = t;
-            threshold = null;
-        }
-        public BetGameConfig(BetGameType b,
-                             double? thr = null,
-                             GamePeriod p = GamePeriod.M,
-                             Team? t = null)
+                             Team? t = null,
+                             double? thr = null)
         {
             type = b;
             period = p;
@@ -87,6 +78,11 @@ namespace Arbitrage.General
 
         public BetGame(BetGameType t, GamePeriod p, Team? tm = null, double? thr = null)
         {
+            if ((t == BetGameType.OVER || t == BetGameType.UNDER) && thr == null)
+            {
+                throw new ArgumentException("Bet games of type UNDER/OVER require a threshold value");
+            }
+
             type = t;
             period = p;
             team = tm;

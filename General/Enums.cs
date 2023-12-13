@@ -28,13 +28,23 @@ namespace Arbitrage.General
     public enum BetGameType
     {
         /// <summary>
-        /// Team 1 wins the game (No chance of draw)
+        /// Team 1 wins the game (No chance of draw) 
         /// </summary>
         W1,
         /// <summary>
         /// Team 2 wins the game (No chance of draw)
         /// </summary>
         W2,
+
+        /// <summary>
+        /// Team 1 wins the game (draw returns invest)
+        /// </summary>
+        W1_X_0,
+
+        /// <summary>
+        /// Team 2 wins the game (draw returns invest)
+        /// </summary>
+        W2_X_0,
 
         /// <summary>
         /// Team 1 wins the match (draw is possible)

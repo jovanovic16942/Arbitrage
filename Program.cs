@@ -18,7 +18,7 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
     //new DataLoader(new MerkurXTipParser()),
-    new DataLoader(BettingHouse.SuperBet),
+    //new DataLoader(BettingHouse.SuperBet),
     //new DataLoader(new BalkanBetParser()),
     //new DataLoader(new StarBetParser()),
     //new DataLoader(new OktagonBetParser()),

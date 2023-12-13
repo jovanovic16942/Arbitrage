@@ -19,6 +19,7 @@ namespace Arbitrage.DataGetters.AdmiralBet
     public class JsonCompetition
     {
         public int competitionId;
+        public int regionId;
         public string competitonName;
 
         public List<JsonEvent> events;
@@ -26,11 +27,15 @@ namespace Arbitrage.DataGetters.AdmiralBet
 
     public class JsonEvent
     {
-        public int id;
+        public long id;
         public string name;
         public List<JsonBet> bets;
         public string dateTime;
         public bool isTopOffer;
+        public int sportId;
+
+
+        public long eventId;
     }
 
     public class JsonBet
@@ -45,4 +50,5 @@ namespace Arbitrage.DataGetters.AdmiralBet
         public string name;
         public int betTypeOutcomeId;
     }
+
 }
