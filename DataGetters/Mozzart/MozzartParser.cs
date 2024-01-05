@@ -1,5 +1,6 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
+using NLog;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,11 @@ namespace Arbitrage.DataGetters.Mozzart
     {
         private readonly MozzartGetter _getter = new();
 
-        public MozzartParser() : base(BettingHouse.Mozzart) { }
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        public MozzartParser() : base(BettingHouse.Mozzart) 
+        {
+            logger.Info("MozzartParser created!");
+        }
 
         protected override void UpdateData()
         {

@@ -7,7 +7,7 @@ namespace Arbitrage.DataGetters.SuperBet
     {
         private readonly SuperBetGetter _getter = new();
 
-        JsonMatchResponse? _matchResponse = null;
+        JsonMatchesResponse? _matchResponse = null;
 
         public SuperBetParser() : base(BettingHouse.SuperBet) 
         {
@@ -36,26 +36,95 @@ namespace Arbitrage.DataGetters.SuperBet
         {
             List<int> matchIds = matches.Select(x => x._id).ToList();
 
-            int step = 20;
-
-            for (int i = 0; (i * step) < matchIds.Count; i++)
+            foreach (var matchId in matchIds)
             {
-                int total = step * i;
-
-                var fullResponse = _getter.GetMatchData(matchIds.Skip(total).Take(step));
-
-                foreach (var jsonMatch in fullResponse.data)
+                var matchResp = _getter.GetMatchResponse(matchId);
+                try
                 {
-                    try
-                    {
-                        ParseJsonMatch(jsonMatch);
-                    }
-                    catch (Exception e)
-                    {
-                        // Loggovanje
-                    }
+                    ParseJsonMatchResp(matchResp);
+                } catch (Exception ex)
+                {
+
                 }
             }
+
+            /// OLD WAY
+            //int step = 20;
+
+            //for (int i = 0; (i * step) < matchIds.Count; i++)
+            //{
+            //    int total = step * i;
+
+            //    var fullResponse = _getter.GetMatchData(matchIds.Skip(total).Take(step));
+
+            //    foreach (var jsonMatch in fullResponse.data)
+            //    {
+            //        try
+            //        {
+            //            ParseJsonMatch(jsonMatch);
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            // Loggovanje
+            //        }
+            //    }
+            //}
+        }
+
+        private void ParseJsonMatchResp(JsonMatchResponse matchResp)
+        {
+            if (matchResp == null || matchResp.data == null || matchResp.data.Count != 1) return;
+
+            var jsonMatch = matchResp.data[0];
+
+            if (jsonMatch.odds == null) return;
+
+            DateTime startTime = DateTime.Parse(jsonMatch.matchDate).AddHours(1);
+            List<string> teams = jsonMatch.matchName.Split("·").Select(x => x.Trim()).ToList();
+
+            var sport = sportFromId[jsonMatch.sportId];
+            var bgMap = sportMaps[sport];
+            HouseMatchData matchData = new(House, sport, startTime, teams[0], teams[1]);
+
+            foreach(var jsonOdd in jsonMatch.odds)
+            {
+                try
+                {
+                    int betGameId = jsonOdd.outcomeId;
+                    if (!bgMap.ContainsKey(betGameId)) continue;
+                    BetGameConfig cfg = bgMap[betGameId];
+
+                    var spc = jsonOdd.specialBetValue;
+
+                    if (spc != null && spc.Contains("-"))
+                    {
+                        spc = spc.Substring(spc.IndexOf("-") + 1);
+                    }
+
+                    if (cfg.period == GamePeriod.NONE)
+                    {
+                        cfg.SetPeriod(quarterFromSpecifier[jsonOdd.specifiers.quarternr]);
+                    }
+
+                    if (spc != null && double.TryParse(spc, out double thr))
+                    {
+                        cfg.SetThreshold(thr);
+                    }
+
+                    BetGame bg = new(cfg)
+                    {
+                        Value = jsonOdd.price
+                    };
+
+
+                    matchData.AddBetGame(bg);
+                } catch (Exception e)
+                {
+
+                }
+            }
+
+            _parsedData.Add(matchData);
         }
 
         void ParseJsonMatch(JsonMatch jsonMatch)
@@ -70,7 +139,7 @@ namespace Arbitrage.DataGetters.SuperBet
             foreach(var jsonOdd in jsonMatch.odds)
             {
                 int betGameId = jsonOdd.oi;
-                if (!betGameFromOI.ContainsKey(betGameId)) continue;
+                if (!bgFromOutcomeIdFootball.ContainsKey(betGameId)) continue;
 
                 double? thr = null;
 
@@ -80,7 +149,7 @@ namespace Arbitrage.DataGetters.SuperBet
                     thr = (int)Math.Truncate(jsonOdd.spc.total);
                 }
 
-                BetGameConfig cfg = betGameFromOI[betGameId];
+                BetGameConfig cfg = bgFromOutcomeIdFootball[betGameId];
                 //cfg.threshold = thr;
 
                 BetGame bg = new(cfg)
@@ -93,6 +162,18 @@ namespace Arbitrage.DataGetters.SuperBet
             _parsedData.Add(matchData);
         }
 
+
+        /// <summary>
+        /// Map quarternr from json to GamePeriod
+        /// </summary>
+        static readonly Dictionary<string, GamePeriod> quarterFromSpecifier = new()
+        {
+            {"1", GamePeriod.Q1 },
+            {"2", GamePeriod.Q2 },
+            {"3", GamePeriod.Q3 },
+            {"4", GamePeriod.Q4 },
+        };
+
         /// <summary>
         /// Map sportId from json response si to sport enum
         /// </summary>
@@ -102,10 +183,11 @@ namespace Arbitrage.DataGetters.SuperBet
             {4, Sport.Basketball},
         };
 
+        
         /// <summary>
         /// Map betGames from json response oi (odd id_str) to BetGameConfig
         /// </summary>
-        static readonly Dictionary<int, BetGameConfig> betGameFromOI = new()
+        static readonly Dictionary<int, BetGameConfig> bgFromOutcomeIdFootball = new()
         {
             {1470, new(BetGameType.WX1) },
             {1471, new(BetGameType.WXX) },
@@ -138,22 +220,73 @@ namespace Arbitrage.DataGetters.SuperBet
             {151888, new(BetGameType.UNDER)},
             {151889, new(BetGameType.OVER)},
             // TODO Over - under per teams and halftimes-quarters
-            //{, new(BetGameType.UNDER, GamePeriod.H1)},
-            //{, new(BetGameType.OVER, GamePeriod.H1)},
-            //{, new(BetGameType.UNDER, GamePeriod.H2)},
-            //{, new(BetGameType.OVER, GamePeriod.H2)},
-            //{, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
-            //{, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
-            //{, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
-            //{, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
-            //{, new(BetGameType.UNDER, GamePeriod.H1, Team.T1)},
-            //{, new(BetGameType.OVER, GamePeriod.H1, Team.T1)},
-            //{, new(BetGameType.UNDER, GamePeriod.H1, Team.T2)},
-            //{, new(BetGameType.OVER, GamePeriod.H1, Team.T2)},
-            //{, new(BetGameType.UNDER, GamePeriod.H2, Team.T1)},
-            //{, new(BetGameType.OVER, GamePeriod.H2, Team.T1)},
-            //{, new(BetGameType.UNDER, GamePeriod.H2, Team.T2)},
-            //{, new(BetGameType.OVER, GamePeriod.H2, Team.T2)},
+            {151890, new(BetGameType.UNDER, GamePeriod.H1)},
+            {151891, new(BetGameType.OVER, GamePeriod.H1)},
+            {151896, new(BetGameType.UNDER, GamePeriod.H2)},
+            {151897, new(BetGameType.OVER, GamePeriod.H2)},
+            {1461, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
+            {1462, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
+            {1406, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
+            {1407, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
+            {6550, new(BetGameType.UNDER, GamePeriod.H1, Team.T1)},
+            {6551, new(BetGameType.OVER, GamePeriod.H1, Team.T1)},
+            {6554, new(BetGameType.UNDER, GamePeriod.H1, Team.T2)},
+            {6555, new(BetGameType.OVER, GamePeriod.H1, Team.T2)},
+            {4201740, new(BetGameType.UNDER, GamePeriod.H2, Team.T1)},
+            {4201741, new(BetGameType.OVER, GamePeriod.H2, Team.T1)},
+            {4201742, new(BetGameType.UNDER, GamePeriod.H2, Team.T2)},
+            {4201743, new(BetGameType.OVER, GamePeriod.H2, Team.T2)},
+        };
+
+
+        static readonly Dictionary<int, BetGameConfig> bgFromOutcomeIdBasket = new()
+        {
+            {2182, new(BetGameType.W1)},
+            {2183, new(BetGameType.W2)},
+
+            {2221, new(BetGameType.WX1)},
+            {2222, new(BetGameType.WXX)},
+            {2223, new(BetGameType.WX2)},
+            {162139, new(BetGameType.D1X) },
+            {162140, new(BetGameType.DX2) },
+
+            {2190, new(BetGameType.WX1, GamePeriod.H1)},
+            {2191, new(BetGameType.WXX, GamePeriod.H1)},
+            {2192, new(BetGameType.WX2, GamePeriod.H1)},
+
+            {162141, new(BetGameType.D1X, GamePeriod.H1) },
+            {162142, new(BetGameType.DX2, GamePeriod.H1) },
+
+
+            {2226, new(BetGameType.WX1, GamePeriod.NONE)},
+            {2227, new(BetGameType.WXX, GamePeriod.NONE)},
+            {2228, new(BetGameType.WX2, GamePeriod.NONE)},
+            {4203505, new(BetGameType.D1X, GamePeriod.Q1) },
+            {4203506, new(BetGameType.DX2, GamePeriod.Q1) },
+
+
+            {2204, new(BetGameType.WX1, GamePeriod.H2O)},
+            {2205, new(BetGameType.WXX, GamePeriod.H2O)},
+            {2206, new(BetGameType.WX2, GamePeriod.H2O)},
+
+            {2169, new(BetGameType.UNDER)},
+            {2170, new(BetGameType.OVER)},
+            {2159, new(BetGameType.UNDER, GamePeriod.H1)},
+            {2160, new(BetGameType.OVER, GamePeriod.H1)},
+            {2178, new(BetGameType.UNDER, GamePeriod.H2)},
+            {2179, new(BetGameType.OVER, GamePeriod.H2)},
+            {152243, new(BetGameType.UNDER, GamePeriod.H1, Team.T1)},
+            {152244, new(BetGameType.OVER, GamePeriod.H1, Team.T1)},
+            {152226, new(BetGameType.UNDER, GamePeriod.H1, Team.T2)},
+            {152227, new(BetGameType.OVER, GamePeriod.H1, Team.T2)},
+
+            {2260, new(BetGameType.UNDER, GamePeriod.NONE)},
+            {2261, new(BetGameType.OVER, GamePeriod.NONE)},
+
+            {152238, new(BetGameType.UNDER, GamePeriod.Q1, Team.T1)},
+            {152239, new(BetGameType.OVER, GamePeriod.Q1, Team.T1)},
+            {152222, new(BetGameType.UNDER, GamePeriod.Q1, Team.T2)},
+            {152223, new(BetGameType.OVER, GamePeriod.Q1, Team.T2)},
         };
 
         /// <summary>
@@ -203,6 +336,12 @@ namespace Arbitrage.DataGetters.SuperBet
             {5151889, BettingGames._UG_6_PLUS },
             {6151888, BettingGames._UG_0_6 },
             {6151889, BettingGames._UG_7_PLUS }
+        };
+
+        static readonly Dictionary<Sport, Dictionary<int, BetGameConfig>> sportMaps = new()
+        {
+            { Sport.Football, bgFromOutcomeIdFootball },
+            { Sport.Basketball, bgFromOutcomeIdBasket },
         };
     }
 }

@@ -10,7 +10,7 @@ namespace Arbitrage.DataGetters.SuperBet
     {
     }
 
-    public class JsonMatchResponse
+    public class JsonMatchesResponse
     {
         public List<JsonMatch> data;
     }
@@ -45,5 +45,38 @@ namespace Arbitrage.DataGetters.SuperBet
     public class JsonSpc
     {
         public double total;
+    }
+
+    public class JsonMatchResponse
+    {
+        public List<JsonMatchData> data;
+    }
+
+    public class JsonMatchData
+    {
+        public string matchName;
+        public string matchDate;
+        public List<JsonOddData> odds;
+        public int sportId;
+        public Dictionary<int, string> offerStateStatus;
+    }
+
+    public  class JsonOddData
+    {
+        public string code;
+        public string info;
+        public int marketId;
+        public string name;
+        public string marketName;
+        public double price;
+        public string specialBetValue;
+        public int outcomeId;
+        public JsonSpec specifiers;
+    }
+
+    public class JsonSpec
+    {
+        public string quarternr;
+        public string total;
     }
 }

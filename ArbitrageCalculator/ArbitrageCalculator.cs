@@ -66,6 +66,9 @@ namespace Arbitrage.ArbitrageCalculator
                 var bestGame = eventData.GetBestOdd(betGame);
                 var bestOppGame = eventData.GetBestOdd(betGame.GetOppositeGame());
 
+                // TODO log and handle exceptions
+                if (bestGame == null || bestOppGame == null) continue;
+
                 // Calculate Arbitrage
                 var arbScore = CalculateArbitrage(bestGame.Game.Value, bestOppGame.Game.Value);
 
@@ -87,6 +90,9 @@ namespace Arbitrage.ArbitrageCalculator
 
         public static double CalculateArbitrage(double v1, double v2, double investment = 1)
         {
+            if (v1 == 0) return 0;
+            if (v2 == 0) return 0;
+
             var p1 = 100 / v1;
             var p2 = 100 / v2;
 

@@ -109,6 +109,10 @@ namespace Arbitrage.General
         /// </summary>
         H2,
         /// <summary>
+        /// Second half of the match, includes overtime
+        /// </summary>
+        H2O,
+        /// <summary>
         /// First quarter of the match
         /// </summary>
         Q1,
@@ -125,9 +129,15 @@ namespace Arbitrage.General
         /// </summary>
         Q4,
         /// <summary>
+        /// Final quarter of the match, includes overtime
+        /// </summary>
+        Q4O,
+        /// <summary>
         /// Quarter with most scored points
         /// </summary>
         QB,
+
+        NONE,
     }
 
     /// <summary>

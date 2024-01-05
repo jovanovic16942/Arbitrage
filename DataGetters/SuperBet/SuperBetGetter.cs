@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.SuperBet
     public class SuperBetGetter
     {
 
-        public JsonMatchResponse GetMatches()
+        public JsonMatchesResponse GetMatches()
         {
             string startDate = DateTime.Now.ToString("yyyy-MM-dd+HH:mm:ss");
             string endDate = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd+HH:mm:ss");
@@ -26,12 +26,12 @@ namespace Arbitrage.DataGetters.SuperBet
 
             RestResponse response = client.Execute(request);
 
-            JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
+            JsonMatchesResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchesResponse>(response.Content);
 
             return matchResponse;
         }
 
-        public JsonMatchResponse GetMatchData(IEnumerable<int> matchIds)
+        public JsonMatchesResponse GetMatchData(IEnumerable<int> matchIds)
         {
             Thread.Sleep(Constants.SleepTime);
 
@@ -41,6 +41,23 @@ namespace Arbitrage.DataGetters.SuperBet
 
             //string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/" + idsString + "?matchIds=" + idsString;
 
+
+            var client = new RestClient(url);
+
+            var request = new RestRequest("", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            JsonMatchesResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchesResponse>(response.Content);
+
+            return matchResponse;
+        }
+
+        public JsonMatchResponse GetMatchResponse(int matchId)
+        {
+            Thread.Sleep(Constants.SleepTimeShort);
+
+            string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/" + matchId + "?matchIds=" + matchId;
 
             var client = new RestClient(url);
 

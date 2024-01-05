@@ -42,15 +42,16 @@ namespace Arbitrage.Utils
             {
                 var houseGame = houseData.GetBetGame(game);
                 if (houseGame == null) continue;
-                bgList.Add(new(houseData.house, game));
+                bgList.Add(new(houseData.house, houseGame));
             }
 
             return bgList.OrderBy(x => x.Game.Value).Take(numOfRes).ToList();
         }
 
-        public HouseBetGame GetBestOdd(BetGame game)
+        public HouseBetGame? GetBestOdd(BetGame game)
         {
-            return GetSortedOdds(game, 1).First();
+            var sortedOdds = GetSortedOdds(game, 1);
+            return sortedOdds?.FirstOrDefault();
         }
 
         /// <summary>

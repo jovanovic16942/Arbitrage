@@ -9,7 +9,7 @@ namespace Arbitrage.General
             Type type = Type.GetType(parserTypeStr)             ?? throw new Exception(string.Format("Unable to get type from string '{0}'", parserTypeStr));
             object instance = Activator.CreateInstance(type)    ?? throw new Exception(string.Format("Unable to create instance from type '{0}'", type.ToString()));
             return (IParser)instance;
-
+            
             //switch (house)
             //{
             //    case BettingHouse.Mozzart:

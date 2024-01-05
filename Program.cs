@@ -6,16 +6,18 @@ using Arbitrage.General;
 
 // TODO Skidanje ostalih kvota sa meridijana !!!
 // TODO LOGGING
+
+
 // TODO TOP BET
 
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
     //new DataLoader(new PinnBetParser()),  // TODO sad su nasli da rade update
-    //new DataLoader(new MozzartParser()),
+    new DataLoader(BettingHouse.Mozzart),
     //new DataLoader(new MeridianParser()),
     //new DataLoader(new MaxBetParser()),
-    new DataLoader(BettingHouse.AdmiralBet),
+    //new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
     //new DataLoader(new MerkurXTipParser()),
     //new DataLoader(BettingHouse.SuperBet),
@@ -43,6 +45,11 @@ var bestMatched = matched.MaxBy(x => x.data.Count);
 
 // Get betting advice
 var arb = new ArbitrageCalculator();
+
+arb.ProcessResults(success);
+
+var sortd = success.OrderBy(x => x.combinations.Count);
+
 //var res = arb.GetResults(success);
 //var best = res.Where(x => x.profit > 0.02).ToList();
 
@@ -51,5 +58,6 @@ var arb = new ArbitrageCalculator();
 
 
 var a = 2;
+
 
 

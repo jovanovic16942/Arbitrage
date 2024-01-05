@@ -1,6 +1,7 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,12 @@ namespace Arbitrage.DataLoader
         List<HouseMatchData>? _data;
         readonly IParser _parser;
 
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public DataLoader(BettingHouse house)
         {
             _parser = ParserFactory.GetParser(house);
+            logger.Info("Created DataLoader for {@house}", house);
         }
 
         public List<HouseMatchData> GetData()

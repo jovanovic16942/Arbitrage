@@ -4,7 +4,7 @@ namespace Arbitrage.General
     public struct BetGameConfig
     {
         public readonly BetGameType type;
-        public readonly GamePeriod period;
+        public GamePeriod period;
         public readonly Team? team;
         public double? threshold;
 
@@ -22,6 +22,11 @@ namespace Arbitrage.General
         public void SetThreshold(double thr)
         {
            threshold = thr;
+        }
+
+        public void SetPeriod(GamePeriod p)
+        {
+            period = p;
         }
     }
 
@@ -46,6 +51,9 @@ namespace Arbitrage.General
 
             { BetGameType.OVER, BetGameType.UNDER },
             { BetGameType.UNDER, BetGameType.OVER },
+
+            { BetGameType.W1_X_0, BetGameType.W2_X_0 },
+            { BetGameType.W2_X_0, BetGameType.W1_X_0 },
         };
 
         /// <summary>
