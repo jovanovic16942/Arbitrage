@@ -47,15 +47,15 @@ namespace Arbitrage.General
         W2_X_0,
 
         /// <summary>
-        /// Team 1 wins the match (draw is possible)
+        /// 1 - Team 1 wins the match (draw is possible)
         /// </summary>
         WX1,
         /// <summary>
-        /// The match ends in a draw
+        /// X - The match ends in a draw
         /// </summary>
         WXX,
         /// <summary>
-        /// Team 2 wins the match (draw is possible)
+        /// 2 - Team 2 wins the match (draw is possible)
         /// </summary>
         WX2,
 

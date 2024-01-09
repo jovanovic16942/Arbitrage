@@ -35,7 +35,6 @@ Parallel.ForEach(dataLoaders, loader =>
     _ = loader.Load(Sport.Football);
 });
 
-
 // Match data from different sources
 var unmatched = dataLoaders.Select(x => x.GetData()).Where(x => x != null && x.Any()).ToList();
 var matched = MatchMatcher.MatchMatches(unmatched!);
@@ -58,6 +57,3 @@ var sortd = success.OrderBy(x => x.combinations.Count);
 
 
 var a = 2;
-
-
-

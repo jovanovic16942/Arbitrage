@@ -1,6 +1,4 @@
-﻿using Arbitrage.DataGetters.AdmiralBet;
-using Arbitrage.DataGetters.SoccerBet;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using System;
 using System.Collections.Generic;

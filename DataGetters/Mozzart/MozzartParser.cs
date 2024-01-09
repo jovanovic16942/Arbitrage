@@ -2,6 +2,7 @@
 using Arbitrage.Utils;
 using NLog;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace Arbitrage.DataGetters.Mozzart
@@ -10,52 +11,85 @@ namespace Arbitrage.DataGetters.Mozzart
     {
         private readonly MozzartGetter _getter = new();
 
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        /// <summary>
+        /// This maps json response match ID to our classes, this is a special case for Mozzart
+        /// </summary>
+        private readonly Dictionary<int, HouseMatchData> _mozzartIdToMatchData = new();
+
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public MozzartParser() : base(BettingHouse.Mozzart) 
         {
             logger.Info("MozzartParser created!");
         }
 
-        protected override void UpdateData()
+        protected override void ParseFootball()
         {
-            var respMatches = _getter.GetMatches();
+            // Call GetMatches and check responses
+            JsonMatchResponse matchResponse;
+            try
+            {
+                matchResponse = _getter.GetMatches();
+            } catch (Exception ex)
+            {
+                logger.Error("Exception thrown in Getter: " + ex.Message);
+                return;
+            }
 
-            //removed matches that expect n+ betGames in one ticket
-            respMatches.Matches = respMatches.Matches.Where(x => x.SpecialType == 0).ToList();
+            // removed matches that expect n+ betGames in one ticket
+            matchResponse.Matches = matchResponse.Matches.Where(x => x.SpecialType == 0).ToList();
 
-            UpdateMatches(respMatches);
+            if (matchResponse == null || matchResponse.Matches == null)
+            {
+                logger.Error("Failed to get match response!");
+                return;
+            }
 
-            var matchIDs = _data.GetMatches().Select(x => x.matchId).ToList();
-            var respOdds = _getter.GetOdds(matchIDs);
-            UpdateOdds(respOdds);
+            else if (matchResponse.Total == 0 || matchResponse.Matches.Count == 0)
+            {
+                logger.Warn("Match response contains no matches!");
+                return;
+            }
+
+            ParseMatches(matchResponse);
+
+            var matchIDs = _mozzartIdToMatchData.Keys;
+            var oddsResponse = _getter.GetOdds(matchIDs);
+            ParseOdds(oddsResponse);
+
+            foreach (var matchData in _mozzartIdToMatchData.Values)
+            {
+                _parsedData.Add(matchData);
+            }
         }
 
-        private void UpdateMatches(JsonMatchResponse resp)
+        private void ParseMatches(JsonMatchResponse resp)
         {
             foreach (var match in resp.Matches)
             {
                 try
                 {
                     var participants = match.Participants.ToList();
+                    if (participants.Count != 2) continue;
+
                     var p1 = participants[0];
                     var p2 = participants[1];
 
-                    var participant1 = new Participant(p1.Id, p1.Name, p1.ShortName, p1.Description);
-                    var participant2 = new Participant(p2.Id, p2.Name, p2.ShortName, p2.Description);
-
                     DateTime startTime = DateTimeConverter.DateTimeFromLong(match.StartTime, 1); // TODO SUUUSSSSSS  Promena sata daylight savings bblabla
 
-                    _data.Insert(new Utils.Match(match.Id, startTime, participant1, participant2));
+                    // TODO get sport from match.Competition.Sport.Id
+                    HouseMatchData matchData = new(BettingHouse.Mozzart, Sport.Football, startTime, p1.Name, p2.Name);
+
+                    _mozzartIdToMatchData.Add(match.Id, matchData);
                 }
                 catch
                 {
-                    // TODO Exception is thrown for matches with 1 participant
+                    
                 }
             }
 
         }
-
-        private void UpdateOdds(List<JsonRoot> resp)
+        
+        private void ParseOdds(List<JsonRoot> resp)
         {
             foreach (var matchOdds in resp)
             {
@@ -64,61 +98,84 @@ namespace Arbitrage.DataGetters.Mozzart
 
                 foreach (var kvp in kodds)
                 {
-                    string subGameID = kvp.Key; // Mozzart.com subGameID - trenutno subgamesIds u MozzartGetter
+                    string subGameID = kvp.Key.Trim(); // Mozzart.com subGameID - trenutno subgamesIds u MozzartGetter
                     JsonKodds kodd = kvp.Value;
 
                     if (kodd == null) continue;
 
                     double betValue = double.Parse(kodd.value); // Kvota
 
-                    BettingGames game;
-                    if (betGameFromID.TryGetValue(subGameID.Trim(), out game))
+                    if (!betGameFromID.ContainsKey(subGameID))
                     {
-                        try
-                        {
-                            _data.UpdateMatchSubgame(matchId, game, betValue);
-                        } 
-                        catch (ArgumentException e)
-                        {
-                            Console.WriteLine("Exception thrown in UpdateMatchSubgame (MozzartParser):");
-                            Console.WriteLine("BettingGame: " + game.ToString());
-                            Console.WriteLine("Incoming value: " + betValue);
-                            Console.WriteLine("Previous value: " + _data.GetSubgameValue(matchId, game));
-                            Console.WriteLine(e.ParamName);
-                            Console.WriteLine(e.Message);
-                        }
+                        logger.Trace("Unknown betting game: " + kvp.ToString());
+                        continue;
                     }
 
+                    BetGame game = betGameFromID[subGameID].Clone();
+                    game.Value = betValue;
+
+                    _mozzartIdToMatchData[matchId].AddBetGame(game);
                 }
             }
         }
 
-        static readonly Dictionary<string, BettingGames> betGameFromID = new()
+        static readonly Dictionary<string, BetGame> betGameFromID = new()
         {
-            {"1001130001", BettingGames._GG },
-            {"1001130002", BettingGames._NG },
-            {"1001130004", BettingGames._GG_I },
-            {"1001130010", BettingGames._NG_I },
-            {"1001130005", BettingGames._GG_II },
-            {"1001130011", BettingGames._NG_II },
-            {"1001001001", BettingGames._1 },
-            {"1001001002", BettingGames._X },
-            {"1001001003", BettingGames._2 },
-            {"1001002002", BettingGames._12 },
-            {"1001002001", BettingGames._1X },
-            {"1001002003", BettingGames._X2 },
-            {"1001297002", BettingGames._12_I },
-            {"1001297001", BettingGames._1X_I },
-            {"1001297003", BettingGames._X2_I },
-            {"1001003001", BettingGames._UG_0_1 },
-            {"1001003002", BettingGames._UG_0_2 },
-            {"1001003013", BettingGames._UG_0_3 },
-            {"1001003026", BettingGames._UG_0_4 },
-            {"1001003003", BettingGames._UG_2_3 },
-            {"1001003012", BettingGames._UG_2_PLUS },
-            {"1001003004", BettingGames._UG_3_PLUS },
-            {"1001003005", BettingGames._UG_4_PLUS },
-            {"1001003007", BettingGames._UG_5_PLUS },
+            {"1001130001", new(BetGameType.GG) },
+            {"1001130002", new(BetGameType.NG) },
+            {"1001130004", new(BetGameType.GG, GamePeriod.H1) },
+            {"1001130010", new(BetGameType.NG, GamePeriod.H1) },
+            {"1001130005", new(BetGameType.GG, GamePeriod.H2) },
+            {"1001130011", new(BetGameType.NG, GamePeriod.H2) },
+
+            {"1001001001", new(BetGameType.WX1) },
+            {"1001001002", new(BetGameType.WXX) },
+            {"1001001003", new(BetGameType.WX2) },
+            {"1001002002", new(BetGameType.D12) },
+            {"1001002001", new(BetGameType.D1X) },
+            {"1001002003", new(BetGameType.DX2) },
+
+            //{"", new(BetGameType.WX1, GamePeriod.H1) },
+            //{"", new(BetGameType.WXX, GamePeriod.H1) },
+            //{"", new(BetGameType.WX2, GamePeriod.H1) },
+            {"1001297002", new(BetGameType.D12, GamePeriod.H1) },
+            {"1001297001", new(BetGameType.D1X, GamePeriod.H1) },
+            {"1001297003", new(BetGameType.DX2, GamePeriod.H1) },
+            
+            //{"", new(BetGameType.WX1, GamePeriod.H2) },
+            //{"", new(BetGameType.WXX, GamePeriod.H2) },
+            //{"", new(BetGameType.WX2, GamePeriod.H2) },
+            //{"", new(BetGameType.D12, GamePeriod.H2) },
+            //{"", new(BetGameType.D1X, GamePeriod.H2) },
+            //{"", new(BetGameType.DX2, GamePeriod.H2) },
+
+            {"1001003001", new(BetGameType.UNDER, thr: 1.5) },
+            {"1001003002", new(BetGameType.UNDER, thr: 2.5) },
+            {"1001003013", new(BetGameType.UNDER, thr: 3.5) },
+            {"1001003026", new(BetGameType.UNDER, thr: 4.5) },
+            {"1001003012", new(BetGameType.OVER, thr: 1.5) },
+            {"1001003004", new(BetGameType.OVER, thr: 2.5) },
+            {"1001003005", new(BetGameType.OVER, thr: 3.5) },
+            {"1001003007", new(BetGameType.OVER, thr: 4.5) },
+            // TODO MORE
+            
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 2.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 3.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 4.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 1.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 2.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 3.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 4.5) },
+
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 2.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 3.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 4.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 1.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 3.5) },
+            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 4.5) },
         };
     }
 }

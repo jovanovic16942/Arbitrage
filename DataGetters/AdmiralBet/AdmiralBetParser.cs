@@ -266,4 +266,5 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {5430, BettingGames._UG_6_PLUS },
         };
     }
+
 }

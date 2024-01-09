@@ -1,5 +1,6 @@
 ﻿using Arbitrage.EntityFramework.Models;
 using Arbitrage.General;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace Arbitrage.Utils
 {
     public class HouseMatchData
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public BettingHouse house;
         public Sport sport;
 
@@ -35,11 +38,12 @@ namespace Arbitrage.Utils
         {
             if (betGames.Contains(game))
             {
+                logger.Warn("BetGame already present: " + game.ToString());
+
                 var oldValue = GetOddValue(game);
                 if (oldValue != game.Value)
                 {
-                    // TODO this should probably not happen
-                    // log 
+                    logger.Error("Different values detected for bet game: " + game.ToString());
                 }
 
                 return;

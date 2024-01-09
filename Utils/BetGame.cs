@@ -1,37 +1,12 @@
 ﻿
+using NLog;
+
 namespace Arbitrage.General
 {
-    public struct BetGameConfig
-    {
-        public readonly BetGameType type;
-        public GamePeriod period;
-        public readonly Team? team;
-        public double? threshold;
-
-        public BetGameConfig(BetGameType b,
-                             GamePeriod p = GamePeriod.M,
-                             Team? t = null,
-                             double? thr = null)
-        {
-            type = b;
-            period = p;
-            team = t;
-            threshold = thr;
-        }
-
-        public void SetThreshold(double thr)
-        {
-           threshold = thr;
-        }
-
-        public void SetPeriod(GamePeriod p)
-        {
-            period = p;
-        }
-    }
-
     public class BetGame
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         public static readonly Dictionary<BetGameType, BetGameType> ArbCombos = new()
         {
             { BetGameType.W1, BetGameType.W2 },
@@ -70,34 +45,44 @@ namespace Arbitrage.General
         /// </summary>
         public readonly Team? team;
 
-        private readonly string id_str;
+        private string id_str;
 
         private readonly string sep = "_";
 
         /// <summary>
         /// The threshold used for over/under bet betGames (total number of goals, points, etc)
         /// </summary>
-        public readonly double? threshold;
+        public double? threshold;
 
         public double Value { get; set; }
 
-        public BetGame(BetGameConfig cfg) : this(cfg.type, cfg.period, cfg.team, cfg.threshold)
-        {}
-
-        public BetGame(BetGameType t, GamePeriod p, Team? tm = null, double? thr = null)
+        public BetGame Clone()
         {
-            if ((t == BetGameType.OVER || t == BetGameType.UNDER) && thr == null)
-            {
-                throw new ArgumentException("Bet games of type UNDER/OVER require a threshold value");
-            }
+            return new(type, period, team, threshold);
+        }
 
+        public BetGame(BetGameType t, GamePeriod p = GamePeriod.M, Team? tm = null, double? thr = null)
+        {
             type = t;
             period = p;
             team = tm;
             threshold = thr;
             Value = 0;
+            InitIdString();
+        }
 
-            id_str = InitIdString();
+        public void SetThreshold(double thr)
+        {
+            threshold = thr;
+            InitIdString();
+        }
+
+        public void CheckBetGame()
+        {
+            if ((type == BetGameType.OVER || type == BetGameType.UNDER) && threshold == null)
+            {
+                throw new ArgumentException("Bet games of type UNDER/OVER require a threshold value");
+            }
         }
 
         /// <summary>
@@ -113,7 +98,7 @@ namespace Arbitrage.General
         /// Generate unique bet game id string based on other member parameters
         /// </summary>
         /// <returns></returns>
-        private string InitIdString()
+        private void InitIdString()
         {
             var tokens = new List<string?>()
             {
@@ -123,7 +108,7 @@ namespace Arbitrage.General
                 team?.ToString(),
             };
 
-            return string.Join(sep, tokens.Where(x => x != null && x != ""));
+            id_str = string.Join(sep, tokens.Where(x => x != null && x != ""));
         }
 
         public override int GetHashCode()

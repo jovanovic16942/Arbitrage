@@ -8,8 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataGetters\AdmiralBet\**" />
+    <Compile Remove="DataGetters\SuperBet\**" />
     <Compile Remove="SavedResponses\**" />
+    <EmbeddedResource Remove="DataGetters\AdmiralBet\**" />
+    <EmbeddedResource Remove="DataGetters\SuperBet\**" />
     <EmbeddedResource Remove="SavedResponses\**" />
+    <None Remove="DataGetters\AdmiralBet\**" />
+    <None Remove="DataGetters\SuperBet\**" />
     <None Remove="SavedResponses\**" />
   </ItemGroup>
 
