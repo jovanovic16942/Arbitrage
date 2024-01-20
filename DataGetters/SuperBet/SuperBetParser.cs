@@ -7,18 +7,15 @@ namespace Arbitrage.DataGetters.SuperBet
     {
         private readonly SuperBetGetter _getter = new();
 
-        JsonMatchesResponse? _matchResponse = null;
+        JsonMatchResponse? _matchResponse = null;
 
-        public SuperBetParser() : base(BettingHouse.SuperBet) 
-        {
-            _matchResponse = _getter.GetMatches();
-        }
+        public SuperBetParser() : base(BettingHouse.SuperBet) { }
 
         protected override void ParseFootball()
         {
-            _matchResponse ??= _getter.GetMatches();
+            _matchResponse = _getter.GetMatches();
 
-            var footballMatches = _matchResponse.data.Where(x => x.si == 5).ToList();
+            var footballMatches = _matchResponse.data.Where(x => x.sportId == 5).ToList();
 
             ParseMatches(footballMatches);
         }
@@ -27,14 +24,14 @@ namespace Arbitrage.DataGetters.SuperBet
         {
             _matchResponse ??= _getter.GetMatches();
 
-            var basketballMatches = _matchResponse.data.Where(x => x.si == 4).ToList();
+            var basketballMatches = _matchResponse.data.Where(x => x.sportId == 4).ToList();
 
             ParseMatches(basketballMatches);
         }
 
-        private void ParseMatches(List<JsonMatch> matches)
+        private void ParseMatches(List<JsonMatchData> matches)
         {
-            List<int> matchIds = matches.Select(x => x._id).ToList();
+            List<int> matchIds = matches.Select(x => x.eventId).ToList();
 
             foreach (var matchId in matchIds)
             {
@@ -92,7 +89,7 @@ namespace Arbitrage.DataGetters.SuperBet
                 {
                     int betGameId = jsonOdd.outcomeId;
                     if (!bgMap.ContainsKey(betGameId)) continue;
-                    BetGameConfig cfg = bgMap[betGameId];
+                    BetGame game = bgMap[betGameId].Clone();
 
                     var spc = jsonOdd.specialBetValue;
 
@@ -101,23 +98,20 @@ namespace Arbitrage.DataGetters.SuperBet
                         spc = spc.Substring(spc.IndexOf("-") + 1);
                     }
 
-                    if (cfg.period == GamePeriod.NONE)
+                    if (game.period == GamePeriod.NONE)
                     {
-                        cfg.SetPeriod(quarterFromSpecifier[jsonOdd.specifiers.quarternr]);
+                        game.SetPeriod(quarterFromSpecifier[jsonOdd.specifiers.quarternr]);
                     }
 
                     if (spc != null && double.TryParse(spc, out double thr))
                     {
-                        cfg.SetThreshold(thr);
+                        game.SetThreshold(thr);
                     }
 
-                    BetGame bg = new(cfg)
-                    {
-                        Value = jsonOdd.price
-                    };
+                    game.Value = jsonOdd.price;
 
 
-                    matchData.AddBetGame(bg);
+                    matchData.AddBetGame(game);
                 } catch (Exception e)
                 {
 
@@ -127,40 +121,40 @@ namespace Arbitrage.DataGetters.SuperBet
             _parsedData.Add(matchData);
         }
 
-        void ParseJsonMatch(JsonMatch jsonMatch)
-        {
-            if (jsonMatch == null) return;
+        //void ParseJsonMatch(JsonMatch jsonMatch)
+        //{
+        //    if (jsonMatch == null) return;
 
-            DateTime startTime = DateTime.Parse(jsonMatch.mld);
-            List<string> teams = jsonMatch.mn.Split("·").Select(x => x.Trim()).ToList();
+        //    DateTime startTime = DateTime.Parse(jsonMatch.mld);
+        //    List<string> teams = jsonMatch.mn.Split("·").Select(x => x.Trim()).ToList();
 
-            HouseMatchData matchData = new(House, sportFromId[jsonMatch.si], startTime, teams[0], teams[1]);
+        //    HouseMatchData matchData = new(House, sportFromId[jsonMatch.si], startTime, teams[0], teams[1]);
 
-            foreach(var jsonOdd in jsonMatch.odds)
-            {
-                int betGameId = jsonOdd.oi;
-                if (!bgFromOutcomeIdFootball.ContainsKey(betGameId)) continue;
+        //    foreach(var jsonOdd in jsonMatch.odds)
+        //    {
+        //        int betGameId = jsonOdd.oi;
+        //        if (!bgFromOutcomeIdFootball.ContainsKey(betGameId)) continue;
 
-                double? thr = null;
+        //        double? thr = null;
 
-                // Special parsing for UNDER - OVER
-                if (betGameId == 151888 || betGameId == 151889) 
-                {
-                    thr = (int)Math.Truncate(jsonOdd.spc.total);
-                }
+        //        // Special parsing for UNDER - OVER
+        //        if (betGameId == 151888 || betGameId == 151889) 
+        //        {
+        //            thr = (int)Math.Truncate(jsonOdd.spc.total);
+        //        }
 
-                BetGameConfig cfg = bgFromOutcomeIdFootball[betGameId];
-                //cfg.threshold = thr;
+        //        //BetGameConfig cfg = bgFromOutcomeIdFootball[betGameId];
+        //        //cfg.threshold = thr;
 
-                BetGame bg = new(cfg)
-                {
-                    Value = jsonOdd.ov
-                };
-                matchData.AddBetGame(bg);
-            }
+        //        BetGame bg = new(cfg)
+        //        {
+        //            Value = jsonOdd.ov
+        //        };
+        //        matchData.AddBetGame(bg);
+        //    }
 
-            _parsedData.Add(matchData);
-        }
+        //    _parsedData.Add(matchData);
+        //}
 
 
         /// <summary>
@@ -187,7 +181,7 @@ namespace Arbitrage.DataGetters.SuperBet
         /// <summary>
         /// Map betGames from json response oi (odd id_str) to BetGameConfig
         /// </summary>
-        static readonly Dictionary<int, BetGameConfig> bgFromOutcomeIdFootball = new()
+        static readonly Dictionary<int, BetGame> bgFromOutcomeIdFootball = new()
         {
             {1470, new(BetGameType.WX1) },
             {1471, new(BetGameType.WXX) },
@@ -239,7 +233,7 @@ namespace Arbitrage.DataGetters.SuperBet
         };
 
 
-        static readonly Dictionary<int, BetGameConfig> bgFromOutcomeIdBasket = new()
+        static readonly Dictionary<int, BetGame> bgFromOutcomeIdBasket = new()
         {
             {2182, new(BetGameType.W1)},
             {2183, new(BetGameType.W2)},
@@ -338,7 +332,7 @@ namespace Arbitrage.DataGetters.SuperBet
             {6151889, BettingGames._UG_7_PLUS }
         };
 
-        static readonly Dictionary<Sport, Dictionary<int, BetGameConfig>> sportMaps = new()
+        static readonly Dictionary<Sport, Dictionary<int, BetGame>> sportMaps = new()
         {
             { Sport.Football, bgFromOutcomeIdFootball },
             { Sport.Basketball, bgFromOutcomeIdBasket },

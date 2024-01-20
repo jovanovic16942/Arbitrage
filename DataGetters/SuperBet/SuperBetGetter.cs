@@ -12,13 +12,14 @@ namespace Arbitrage.DataGetters.SuperBet
 {
     public class SuperBetGetter
     {
-
-        public JsonMatchesResponse GetMatches()
+        public JsonMatchResponse GetMatches()
         {
             string startDate = DateTime.Now.ToString("yyyy-MM-dd+HH:mm:ss");
             string endDate = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd+HH:mm:ss");
 
-            string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/offer/getOfferByDate?offerState=prematch&startDate=" + startDate + "&endDate=" + endDate;
+            // https://production-superbet-offer-rs.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/by-date?offerState=prematch&startDate=2024-01-16+23:00:00&endDate=2024-01-18+09:00:00
+            //string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/offer/getOfferByDate?offerState=prematch&startDate=" + startDate + "&endDate=" + endDate;
+            string url = "https://production-superbet-offer-rs.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/by-date?offerState=prematch&startDate=" + startDate + "&endDate=" + endDate;
 
             var client = new RestClient(url);
 
@@ -26,7 +27,7 @@ namespace Arbitrage.DataGetters.SuperBet
 
             RestResponse response = client.Execute(request);
 
-            JsonMatchesResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchesResponse>(response.Content);
+            JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
 
             return matchResponse;
         }
@@ -57,7 +58,7 @@ namespace Arbitrage.DataGetters.SuperBet
         {
             Thread.Sleep(Constants.SleepTimeShort);
 
-            string url = "https://production-superbet-offer-basic.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/" + matchId + "?matchIds=" + matchId;
+            string url = "https://production-superbet-offer-rs.freetls.fastly.net/sb-rs/api/v2/sr-Latn-RS/events/" + matchId + "?matchIds=" + matchId;
 
             var client = new RestClient(url);
 

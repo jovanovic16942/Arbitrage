@@ -1,10 +1,13 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
+using NLog;
 
 namespace Arbitrage.MatchMatcher
 {
     public class MatchMatcher
     {
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         private static readonly double MIN_SCORE_THR = 0.5;
         private static readonly double BEST_SCORE_THR = 0.9;
 
@@ -61,18 +64,12 @@ namespace Arbitrage.MatchMatcher
 
             if (bestMatch != null)
             {
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", match.MatchDataString() + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", bestMatch.MatchDataString() + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
-                File.AppendAllText("..\\..\\..\\Temp\\MatchMatcherMatchedNew.txt", "~~~~~~~~~~~~~~~~~~~~~~~~~~" + Environment.NewLine);
-
+                log.Info("Matched: " + match.MatchDataString() + " with: " + bestMatch.MatchDataString());
                 bestMatch.data.Add(match);
             }
             else
             {
+                log.Info("Unable to match: " + match.MatchDataString());
                 matched.Add(new(match));
             }
         }

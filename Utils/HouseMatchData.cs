@@ -73,6 +73,7 @@ namespace Arbitrage.Utils
             return tmp.Value;
         }
 
+        // TODO change to ToString()
         public string MatchDataString()
         {
             string eventString = "";

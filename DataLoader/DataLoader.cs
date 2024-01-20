@@ -1,6 +1,7 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,13 @@ namespace Arbitrage.DataLoader
 
         public List<HouseMatchData> GetData()
         {
-            if (_data == null) throw new InvalidOperationException("Invalid call to GetData() - _data is null. Call Load() first.");
-            return _data;
+            if (!_data.IsNullOrEmpty())
+            {
+                return _data!;
+            }
+
+            logger.Error("Data is null or empty!");
+            return new();
         }
 
         public async Task Load(Sport sport) {

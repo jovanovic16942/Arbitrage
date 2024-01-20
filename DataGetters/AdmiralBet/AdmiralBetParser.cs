@@ -1,12 +1,15 @@
 ﻿using Arbitrage.DataGetters.Admiralbet;
 using Arbitrage.General;
 using Arbitrage.Utils;
+using NLog;
 
 namespace Arbitrage.DataGetters.AdmiralBet
 {
     public class AdmiralBetParser : Parser
     {
         private readonly AdmiralBetGetter _getter = new();
+
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         public AdmiralBetParser() : base(BettingHouse.AdmiralBet) { }
 
@@ -31,19 +34,15 @@ namespace Arbitrage.DataGetters.AdmiralBet
 
                     if (!betGameFromInt.Keys.Contains(betGameId)) continue;
 
-                    BetGameConfig cfg = betGameFromInt[betGameId];
+                    BetGame game = betGameFromInt[betGameId].Clone();
 
                     if (double.TryParse(outcome.sBV, out double thr))
                     {
-                        cfg.SetThreshold(thr);
+                        game.SetThreshold(thr);
                     }
 
-                    BetGame bg = new(cfg)
-                    {
-                        Value = outcome.odd
-                    };
-
-                    matchData.AddBetGame(bg);
+                    game.Value = outcome.odd;
+                    matchData.AddBetGame(game);
                 }
             }
 
@@ -70,7 +69,8 @@ namespace Arbitrage.DataGetters.AdmiralBet
                         ParseMatchEvent(matchEvent, oddsEvent.bets);
                     } catch (Exception ex)
                     {
-                        // Get some odds but not all LOG
+                        // Get some odds but not all
+                        logger.Error("Source: " + ex.Source + " Message: " + ex.Message);
                         ParseMatchEvent(matchEvent, matchEvent.bets);
                     }
                 }
@@ -106,7 +106,7 @@ namespace Arbitrage.DataGetters.AdmiralBet
         /// Map betGames from json response bet type outcome id_str to BetGameConfig
         /// over-under (total goals) odds have special rules
         /// </summary>
-        static readonly Dictionary<int, BetGameConfig> betGameFromInt = new()
+        static readonly Dictionary<int, BetGame> betGameFromInt = new()
         {
             /// BASKETBALL
             {2291, new(BetGameType.W1_X_0, GamePeriod.H1) },

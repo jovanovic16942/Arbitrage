@@ -38,7 +38,7 @@ namespace Arbitrage.General
         /// <summary>
         /// Match time period of interest for this bet
         /// </summary>
-        public readonly GamePeriod period;
+        public GamePeriod period;
 
         /// <summary>
         /// Both teams, team1 or team2
@@ -71,6 +71,11 @@ namespace Arbitrage.General
             InitIdString();
         }
 
+        public void SetPeriod(GamePeriod p)
+        {
+            period = p;
+            InitIdString();
+        }
         public void SetThreshold(double thr)
         {
             threshold = thr;
@@ -120,6 +125,11 @@ namespace Arbitrage.General
         {
             if (obj == null) return false;
             return Equals((BetGame)obj);
+        }
+
+        public override string ToString()
+        {
+            return id_str;
         }
 
         public bool Equals(BetGame obj)

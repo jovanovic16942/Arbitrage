@@ -1,9 +1,6 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using NLog;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 
 namespace Arbitrage.DataGetters.Mozzart
 {
@@ -17,10 +14,7 @@ namespace Arbitrage.DataGetters.Mozzart
         private readonly Dictionary<int, HouseMatchData> _mozzartIdToMatchData = new();
 
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        public MozzartParser() : base(BettingHouse.Mozzart) 
-        {
-            logger.Info("MozzartParser created!");
-        }
+        public MozzartParser() : base(BettingHouse.Mozzart) {}
 
         protected override void ParseFootball()
         {
@@ -135,16 +129,16 @@ namespace Arbitrage.DataGetters.Mozzart
             {"1001002001", new(BetGameType.D1X) },
             {"1001002003", new(BetGameType.DX2) },
 
-            //{"", new(BetGameType.WX1, GamePeriod.H1) },
-            //{"", new(BetGameType.WXX, GamePeriod.H1) },
-            //{"", new(BetGameType.WX2, GamePeriod.H1) },
+            {"1001004001", new(BetGameType.WX1, GamePeriod.H1) },
+            {"1001004002", new(BetGameType.WXX, GamePeriod.H1) },
+            {"1001004003", new(BetGameType.WX2, GamePeriod.H1) },
             {"1001297002", new(BetGameType.D12, GamePeriod.H1) },
             {"1001297001", new(BetGameType.D1X, GamePeriod.H1) },
             {"1001297003", new(BetGameType.DX2, GamePeriod.H1) },
             
-            //{"", new(BetGameType.WX1, GamePeriod.H2) },
-            //{"", new(BetGameType.WXX, GamePeriod.H2) },
-            //{"", new(BetGameType.WX2, GamePeriod.H2) },
+            {"1001019001", new(BetGameType.WX1, GamePeriod.H2) },
+            {"1001019002", new(BetGameType.WXX, GamePeriod.H2) },
+            {"1001019003", new(BetGameType.WX2, GamePeriod.H2) },
             //{"", new(BetGameType.D12, GamePeriod.H2) },
             //{"", new(BetGameType.D1X, GamePeriod.H2) },
             //{"", new(BetGameType.DX2, GamePeriod.H2) },
@@ -159,23 +153,63 @@ namespace Arbitrage.DataGetters.Mozzart
             {"1001003007", new(BetGameType.OVER, thr: 4.5) },
             // TODO MORE
             
-            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 1.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 2.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 3.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H1, thr: 4.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 1.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 2.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 3.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H1, thr: 4.5) },
+            
+            {"1001008008", new(BetGameType.UNDER, GamePeriod.H1, thr: 0.5) },
+            {"1001008005", new(BetGameType.UNDER, GamePeriod.H1, thr: 1.5) },
+            {"1001008009", new(BetGameType.UNDER, GamePeriod.H1, thr: 2.5) },
+            {"1001008001", new(BetGameType.OVER, GamePeriod.H1, thr: 0.5) },
+            {"1001008002", new(BetGameType.OVER, GamePeriod.H1, thr: 1.5) },
+            {"1001008003", new(BetGameType.OVER, GamePeriod.H1, thr: 2.5) },
 
-            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 1.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 2.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 3.5) },
-            //{"", new(BetGameType.UNDER, GamePeriod.H2, thr: 4.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 1.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 3.5) },
-            //{"", new(BetGameType.OVER, GamePeriod.H2, thr: 4.5) },
+            {"1001009008", new(BetGameType.UNDER, GamePeriod.H2, thr: 0.5) },
+            {"1001009005", new(BetGameType.UNDER, GamePeriod.H2, thr: 1.5) },
+            {"1001009009", new(BetGameType.UNDER, GamePeriod.H2, thr: 2.5) },
+            {"1001009001", new(BetGameType.OVER, GamePeriod.H2, thr: 0.5) },
+            {"1001009002", new(BetGameType.OVER, GamePeriod.H2, thr: 1.5) },
+            {"1001009003", new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
+
+
+            {"1001131003", new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 0.5) },
+            {"1001131009", new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 1.5) },
+            {"1001131010", new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 2.5) },
+            {"1001131001", new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 0.5) },
+            {"1001131002", new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 1.5) },
+            {"1001131008", new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 2.5) },
+
+            {"1001128003", new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 0.5) },
+            {"1001128004", new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 2.5) },
+            {"1001128001", new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 0.5) },
+            {"1001128002", new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 1.5) },
+            {"1001128007", new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 2.5) },
+
+            {"1001142003", new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 0.5) },
+            {"1001142004", new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 2.5) },
+            {"1001142001", new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 0.5) },
+            {"1001142002", new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 1.5) },
+            {"1001142007", new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 2.5) },
+
+            {"1001132003", new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 0.5) },
+            {"1001132009", new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 1.5) },
+            {"1001132010", new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 2.5) },
+            {"1001132001", new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 0.5) },
+            {"1001132002", new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 1.5) },
+            {"1001132008", new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 2.5) },
+
+            {"1001129003", new(BetGameType.UNDER, GamePeriod.H1, Team.T2, thr: 0.5) },
+            {"1001129004", new(BetGameType.UNDER, GamePeriod.H1, Team.T2, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, Team.T2, thr: 2.5) },
+            {"1001129001", new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 0.5) },
+            {"1001129002", new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 1.5) },
+            {"1001129007", new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 2.5) },
+
+            {"1001143003", new(BetGameType.UNDER, GamePeriod.H2, Team.T2, thr: 0.5) },
+            {"1001143004", new(BetGameType.UNDER, GamePeriod.H2, Team.T2, thr: 1.5) },
+            {"1001143005", new(BetGameType.UNDER, GamePeriod.H2, Team.T2, thr: 2.5) },
+            {"1001143001", new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 0.5) },
+            {"1001143002", new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 1.5) },
+            {"1001143007", new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 2.5) },
         };
     }
 }

@@ -150,11 +150,11 @@ namespace Arbitrage.General
         /// </summary>
         T,
         /// <summary>
-        /// Team 1
+        /// Team 1, Home team
         /// </summary>
         T1,
         /// <summary>
-        /// Team 2
+        /// Team 2, Away team
         /// </summary>
         T2,
     }

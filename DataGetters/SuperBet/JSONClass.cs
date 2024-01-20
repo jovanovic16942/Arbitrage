@@ -58,6 +58,7 @@ namespace Arbitrage.DataGetters.SuperBet
         public string matchDate;
         public List<JsonOddData> odds;
         public int sportId;
+        public int eventId;
         public Dictionary<int, string> offerStateStatus;
     }
 

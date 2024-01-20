@@ -51,7 +51,7 @@ namespace Arbitrage.Utils
         public HouseBetGame? GetBestOdd(BetGame game)
         {
             var sortedOdds = GetSortedOdds(game, 1);
-            return sortedOdds?.FirstOrDefault();
+            return sortedOdds.FirstOrDefault();
         }
 
         /// <summary>

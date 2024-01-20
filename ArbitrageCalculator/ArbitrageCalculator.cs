@@ -1,10 +1,13 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
+using NLog;
 
 namespace Arbitrage.ArbitrageCalculator
 {
     public class ArbitrageCalculator
     {
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         public static readonly List<List<BettingGames>> ArbitrageCombinations = new()
         {
             // Match result - overall
@@ -63,11 +66,22 @@ namespace Arbitrage.ArbitrageCalculator
 
             foreach (var betGame in games)
             {
+                var opGame = betGame.GetOppositeGame();
                 var bestGame = eventData.GetBestOdd(betGame);
-                var bestOppGame = eventData.GetBestOdd(betGame.GetOppositeGame());
+                var bestOppGame = eventData.GetBestOdd(opGame);
 
-                // TODO log and handle exceptions
-                if (bestGame == null || bestOppGame == null) continue;
+                if (bestGame == null)
+                {
+                    log.Debug("Unable to find best odd for bet game: " + betGame.ToString());
+                    continue;
+                }
+
+                if (bestOppGame == null)
+                {
+                    log.Debug("Unable to find best odd for bet game: " + opGame.ToString());
+                    continue;
+                }
+
 
                 // Calculate Arbitrage
                 var arbScore = CalculateArbitrage(bestGame.Game.Value, bestOppGame.Game.Value);

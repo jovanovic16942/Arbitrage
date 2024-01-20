@@ -1,4 +1,5 @@
 ﻿using Arbitrage.Utils;
+using NLog;
 
 namespace Arbitrage.General
 {
@@ -14,10 +15,13 @@ namespace Arbitrage.General
 
         public BettingHouse House { get; }
 
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public Parser(BettingHouse house)
         {
             _data = new MatchesData(house);
             House = house;
+            logger.Info(House.ToString() + "Parser created!");
         }
 
         public List<HouseMatchData> ParseSport(Sport sport)

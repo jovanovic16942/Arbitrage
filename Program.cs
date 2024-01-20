@@ -17,10 +17,10 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(BettingHouse.Mozzart),
     //new DataLoader(new MeridianParser()),
     //new DataLoader(new MaxBetParser()),
-    //new DataLoader(BettingHouse.AdmiralBet),
+    new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
     //new DataLoader(new MerkurXTipParser()),
-    //new DataLoader(BettingHouse.SuperBet),
+    new DataLoader(BettingHouse.SuperBet),
     //new DataLoader(new BalkanBetParser()),
     //new DataLoader(new StarBetParser()),
     //new DataLoader(new OktagonBetParser()),
@@ -49,6 +49,8 @@ arb.ProcessResults(success);
 
 var sortd = success.OrderBy(x => x.combinations.Count);
 
+
+var x = 2;
 //var res = arb.GetResults(success);
 //var best = res.Where(x => x.profit > 0.02).ToList();
 
