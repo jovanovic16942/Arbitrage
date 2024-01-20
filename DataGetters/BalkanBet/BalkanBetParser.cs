@@ -1,4 +1,4 @@
-﻿using Arbitrage.DataGetters.Pinnbet;
+﻿using Arbitrage.DataGetters.PinnBet;
 using Arbitrage.General;
 using Arbitrage.Utils;
 using System;

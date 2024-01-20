@@ -1,94 +1,252 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters.Pinnbet
+namespace Arbitrage.DataGetters.PinnBet
 {
     public class PinnBetParser : Parser
     {
         private readonly PinnBetGetter _getter = new();
 
-        public PinnBetParser(): base(BettingHouse.PinnBet) { }
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        protected override void UpdateData()
+        public PinnBetParser() : base(BettingHouse.PinnBet) { }
+
+        private void ParseMatchEvent(JsonEvent matchEvent, List<JsonBet> bets)
         {
-            var jsonMatches = _getter.GetResponse();
+            if (matchEvent.isTopOffer) { return; } // Skip special offfers
 
-            if (jsonMatches == null) { return; }
+            DateTime startTime = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
 
-            foreach (var jsonMatch in jsonMatches)
+            var teams = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
+
+            if (teams.Count < 2) { return; } // For now skip matches with < 2 teams
+
+            HouseMatchData matchData = new(House, SportFromId[matchEvent.sportId], startTime, teams[0], teams[1]);
+
+            // Combine bets from both responses
+            var allBets = bets.Concat(matchEvent.bets);
+
+            // Add odds
+            foreach (var betGame in allBets)
             {
-                if (jsonMatch.sportCode != "F") continue;
-
-                DateTime startTime = DateTime.Parse(jsonMatch.matchStartTime);
-
-                Participant p1 = new(jsonMatch.homeTeamName.Trim());
-                Participant p2 = new(jsonMatch.awayTeamName.Trim());
-
-                Match match = new(startTime, p1, p2);
-
-                // Add odds
-                var jsonSelections = _getter.GetSingleMatchResponse(jsonMatch.eventId, jsonMatch.roundId);
-
-                foreach (var (selCode, betGame) in betGameFromSelCode)
+                foreach (var outcome in betGame.betOutcomes)
                 {
-                    var sel = jsonSelections.FirstOrDefault(x => x.selectionCode.Trim() == selCode);
-                    if (sel == null) continue;
+                    int betGameId = outcome.betTypeOutcomeId;
 
-                    match.AddBetGame(betGame, sel.odds);
+                    if (!betGameFromInt.Keys.Contains(betGameId)) continue;
+
+                    BetGame game = betGameFromInt[betGameId].Clone();
+
+                    if (double.TryParse(outcome.sBV, out double thr))
+                    {
+                        game.SetThreshold(thr);
+                    }
+
+                    game.Value = outcome.odd;
+                    matchData.AddBetGame(game);
                 }
+            }
 
-                _data.Insert(match);
+            _parsedData.Add(matchData);
+        }
+
+        private void ParseMatchResponse(JsonMatchResponse response)
+        {
+            foreach (var competition in response.competitions)
+            {
+                if (competition.events == null || competition.events.Count == 0) { continue; }
+
+                foreach (var matchEvent in competition.events)
+                {
+                    if (matchEvent == null) { continue; }
+
+                    var id = matchEvent.id;
+
+                    try
+                    {
+                        var oddsEvent = _getter.GetBets(competition.competitionId, matchEvent.id, competition.regionId, competition.events[0].sportId);
+                        ParseMatchEvent(matchEvent, oddsEvent.bets);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Get some odds but not all
+                        logger.Error("Source: " + ex.Source + " Message: " + ex.Message);
+                        ParseMatchEvent(matchEvent, matchEvent.bets);
+                    }
+                }
+            }
+        }
+        protected override void ParseFootball()
+        {
+            var matchResponses = _getter.GetMatches(1);
+
+            foreach (var matchResponse in matchResponses)
+            {
+                ParseMatchResponse(matchResponse);
             }
         }
 
-        /// <summary>
-        /// Map betGames from json response code to BettingGames enum
-        /// </summary>
-        static readonly Dictionary<string, BettingGames> betGameFromSelCode = new()
+        protected override void ParseBasketball()
         {
-            {"k1", BettingGames._1 },
-            {"kx", BettingGames._X },
-            {"k2", BettingGames._2 },
-            {"ds12", BettingGames._12 },
-            {"ds1x", BettingGames._1X },
-            {"dsx2", BettingGames._X2 },
-            {"pp1", BettingGames._1_I },
-            {"ppx", BettingGames._X_I },
-            {"pp2", BettingGames._2_I },
-            {"dp1", BettingGames._1_II },
-            {"dpx", BettingGames._X_II },
-            {"dp2", BettingGames._2_II },
-            {"tgg", BettingGames._GG },
-            {"tng", BettingGames._NG },
-            {"ug01", BettingGames._UG_0_1 },
-            {"ug02", BettingGames._UG_0_2 },
-            {"ug03", BettingGames._UG_0_3 },
-            {"ug04", BettingGames._UG_0_4 },
-            {"ug05", BettingGames._UG_0_5 },
-            {"ug12", BettingGames._UG_1_2 },
-            {"ug13", BettingGames._UG_1_3 },
-            {"ug14", BettingGames._UG_1_4 },
-            {"ug15", BettingGames._UG_1_5 },
-            {"ug16", BettingGames._UG_1_6 },
-            {"ug23", BettingGames._UG_2_3 },
-            {"ug24", BettingGames._UG_2_4 },
-            {"ug25", BettingGames._UG_2_5 },
-            {"ug26", BettingGames._UG_2_6 },
-            {"ug34", BettingGames._UG_3_4 },
-            {"ug35", BettingGames._UG_3_5 },
-            {"ug36", BettingGames._UG_3_6 },
-            {"ug45", BettingGames._UG_4_5 },
-            {"ug46", BettingGames._UG_4_6 },
-            {"ug2v", BettingGames._UG_2_PLUS },
-            {"ug3v", BettingGames._UG_3_PLUS },
-            {"ug4v", BettingGames._UG_4_PLUS },
-            {"ug5v", BettingGames._UG_5_PLUS },
-            {"ug6v", BettingGames._UG_6_PLUS }
+            var matchResponses = _getter.GetMatches(2);
+
+            foreach (var matchResponse in matchResponses)
+            {
+                ParseMatchResponse(matchResponse);
+            }
+        }
+
+        static readonly Dictionary<int, Sport> SportFromId = new()
+        {
+            {1, Sport.Football },
+            {2, Sport.Basketball },
+        };
+
+        /// <summary>
+        /// Map betGames from json response bet type outcome id_str to BetGameConfig
+        /// over-under (total goals) odds have special rules
+        /// </summary>
+        static readonly Dictionary<int, BetGame> betGameFromInt = new()
+        {
+            /// BASKETBALL
+            //{2291, new(BetGameType.W1_X_0, GamePeriod.H1) },
+            //{2292, new(BetGameType.W2_X_0, GamePeriod.H1) },
+            //{2293, new(BetGameType.W1_X_0, GamePeriod.H2) },
+            //{2294, new(BetGameType.W2_X_0, GamePeriod.H2) },
+
+            //{2355, new(BetGameType.W1_X_0, GamePeriod.Q1) },
+            //{2356, new(BetGameType.W2_X_0, GamePeriod.Q1) },
+            //{2357, new(BetGameType.W1_X_0, GamePeriod.Q2) },
+            //{2358, new(BetGameType.W2_X_0, GamePeriod.Q2) },
+            //{2359, new(BetGameType.W1_X_0, GamePeriod.Q3) },
+            //{2360, new(BetGameType.W2_X_0, GamePeriod.Q3) },
+            //{2361, new(BetGameType.W1_X_0, GamePeriod.Q4) },
+            //{2362, new(BetGameType.W2_X_0, GamePeriod.Q4) },
+
+
+            //{2371, new(BetGameType.W1_X_0, GamePeriod.Q1, Team.T1) },
+            //{2372, new(BetGameType.W2_X_0, GamePeriod.Q1, Team.T1) },
+
+            //{746, new(BetGameType.W1) },
+            //{747, new(BetGameType.W2) },
+
+            //{754, new(BetGameType.WX1) },
+            //{755, new(BetGameType.WXX) },
+            //{756, new(BetGameType.WX2) },
+
+            //{772, new(BetGameType.WX1, GamePeriod.Q1) },
+            //{773, new(BetGameType.WXX, GamePeriod.Q1) },
+            //{774, new(BetGameType.WX2, GamePeriod.Q1) },
+            //{784, new(BetGameType.WX1, GamePeriod.Q2) },
+            //{785, new(BetGameType.WXX, GamePeriod.Q2) },
+            //{786, new(BetGameType.WX2, GamePeriod.Q2) },
+            //{792, new(BetGameType.WX1, GamePeriod.Q3) },
+            //{793, new(BetGameType.WXX, GamePeriod.Q3) },
+            //{794, new(BetGameType.WX2, GamePeriod.Q3) },
+            //{795, new(BetGameType.WX1, GamePeriod.Q4) },
+            //{796, new(BetGameType.WXX, GamePeriod.Q4) },
+            //{797, new(BetGameType.WX2, GamePeriod.Q4) },
+
+
+            //{821, new(BetGameType.UNDER)}, // + OT
+            //{822, new(BetGameType.OVER)},
+            //{2299, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
+            //{2300, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
+            //{2301, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
+            //{2302, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
+
+
+            //{779, new(BetGameType.UNDER, GamePeriod.H1)},
+            //{780, new(BetGameType.OVER, GamePeriod.H1)},
+            //{891, new(BetGameType.UNDER, GamePeriod.H2)},
+            //{892, new(BetGameType.OVER, GamePeriod.H2)},
+
+            //{775, new(BetGameType.UNDER, GamePeriod.Q1)},
+            //{776, new(BetGameType.OVER, GamePeriod.Q1)},
+            //{787, new(BetGameType.UNDER, GamePeriod.Q2)},
+            //{788, new(BetGameType.OVER, GamePeriod.Q2)},
+            //{800, new(BetGameType.UNDER, GamePeriod.Q3)},
+            //{801, new(BetGameType.OVER, GamePeriod.Q3)},
+            //{825, new(BetGameType.UNDER, GamePeriod.Q4)},
+            //{826, new(BetGameType.OVER, GamePeriod.Q4)},
+
+
+            //{2373, new(BetGameType.UNDER, GamePeriod.Q1, Team.T2)},
+            //{2374, new(BetGameType.OVER, GamePeriod.Q1, Team.T2)},
+
+
+
+            /// FOOTBALL
+
+            {34, new(BetGameType.W1_X_0) },
+            {35, new(BetGameType.W2_X_0) },
+
+            //// 1 X 2 - Dupla sansa
+            {1, new(BetGameType.WX1) },
+            {2, new(BetGameType.WXX) },
+            {3, new(BetGameType.WX2) },
+            {6, new(BetGameType.D1X) },
+            {7, new(BetGameType.D12) },
+            {8, new(BetGameType.DX2) },
+
+            //// 1 X 2 - Dupla sansa - H1
+            {15, new(BetGameType.WX1, GamePeriod.H1) },
+            {16, new(BetGameType.WXX, GamePeriod.H1) },
+            {17, new(BetGameType.WX2, GamePeriod.H1) },
+            {9, new(BetGameType.D1X, GamePeriod.H1) },
+            {10, new(BetGameType.D12, GamePeriod.H1) },
+            {11, new(BetGameType.DX2, GamePeriod.H1) },
+
+            {30, new(BetGameType.W1_X_0, GamePeriod.H1) },
+            {31, new(BetGameType.W2_X_0, GamePeriod.H1) },
+
+            //// 1 X 2 - Dupla sansa - H2
+            {18, new(BetGameType.WX1, GamePeriod.H2) },
+            {19, new(BetGameType.WXX, GamePeriod.H2) },
+            {20, new(BetGameType.WX2, GamePeriod.H2) },
+            {12, new(BetGameType.D1X, GamePeriod.H2) },
+            {13, new(BetGameType.D12, GamePeriod.H2) },
+            {14, new(BetGameType.DX2, GamePeriod.H2) },
+
+            {32, new(BetGameType.W1_X_0, GamePeriod.H2) },
+            {33, new(BetGameType.W2_X_0, GamePeriod.H2) },
+
+            {36, new(BetGameType.GG) },
+            {37, new(BetGameType.NG) },
+            {467, new(BetGameType.GG, GamePeriod.H1) },
+            {468, new(BetGameType.NG, GamePeriod.H1) },
+            {469, new(BetGameType.GG, GamePeriod.H2) },
+            {470, new(BetGameType.NG, GamePeriod.H2) },
+
+            //// over - under 
+            {4, new(BetGameType.UNDER)},
+            {5, new(BetGameType.OVER)},
+            {76, new(BetGameType.UNDER, GamePeriod.H1)},
+            {77, new(BetGameType.OVER, GamePeriod.H1)},
+            {96, new(BetGameType.UNDER, GamePeriod.H2)},
+            {97, new(BetGameType.OVER, GamePeriod.H2)},
+
+            //// over - under per team
+            {98, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
+            {99, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
+            {100, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
+            {101, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
+
+            {126, new(BetGameType.UNDER, GamePeriod.H1, Team.T1)},
+            {127, new(BetGameType.OVER, GamePeriod.H1, Team.T1)},
+            {134, new(BetGameType.UNDER, GamePeriod.H1, Team.T2)},
+            {135, new(BetGameType.OVER, GamePeriod.H1, Team.T2)},
+
+            {139, new(BetGameType.UNDER, GamePeriod.H2, Team.T1)},
+            {140, new(BetGameType.OVER, GamePeriod.H2, Team.T1)},
+            {141, new(BetGameType.UNDER, GamePeriod.H2, Team.T2)},
+            {142, new(BetGameType.OVER, GamePeriod.H2, Team.T2)},
         };
     }
 }

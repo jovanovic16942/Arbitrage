@@ -13,7 +13,7 @@ using Arbitrage.General;
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
-    //new DataLoader(new PinnBetParser()),  // TODO sad su nasli da rade update
+    new DataLoader(BettingHouse.PinnBet),
     new DataLoader(BettingHouse.Mozzart),
     //new DataLoader(new MeridianParser()),
     //new DataLoader(new MaxBetParser()),

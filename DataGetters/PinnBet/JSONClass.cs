@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arbitrage.DataGetters.Pinnbet
+namespace Arbitrage.DataGetters.PinnBet
 {
     internal class JSONClass
     {
@@ -12,27 +13,46 @@ namespace Arbitrage.DataGetters.Pinnbet
 
     public class JsonMatchResponse
     {
-        public List<JsonMatch> jsonMatches;
+        public List<JsonCompetition> competitions;
     }
 
-    public class JsonMatch
+    public class JsonCompetition
     {
-        public string homeTeamName;
-        public string awayTeamName;
-        public string matchStartTime;
-        public string sportCode;
-        public int eventId;
-        public int roundId;
-        public List<JsonSelection> selections;
+        public int competitionId;
+        public int regionId;
+        public string competitonName;
 
+        public List<JsonEvent> events;
     }
 
-    public class JsonSelection
+    public class JsonEvent
     {
-        public string status;
-        public double odds;
-        public string marketCode;
-        public string selectionCode;
-        public string result;
+        public long id;
+        public string name;
+        public List<JsonBet> bets;
+        public string dateTime;
+        public bool isTopOffer;
+        public int sportId;
+
+
+        public long eventId;
+    }
+
+    public class JsonBet
+    {
+        public List<JsonBetOutcome> betOutcomes;
+        public string betTypeName;
+        public long betTypeId;
+    }
+
+    public class JsonBetOutcome
+    {
+        public double odd;
+        public string sBV;
+        public string name;
+        public int betTypeOutcomeId;
+        public string betTypeName;
+        public long betTypeId;
+
     }
 }
