@@ -47,8 +47,16 @@ var arb = new ArbitrageCalculator();
 
 arb.ProcessResults(success);
 
-var sortd = success.OrderBy(x => x.combinations.Count);
+var sortd = success.OrderByDescending(x => x.combinations.Count);
 
+var allCombos = new List<Combination>();
+
+foreach(var s  in sortd.Where(x  => x.combinations.Any()))
+{
+    allCombos.AddRange(s.combinations);
+}
+
+var bestComboooos = allCombos.OrderByDescending(x => x.profit).ToList();
 
 var x = 2;
 //var res = arb.GetResults(success);
@@ -57,5 +65,7 @@ var x = 2;
 //ArbitrageCalculator.PrintCombinations(arb.GetBetList());
 //ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);
 
-
 var a = 2;
+
+
+var b = 2;

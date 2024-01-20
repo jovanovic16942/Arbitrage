@@ -4,10 +4,12 @@ namespace Arbitrage.ArbitrageCalculator
 {
     public class Combination
     {
-        public Combination(List<Ticket> tickets, double profit) 
+        public List<HouseMatchData> data { get; set; }
+        public Combination(List<Ticket> tickets, double profit, List<HouseMatchData> houses) 
         {
             this.tickets = tickets;
             this.profit = profit;
+            this.data = houses;
         }
 
         /// <summary>

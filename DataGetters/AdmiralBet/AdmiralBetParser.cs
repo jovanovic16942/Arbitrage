@@ -25,8 +25,11 @@ namespace Arbitrage.DataGetters.AdmiralBet
 
             HouseMatchData matchData = new(House, SportFromId[matchEvent.sportId], startTime, teams[0], teams[1]);
 
+            // Combine bets from both responses
+            var allBets = bets.Concat(matchEvent.bets);
+
             // Add odds
-            foreach (var betGame in bets)
+            foreach (var betGame in allBets)
             {
                 foreach (var outcome in betGame.betOutcomes)
                 {

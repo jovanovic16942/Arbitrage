@@ -34,7 +34,7 @@ namespace Arbitrage.Utils
             data.Add(houseData);
         }
 
-        public List<HouseBetGame> GetSortedOdds(BetGame game, int numOfRes = 1)
+        public List<HouseBetGame> GetSortedOdds(BetGame game)
         {
             var bgList = new List<HouseBetGame>();
 
@@ -45,12 +45,12 @@ namespace Arbitrage.Utils
                 bgList.Add(new(houseData.house, houseGame));
             }
 
-            return bgList.OrderBy(x => x.Game.Value).Take(numOfRes).ToList();
+            return bgList.OrderBy(x => x.Game.Value).Reverse().ToList();
         }
 
         public HouseBetGame? GetBestOdd(BetGame game)
         {
-            var sortedOdds = GetSortedOdds(game, 1);
+            var sortedOdds = GetSortedOdds(game);
             return sortedOdds.FirstOrDefault();
         }
 

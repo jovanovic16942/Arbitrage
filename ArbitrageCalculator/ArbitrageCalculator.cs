@@ -49,9 +49,9 @@ namespace Arbitrage.ArbitrageCalculator
 
         public void ProcessResults(List<EventData> events)
         {
-            foreach (EventData eventData in events)
+            for (int i = 0; i < events.Count; i++)
             {
-                ProcessEvent(eventData);
+                ProcessEvent(events.ElementAt(i));
             }
         }
 
@@ -96,7 +96,13 @@ namespace Arbitrage.ArbitrageCalculator
                         new(bestOppGame.House, bestOppGame.Game),
                     };
 
-                    var comb = new Combination(tickets, arbScore);
+                    List<HouseMatchData> houses = new()
+                    {
+                        eventData.data.First(x => x.house == bestGame.House),
+                        eventData.data.First(x => x.house == bestOppGame.House),
+                    };
+
+                    var comb = new Combination(tickets, arbScore, houses);
                     eventData.combinations.Add(comb);
                 }
             }
