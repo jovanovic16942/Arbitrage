@@ -22,5 +22,10 @@ namespace Arbitrage.DataGetters.MerkurXTip
         public string leagueName;
         public long kickOffTime;
         public Dictionary<int, double> odds;
+        public long id;
+        public long matchCode;
+        public string sport;
+        public long leagueId;
+        public bool superMatch;
     }
 }

@@ -21,21 +21,20 @@ namespace Arbitrage.DataGetters.MaxBet
 
             DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 1); // TODO SUS 
 
-            Participant participant1 = new(jsonMatch.home);
-            Participant participant2 = new(jsonMatch.away);
-
-            Match match = new(startTime, participant1, participant2);
+            HouseMatchData hmd = new(House, Sport.Football, startTime, jsonMatch.home.Trim(), jsonMatch.away.Trim());
 
             // Add odds
-            foreach (var (id, betGame) in betGameFromInt)
+            foreach (var (id, val) in jsonMatch.odds)
             {
-                if (jsonMatch.odds.ContainsKey(id))
+                if (betGameFromID.ContainsKey(id))
                 {
-                    match.AddBetGame(betGame, jsonMatch.odds[id]);
+                    BetGame bg = betGameFromID[id].Clone();
+                    bg.Value = val;
+                    hmd.AddBetGame(bg);
                 }
             }
 
-            _data.Insert(match);
+            _parsedData.Add(hmd);
         }
 
         private void ParseLeagues(List<string> leagueIDs)
@@ -63,7 +62,7 @@ namespace Arbitrage.DataGetters.MaxBet
             }
         }
 
-        protected override void UpdateData()
+        protected override void ParseFootball()
         {
             var leagueIDs = _getter.GetLeagues();
             ParseLeagues(leagueIDs);
@@ -72,39 +71,102 @@ namespace Arbitrage.DataGetters.MaxBet
         /// <summary>
         /// Map bet game id_str from json response to BettingGames enum
         /// </summary>
-        static readonly Dictionary<int, BettingGames> betGameFromInt = new()
+        static readonly Dictionary<int, BetGame> betGameFromID = new()
         {
-            {1, BettingGames._1 },
-            {2, BettingGames._X },
-            {3, BettingGames._2 },
-            {8, BettingGames._12 },
-            {7, BettingGames._1X },
-            {9, BettingGames._X2 },
-            {4, BettingGames._1_I },
-            {5, BettingGames._X_I },
-            {6, BettingGames._2_I },
-            {398, BettingGames._12_I },
-            {397, BettingGames._1X_I },
-            {399, BettingGames._X2_I },
-            {235, BettingGames._1_II },
-            {236, BettingGames._X_II },
-            {237, BettingGames._2_II },
-            {609, BettingGames._12_II },
-            {608, BettingGames._1X_II },
-            {610, BettingGames._X2_II },
-            {272, BettingGames._GG },
-            {273, BettingGames._NG },
-            {291, BettingGames._GG_I },
-            {292, BettingGames._NG_I },
-            {299, BettingGames._GG_II },
-            {300, BettingGames._NG_II },
-            {21, BettingGames._UG_0_1 },
-            {22, BettingGames._UG_0_2 },
-            {242, BettingGames._UG_2_PLUS },
-            {23, BettingGames._UG_2_3 },
-            {24, BettingGames._UG_3_PLUS },
-            {25, BettingGames._UG_4_PLUS },
-            {27, BettingGames._UG_5_PLUS },
+            {272, new(BetGameType.GG) },
+            {273, new(BetGameType.NG) },
+            {291, new(BetGameType.GG, GamePeriod.H1) },
+            {292, new(BetGameType.NG, GamePeriod.H1) },
+            {299, new(BetGameType.GG, GamePeriod.H2) },
+            {300, new(BetGameType.NG, GamePeriod.H2) },
+
+            {1, new(BetGameType.WX1) },
+            {2, new(BetGameType.WXX) },
+            {3, new(BetGameType.WX2) },
+            {7, new(BetGameType.D1X) },
+            {8, new(BetGameType.D12) },
+            {9, new(BetGameType.DX2) },
+
+            {4, new(BetGameType.WX1, GamePeriod.H1) },
+            {5, new(BetGameType.WXX, GamePeriod.H1) },
+            {6, new(BetGameType.WX2, GamePeriod.H1) },
+            {397, new(BetGameType.D1X, GamePeriod.H1) },
+            {398, new(BetGameType.D12, GamePeriod.H1) },
+            {399, new(BetGameType.DX2, GamePeriod.H1) },
+
+            {235, new(BetGameType.WX1, GamePeriod.H2) },
+            {236, new(BetGameType.WXX, GamePeriod.H2) },
+            {237, new(BetGameType.WX2, GamePeriod.H2) },
+            {608, new(BetGameType.D1X, GamePeriod.H2) },
+            {609, new(BetGameType.D12, GamePeriod.H2) },
+            {610, new(BetGameType.DX2, GamePeriod.H2) },
+
+            {21, new(BetGameType.UNDER, thr: 1.5) },
+            {22, new(BetGameType.UNDER, thr: 2.5) },
+            {219, new(BetGameType.UNDER, thr: 3.5) },
+            {453, new(BetGameType.UNDER, thr: 4.5) },
+            {242, new(BetGameType.OVER, thr: 1.5) },
+            {24, new(BetGameType.OVER, thr: 2.5) },
+            {25, new(BetGameType.OVER, thr: 3.5) },
+            {27, new(BetGameType.OVER, thr: 4.5) },
+
+            {267, new(BetGameType.UNDER, GamePeriod.H1, thr: 0.5) },
+            {211, new(BetGameType.UNDER, GamePeriod.H1, thr: 1.5) },
+            {472, new(BetGameType.UNDER, GamePeriod.H1, thr: 2.5) },
+            {207, new(BetGameType.OVER, GamePeriod.H1, thr: 0.5) },
+            {208, new(BetGameType.OVER, GamePeriod.H1, thr: 1.5) },
+            {209, new(BetGameType.OVER, GamePeriod.H1, thr: 2.5) },
+            {210, new(BetGameType.OVER, GamePeriod.H1, thr: 3.5) },
+
+            {269, new(BetGameType.UNDER, GamePeriod.H2, thr: 0.5) },
+            {217, new(BetGameType.UNDER, GamePeriod.H2, thr: 1.5) },
+            {474, new(BetGameType.UNDER, GamePeriod.H2, thr: 2.5) },
+            {213, new(BetGameType.OVER, GamePeriod.H2, thr: 0.5) },
+            {214, new(BetGameType.OVER, GamePeriod.H2, thr: 1.5) },
+            {215, new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
+            {216, new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
+
+            {239, new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 0.5) },
+            {247, new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 1.5) },
+            {551, new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 2.5) }, // check
+            {238, new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 0.5) },
+            {248, new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 1.5) },
+            {276, new(BetGameType.OVER, GamePeriod.M, Team.T1, thr: 2.5) },
+
+            {337, new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 0.5) },
+            {817, new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 1.5) }, // check
+            //{"", new(BetGameType.UNDER, GamePeriod.H1, Team.T1, thr: 2.5) },
+            {307, new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 0.5) },
+            {274, new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 1.5) },
+            {349, new(BetGameType.OVER, GamePeriod.H1, Team.T1, thr: 2.5) },
+
+            {339, new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 0.5) },
+            {825, new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 1.5) },
+            //{"", new(BetGameType.UNDER, GamePeriod.H2, Team.T1, thr: 2.5) },
+            {312, new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 0.5) },
+            {297, new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 1.5) },
+            {351, new(BetGameType.OVER, GamePeriod.H2, Team.T1, thr: 2.5) },
+
+            {241, new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 0.5) },
+            {249, new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 1.5) },
+            {552, new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 2.5) },
+            {554, new(BetGameType.UNDER, GamePeriod.M, Team.T2, thr: 3.5) },
+            {240, new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 0.5) },
+            {250, new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 1.5) },
+            {277, new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 2.5) },
+            {556, new(BetGameType.OVER, GamePeriod.M, Team.T2, thr: 3.5) },
+
+            {338, new(BetGameType.UNDER, GamePeriod.H1, Team.T2, thr: 0.5) },
+            {821, new(BetGameType.UNDER, GamePeriod.H1, Team.T2, thr: 1.5) },
+            {308, new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 0.5) },
+            {275, new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 1.5) },
+            {350, new(BetGameType.OVER, GamePeriod.H1, Team.T2, thr: 2.5) },
+
+            {340, new(BetGameType.UNDER, GamePeriod.H2, Team.T2, thr: 0.5) },
+            {829, new(BetGameType.UNDER, GamePeriod.H2, Team.T2, thr: 1.5) },
+            {313, new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 0.5) },
+            {298, new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 1.5) },
+            {352, new(BetGameType.OVER, GamePeriod.H2, Team.T2, thr: 2.5) },
         };
     }
 }

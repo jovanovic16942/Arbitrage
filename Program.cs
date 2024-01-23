@@ -16,15 +16,15 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(BettingHouse.PinnBet),
     new DataLoader(BettingHouse.Mozzart),
     //new DataLoader(new MeridianParser()),
-    //new DataLoader(new MaxBetParser()),
+    new DataLoader(BettingHouse.MaxBet),
     new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
-    //new DataLoader(new MerkurXTipParser()),
+    new DataLoader(BettingHouse.MerkurXTip),
     new DataLoader(BettingHouse.SuperBet),
     //new DataLoader(new BalkanBetParser()),
     //new DataLoader(new StarBetParser()),
-    //new DataLoader(new OktagonBetParser()),
-    //new DataLoader(new BetOleParser()),
+    new DataLoader(BettingHouse.OktagonBet),
+    new DataLoader(BettingHouse.BetOle),
     //new DataLoader(new OlimpParser()),
     //new DataLoader(new Bet365Parser()),
 };
@@ -56,7 +56,7 @@ foreach(var s  in sortd.Where(x  => x.combinations.Any()))
     allCombos.AddRange(s.combinations);
 }
 
-var bestComboooos = allCombos.OrderByDescending(x => x.profit).ToList();
+var bestComboooos = allCombos.Where(x => x.profit > 0.01).OrderByDescending(x => x.profit).ToList();
 
 var x = 2;
 //var res = arb.GetResults(success);

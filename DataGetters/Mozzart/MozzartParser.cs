@@ -151,9 +151,7 @@ namespace Arbitrage.DataGetters.Mozzart
             {"1001003004", new(BetGameType.OVER, thr: 2.5) },
             {"1001003005", new(BetGameType.OVER, thr: 3.5) },
             {"1001003007", new(BetGameType.OVER, thr: 4.5) },
-            // TODO MORE
-            
-            
+
             {"1001008008", new(BetGameType.UNDER, GamePeriod.H1, thr: 0.5) },
             {"1001008005", new(BetGameType.UNDER, GamePeriod.H1, thr: 1.5) },
             {"1001008009", new(BetGameType.UNDER, GamePeriod.H1, thr: 2.5) },
