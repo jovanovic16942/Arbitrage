@@ -1,45 +1,19 @@
-﻿using Arbitrage.General;
-using Newtonsoft.Json;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Arbitrage.DataGetters.MMOB;
 
 namespace Arbitrage.DataGetters.OktagonBet
 {
-    internal class OktagonBetGetter
+    internal class OktagonBetGetter : MMOBGetter
     {
-        public JsonMatchResponse GetFootballResponse()
+        public override string GetMatchUrl(long matchId)
         {
-            string url = "https://www.oktagonbet.com/restapi/offer/sr/sport/S/mob?annex=1&mobileVersion=2.21.50&locale=sr";
-
-            var client = new RestClient(url);
-
-            var request = new RestRequest("", Method.Get);
-
-            RestResponse response = client.Execute(request);
-
-            var matchesResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
-
-            return matchesResponse;
+            string url = "https://www.oktagonbet.com/restapi/offer/sr/match/" + matchId + "?annex=1&mobileVersion=2.21.50&locale=sr";
+            return url;
         }
 
-        public JsonMatch GetMatchResponse(long matchId)
+        public override string GetSportUrl(string sport)
         {
-            Thread.Sleep(Constants.SleepTimeShort);
-            string url = "https://www.oktagonbet.com/restapi/offer/sr/match/" + matchId + "?annex=1&mobileVersion=2.21.50&locale=sr";
-
-            var client = new RestClient(url);
-
-            var request = new RestRequest("", Method.Get);
-
-            RestResponse response = client.Execute(request);
-
-            var matchResponse = JsonConvert.DeserializeObject<JsonMatch>(response.Content);
-
-            return matchResponse;
+            string url = "https://www.oktagonbet.com/restapi/offer/sr/sport/" + sport + "/mob?annex=1&mobileVersion=2.21.50&locale=sr";
+            return url;
         }
     }
 }

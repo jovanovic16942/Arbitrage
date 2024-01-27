@@ -1,49 +1,21 @@
-﻿using Arbitrage.EntityFramework.Models;
-using Newtonsoft.Json;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Arbitrage.DataGetters.MMOB;
 
 namespace Arbitrage.DataGetters.MerkurXTip
 {
-    public class MerkurXTipGetter
+    public class MerkurXTipGetter : MMOBGetter
     {
         public MerkurXTipGetter() { }
 
-        public JsonMatchResponse GetMatches()
+        public override string GetSportUrl(string sport)
         {
-            string url = "https://www.merkurxtip.rs/restapi/offer/sr/sport/S/mob?annex=0&desktopVersion=2.24.46&locale=sr";
-
-            var client = new RestClient(url);
-
-            var request = new RestRequest("", Method.Get);
-
-            RestResponse response = client.Execute(request);
-
-            JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
-
-            return matchResponse;
+            string url = "https://www.merkurxtip.rs/restapi/offer/sr/sport/" + sport + "/mob?annex=0&desktopVersion=2.24.46&locale=sr";
+            return url;
         }
 
-        public JsonMatch GetMatch(long matchId)
+        public override string GetMatchUrl(long matchId)
         {
-            Thread.Sleep(General.Constants.SleepTimeShort);
-
             string url = "https://www.merkurxtip.rs/restapi/offer/sr/match/" + matchId + "?annex=0&desktopVersion=1.31.5&locale=sr";
-
-            var client = new RestClient(url);
-
-            var request = new RestRequest("", Method.Get);
-
-            RestResponse response = client.Execute(request);
-
-            JsonMatch matchResponse = JsonConvert.DeserializeObject<JsonMatch>(response.Content);
-
-            return matchResponse;
+            return url;
         }
     }
 }

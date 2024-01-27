@@ -16,17 +16,18 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(BettingHouse.PinnBet),
     new DataLoader(BettingHouse.Mozzart),
     //new DataLoader(new MeridianParser()),
-    new DataLoader(BettingHouse.MaxBet),
     new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
-    new DataLoader(BettingHouse.MerkurXTip),
     new DataLoader(BettingHouse.SuperBet),
     //new DataLoader(new BalkanBetParser()),
     //new DataLoader(new StarBetParser()),
-    new DataLoader(BettingHouse.OktagonBet),
-    new DataLoader(BettingHouse.BetOle),
     //new DataLoader(new OlimpParser()),
     //new DataLoader(new Bet365Parser()),
+    //same
+    new DataLoader(BettingHouse.MerkurXTip),
+    new DataLoader(BettingHouse.MaxBet),
+    new DataLoader(BettingHouse.OktagonBet),
+    new DataLoader(BettingHouse.BetOle),
 };
 
 // Load the data in parallel

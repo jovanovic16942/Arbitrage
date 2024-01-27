@@ -1,11 +1,7 @@
 ﻿using Arbitrage.General;
+using Arbitrage.DataGetters.MMOB;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.MaxBet
 {
@@ -15,10 +11,10 @@ namespace Arbitrage.DataGetters.MaxBet
 
         public MaxBetGetter() { }
 
-        public JsonMatchResponse GetMatches(string leagueId)
+        public JsonMatchResponse GetMatches(string leagueId, string sport)
         {
             Thread.Sleep(Constants.SleepTime);
-            string url = "https://www.maxbet.rs/restapi/offer/sr/sport/S/league/" + leagueId + "/mob?annex=3&desktopVersion=2.24.43&locale=sr";
+            string url = "https://www.maxbet.rs/restapi/offer/sr/sport/" + sport + "/league/" + leagueId + "/mob?annex=3&desktopVersion=2.24.43&locale=sr";
 
             var client = new RestClient(url);
 
@@ -31,9 +27,9 @@ namespace Arbitrage.DataGetters.MaxBet
             return matchResponse;
         }
 
-        public List<string> GetLeagues()
+        public List<string> GetLeagues(string sport)
         {
-            string url = "https://www.maxbet.rs/restapi/offer/sr/categories/sport/S/l?annex=3&desktopVersion=2.24.43&locale=sr";
+            string url = "https://www.maxbet.rs/restapi/offer/sr/categories/sport/" + sport + "/l?annex=3&desktopVersion=2.24.43&locale=sr";
 
             var client = new RestClient(url);
 
