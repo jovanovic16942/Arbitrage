@@ -43,6 +43,13 @@ namespace Arbitrage.MatchMatcher
             // Filter matches
             var filteredMatches = matched.Where(x => matchFilter(x)).ToList();
 
+            if (!filteredMatches.Any()) 
+            {
+                log.Debug("No potential candidates for match: " + match);
+                matched.Add(new(match));
+                return;
+            }
+
             EventData? bestMatch = null;
             var bestMatchScore = 0.0;
 
@@ -64,12 +71,12 @@ namespace Arbitrage.MatchMatcher
 
             if (bestMatch != null)
             {
-                log.Info("Matched: " + match.MatchDataString() + " with: " + bestMatch.MatchDataString());
+                log.Info("Matched: " + match + " with: " + bestMatch);
                 bestMatch.data.Add(match);
             }
             else
             {
-                log.Info("Unable to match: " + match.MatchDataString());
+                log.Info("Found: " + filteredMatches.Count + "candidates. Unable to match: " + match);
                 matched.Add(new(match));
             }
         }
@@ -84,7 +91,6 @@ namespace Arbitrage.MatchMatcher
                 
                 if (score < MIN_SCORE_THR)
                 {
-                    // TODO This may be excessive 
                     return 0;
                 }
 

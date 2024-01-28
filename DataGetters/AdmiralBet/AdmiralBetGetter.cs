@@ -1,11 +1,6 @@
 ﻿using Arbitrage.DataGetters.AdmiralBet;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.Admiralbet
 {
@@ -44,11 +39,11 @@ namespace Arbitrage.DataGetters.Admiralbet
             var dateTime = DateTime.Now.AddDays(1000).AddHours(-2);
             var dateTimeString = dateTime.ToString("yyyy-MM-ddTHH:mm:ss.fff");
 
-            string footballUrl = "https://sport-webapi.admiralbet.rs/SportBookCacheWeb/api/offer/competitionsWithEventsStartingSoonForSportV2/"
+            string url = "https://sport-webapi.admiralbet.rs/SportBookCacheWeb/api/offer/competitionsWithEventsStartingSoonForSportV2/"
                 + perPage + "/" + offset +
                 "/false/" + dateTimeString + "/" + sportId;
 
-            var client = new RestClient(footballUrl);
+            var client = new RestClient(url);
 
             var request = new RestRequest("", Method.Get);
 

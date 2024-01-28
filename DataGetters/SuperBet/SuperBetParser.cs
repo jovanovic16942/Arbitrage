@@ -44,28 +44,6 @@ namespace Arbitrage.DataGetters.SuperBet
 
                 }
             }
-
-            /// OLD WAY
-            //int step = 20;
-
-            //for (int i = 0; (i * step) < matchIds.Count; i++)
-            //{
-            //    int total = step * i;
-
-            //    var fullResponse = _getter.GetMatchData(matchIds.Skip(total).Take(step));
-
-            //    foreach (var jsonMatch in fullResponse.data)
-            //    {
-            //        try
-            //        {
-            //            ParseJsonMatch(jsonMatch);
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            // Loggovanje
-            //        }
-            //    }
-            //}
         }
 
         private void ParseJsonMatchResp(JsonMatchResponse matchResp)
@@ -120,42 +98,6 @@ namespace Arbitrage.DataGetters.SuperBet
 
             _parsedData.Add(matchData);
         }
-
-        //void ParseJsonMatch(JsonMatch jsonMatch)
-        //{
-        //    if (jsonMatch == null) return;
-
-        //    DateTime startTime = DateTime.Parse(jsonMatch.mld);
-        //    List<string> teams = jsonMatch.mn.Split("·").Select(x => x.Trim()).ToList();
-
-        //    HouseMatchData matchData = new(House, sportFromId[jsonMatch.si], startTime, teams[0], teams[1]);
-
-        //    foreach(var jsonOdd in jsonMatch.odds)
-        //    {
-        //        int betGameId = jsonOdd.oi;
-        //        if (!bgFromOutcomeIdFootball.ContainsKey(betGameId)) continue;
-
-        //        double? thr = null;
-
-        //        // Special parsing for UNDER - OVER
-        //        if (betGameId == 151888 || betGameId == 151889) 
-        //        {
-        //            thr = (int)Math.Truncate(jsonOdd.spc.total);
-        //        }
-
-        //        //BetGameConfig cfg = bgFromOutcomeIdFootball[betGameId];
-        //        //cfg.threshold = thr;
-
-        //        BetGame bg = new(cfg)
-        //        {
-        //            Value = jsonOdd.ov
-        //        };
-        //        matchData.AddBetGame(bg);
-        //    }
-
-        //    _parsedData.Add(matchData);
-        //}
-
 
         /// <summary>
         /// Map quarternr from json to GamePeriod
@@ -213,7 +155,6 @@ namespace Arbitrage.DataGetters.SuperBet
 
             {151888, new(BetGameType.UNDER)},
             {151889, new(BetGameType.OVER)},
-            // TODO Over - under per teams and halftimes-quarters
             {151890, new(BetGameType.UNDER, GamePeriod.H1)},
             {151891, new(BetGameType.OVER, GamePeriod.H1)},
             {151896, new(BetGameType.UNDER, GamePeriod.H2)},
@@ -281,55 +222,6 @@ namespace Arbitrage.DataGetters.SuperBet
             {152239, new(BetGameType.OVER, GamePeriod.Q1, Team.T1)},
             {152222, new(BetGameType.UNDER, GamePeriod.Q1, Team.T2)},
             {152223, new(BetGameType.OVER, GamePeriod.Q1, Team.T2)},
-        };
-
-        /// <summary>
-        /// Map betGames from json response oi (odd id_str) to BettingGames enum
-        /// </summary>
-        static readonly Dictionary<int, BettingGames> betGameFromOIOld = new()
-        {
-            {1470, BettingGames._1 },
-            {1471, BettingGames._X },
-            {1472, BettingGames._2 },
-            {1364, BettingGames._12 },
-            {1363, BettingGames._1X },
-            {1365, BettingGames._X2 },
-            {1440, BettingGames._GG },
-            {1441, BettingGames._NG },
-            //
-            {1520, BettingGames._1_I },
-            {1521, BettingGames._X_I },
-            {1522, BettingGames._2_I },
-            {1492, BettingGames._12_I},
-            {1491, BettingGames._1X_I},
-            {1493, BettingGames._X2_I},
-            {1527, BettingGames._GG_I},
-            {1528, BettingGames._NG_I},
-            //
-            {1511, BettingGames._1_II },
-            {1512, BettingGames._X_II },
-            {1513, BettingGames._2_II },
-            {1570, BettingGames._12_II},
-            {1569, BettingGames._1X_II},
-            {1571, BettingGames._X2_II},
-            {1475, BettingGames._GG_II},
-            {1476, BettingGames._NG_II},
-            //
-
-            {151888, BettingGames._UG_0 },
-            {151889, BettingGames._UG_1_PLUS },
-            {1151888, BettingGames._UG_0_1 },
-            {1151889, BettingGames._UG_2_PLUS },
-            {2151888, BettingGames._UG_0_2 },
-            {2151889, BettingGames._UG_3_PLUS },
-            {3151888, BettingGames._UG_0_3 },
-            {3151889, BettingGames._UG_4_PLUS },
-            {4151888, BettingGames._UG_0_4 },
-            {4151889, BettingGames._UG_5_PLUS },
-            {5151888, BettingGames._UG_0_5 },
-            {5151889, BettingGames._UG_6_PLUS },
-            {6151888, BettingGames._UG_0_6 },
-            {6151889, BettingGames._UG_7_PLUS }
         };
 
         static readonly Dictionary<Sport, Dictionary<int, BetGame>> sportMaps = new()

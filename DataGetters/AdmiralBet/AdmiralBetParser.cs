@@ -9,47 +9,82 @@ namespace Arbitrage.DataGetters.AdmiralBet
     {
         private readonly AdmiralBetGetter _getter = new();
 
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         public AdmiralBetParser() : base(BettingHouse.AdmiralBet) { }
 
         private void ParseMatchEvent(JsonEvent matchEvent, List<JsonBet> bets)
         {
-            if (matchEvent.isTopOffer) { return; } // Skip special offfers
-
-            DateTime startTime = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
-
-            var teams = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
-
-            if (teams.Count < 2) { return; } // For now skip matches with < 2 teams
-
-            HouseMatchData matchData = new(House, SportFromId[matchEvent.sportId], startTime, teams[0], teams[1]);
-
-            // Combine bets from both responses
-            var allBets = bets.Concat(matchEvent.bets);
-
-            // Add odds
-            foreach (var betGame in allBets)
+            try
             {
-                foreach (var outcome in betGame.betOutcomes)
+                if (matchEvent.isTopOffer) { return; } // Skip special offfers
+
+                DateTime startTime = DateTime.Parse(matchEvent.dateTime).AddHours(1); // TODO SUSS
+
+                var teams = matchEvent.name.Split('-').Select(x => x.Trim()).ToList();
+
+                if (teams.Count < 2) { return; } // For now skip matches with < 2 teams
+
+                HouseMatchData matchData = new(House, SportFromId[matchEvent.sportId], startTime, teams[0], teams[1]);
+
+                // Combine bets from both responses
+                var allBets = bets.Concat(matchEvent.bets);
+
+                // Add odds
+                foreach (var betGame in allBets)
                 {
-                    int betGameId = outcome.betTypeOutcomeId;
-
-                    if (!betGameFromInt.Keys.Contains(betGameId)) continue;
-
-                    BetGame game = betGameFromInt[betGameId].Clone();
-
-                    if (double.TryParse(outcome.sBV, out double thr))
+                    try
                     {
-                        game.SetThreshold(thr);
+                        foreach (var outcome in betGame.betOutcomes)
+                        {
+                            try
+                            {
+                                int betGameId = outcome.betTypeOutcomeId;
+
+                                if (!betGameFromInt.Keys.Contains(betGameId)) continue;
+
+                                BetGame game = betGameFromInt[betGameId].Clone();
+
+                                if (double.TryParse(outcome.sBV, out double thr))
+                                {
+                                    game.SetThreshold(thr);
+                                }
+
+                                game.Value = outcome.odd;
+
+                                var oldVal = matchData.GetOddValue(game);
+
+                                if (oldVal == 0)
+                                {
+                                    matchData.AddBetGame(game);
+                                } else if (oldVal != game.Value)
+                                {
+                                    log.Warn(string.Format("Different values detected for: {0} Values: {1} (old) - {2} (new)",
+                                            game, oldVal, game.Value));
+                                    matchData.UpdateBetGame(game);
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                log.Error("Exception while parsing bet outcome: ");
+                                log.Error(e);
+                            }
+                        }
                     }
-
-                    game.Value = outcome.odd;
-                    matchData.AddBetGame(game);
+                    catch (Exception e)
+                    {
+                        log.Error("Exception while parsing bet game: ");
+                        log.Error(e);
+                    }
                 }
-            }
 
-            _parsedData.Add(matchData);
+                _parsedData.Add(matchData);
+            } catch (Exception ex)
+            {
+                log.Error("Exception while parsing match event: ");
+                log.Error(ex);
+            }
         }
 
         private void ParseMatchResponse(JsonMatchResponse response)
@@ -58,27 +93,35 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {
                 if (competition.events == null || competition.events.Count == 0) { continue; }
 
-                var oddsResponse = _getter.GetBets(competition.competitionId, competition.events.Select(x => x.id).ToList(),competition.regionId, competition.events[0].sportId);
-
-                foreach (var matchEvent in competition.events)
+                try
                 {
-                    if (matchEvent == null) { continue; }
+                    var eventIDs = competition.events.Select(x => x.id).ToList();
+                    var oddsResponse = _getter.GetBets(competition.competitionId, eventIDs, competition.regionId, competition.events[0].sportId);
 
-                    var id = matchEvent.id;
-
-                    try
+                    foreach (var matchEvent in competition.events)
                     {
-                        var oddsEvent = oddsResponse.First(x => x.eventId == id);
-                        ParseMatchEvent(matchEvent, oddsEvent.bets);
-                    } catch (Exception ex)
-                    {
-                        // Get some odds but not all
-                        logger.Error("Source: " + ex.Source + " Message: " + ex.Message);
-                        ParseMatchEvent(matchEvent, matchEvent.bets);
+                        if (matchEvent == null) { continue; }
+                        try
+                        {
+                            var oddsEvent = oddsResponse.First(x => x.eventId == matchEvent.id);
+                            ParseMatchEvent(matchEvent, oddsEvent.bets);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Get some odds but not all
+                            log.Error("Source: " + ex.Source + " Message: " + ex.Message);
+                            ParseMatchEvent(matchEvent, matchEvent.bets);
+                        }
                     }
+                } catch (Exception e)
+                {
+                    log.Error("Exception while parsing response: " + e);
                 }
             }
         }
+
+
+
         protected override void ParseFootball()
         {
             var matchResponses = _getter.GetMatches(1);
@@ -126,7 +169,6 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {2361, new(BetGameType.W1_X_0, GamePeriod.Q4) },
             {2362, new(BetGameType.W2_X_0, GamePeriod.Q4) },
 
-
             {2371, new(BetGameType.W1_X_0, GamePeriod.Q1, Team.T1) },
             {2372, new(BetGameType.W2_X_0, GamePeriod.Q1, Team.T1) },
 
@@ -150,14 +192,12 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {796, new(BetGameType.WXX, GamePeriod.Q4) },
             {797, new(BetGameType.WX2, GamePeriod.Q4) },
 
-
             {821, new(BetGameType.UNDER)}, // + OT
             {822, new(BetGameType.OVER)},
             {2299, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
             {2300, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
             {2301, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
             {2302, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
-
 
             {779, new(BetGameType.UNDER, GamePeriod.H1)},
             {780, new(BetGameType.OVER, GamePeriod.H1)},
@@ -173,14 +213,10 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {825, new(BetGameType.UNDER, GamePeriod.Q4)},
             {826, new(BetGameType.OVER, GamePeriod.Q4)},
 
-
             {2373, new(BetGameType.UNDER, GamePeriod.Q1, Team.T2)},
             {2374, new(BetGameType.OVER, GamePeriod.Q1, Team.T2)},
 
-
-
             /// FOOTBALL
-
             {505, new(BetGameType.W1_X_0) },
             {506, new(BetGameType.W2_X_0) },
 
@@ -239,35 +275,5 @@ namespace Arbitrage.DataGetters.AdmiralBet
             {466, new(BetGameType.UNDER, GamePeriod.H2, Team.T2)},
             {467, new(BetGameType.OVER, GamePeriod.H2, Team.T2)},
         };
-
-        /// <summary>
-        /// Map betGames from json response bet type outcome id_str to BettingGames enum
-        /// over-under (total goals) odds have special rules
-        /// </summary>
-        static readonly Dictionary<int, BettingGames> betGameFromIntOld = new()
-        {
-            {424, BettingGames._1 },
-            {425, BettingGames._X },
-            {426, BettingGames._2 },
-            {498, BettingGames._GG },
-            {499, BettingGames._NG },
-            {501, BettingGames._12 },
-            {500, BettingGames._1X },
-            {502, BettingGames._X2 },
-            // 429 is outcome id_str for subgame UNDER
-            {1429, BettingGames._UG_0_1 },
-            {2429, BettingGames._UG_0_2 },
-            {3429, BettingGames._UG_0_3 },
-            {4429, BettingGames._UG_0_4 },
-            {5429, BettingGames._UG_0_5 },
-            {6429, BettingGames._UG_0_6 },
-            // 430 is outcome id_str for subgame OVER
-            {1430, BettingGames._UG_2_PLUS },
-            {2430, BettingGames._UG_3_PLUS },
-            {3430, BettingGames._UG_4_PLUS },
-            {4430, BettingGames._UG_5_PLUS },
-            {5430, BettingGames._UG_6_PLUS },
-        };
     }
-
 }

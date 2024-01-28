@@ -1,17 +1,11 @@
-﻿using Arbitrage.EntityFramework.Models;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.Utils
 {
     public class HouseMatchData
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         public BettingHouse house;
         public Sport sport;
@@ -38,18 +32,34 @@ namespace Arbitrage.Utils
         {
             if (betGames.Contains(game))
             {
-                logger.Warn("BetGame already present: " + game.ToString());
+                log.Warn("BetGame: " + game.ToString() + " already present in match: " + ToString());
 
                 var oldValue = GetOddValue(game);
                 if (oldValue != game.Value)
                 {
-                    logger.Error("Different values detected for bet game: " + game.ToString());
+                    log.Error(
+                        string.Format("Different values detected for: {0} Original value: {1} - New value: {2} ",
+                            game.ToString(), oldValue, game.Value)
+                        );
                 }
 
                 return;
             }
 
             betGames.Add(game);
+        }
+        public void UpdateBetGame(BetGame game)
+        {
+            var oldGame = GetBetGame(game);
+
+            if (oldGame == null)
+            {
+                log.Warn("Bet game not present: " + game);
+                AddBetGame(game);
+            } else
+            {
+                oldGame.Value = game.Value;
+            }
         }
 
         public BetGame? GetBetGame(BetGame g)
@@ -73,8 +83,7 @@ namespace Arbitrage.Utils
             return tmp.Value;
         }
 
-        // TODO change to ToString()
-        public string MatchDataString()
+        public override string ToString()
         {
             string eventString = "";
             eventString += "{" + team1 + "}";

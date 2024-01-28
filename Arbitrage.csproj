@@ -8,8 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="EntityFramework\**" />
     <Compile Remove="SavedResponses\**" />
+    <EmbeddedResource Remove="EntityFramework\**" />
     <EmbeddedResource Remove="SavedResponses\**" />
+    <None Remove="EntityFramework\**" />
     <None Remove="SavedResponses\**" />
   </ItemGroup>
 

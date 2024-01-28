@@ -3,31 +3,27 @@ using Arbitrage.MatchMatcher;
 using Arbitrage.ArbitrageCalculator;
 using Arbitrage.General;
 
-
-// TODO Skidanje ostalih kvota sa meridijana !!!
-// TODO LOGGING
-
-
 // TODO TOP BET
+
+// TODO over under kvote proveriti gde se koriste bez overtimea
 
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
-    new DataLoader(BettingHouse.PinnBet),
-    new DataLoader(BettingHouse.Mozzart),
-    //new DataLoader(new MeridianParser()),
-    new DataLoader(BettingHouse.AdmiralBet),
     //new DataLoader(new SoccerBetParser()),
-    new DataLoader(BettingHouse.SuperBet),
     //new DataLoader(new BalkanBetParser()),
     //new DataLoader(new StarBetParser()),
     //new DataLoader(new OlimpParser()),
     //new DataLoader(new Bet365Parser()),
-    //same
-    new DataLoader(BettingHouse.MerkurXTip),
-    new DataLoader(BettingHouse.MaxBet),
-    new DataLoader(BettingHouse.OktagonBet),
-    new DataLoader(BettingHouse.BetOle),
+    new DataLoader(BettingHouse.Meridian),
+    //new DataLoader(BettingHouse.PinnBet),
+    //new DataLoader(BettingHouse.Mozzart),
+    //new DataLoader(BettingHouse.AdmiralBet),
+    //new DataLoader(BettingHouse.SuperBet),
+    //new DataLoader(BettingHouse.MerkurXTip),
+    //new DataLoader(BettingHouse.MaxBet),
+    //new DataLoader(BettingHouse.OktagonBet),
+    //new DataLoader(BettingHouse.BetOle),
 };
 
 // Load the data in parallel

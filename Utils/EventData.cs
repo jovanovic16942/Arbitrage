@@ -1,12 +1,5 @@
 ﻿using Arbitrage.ArbitrageCalculator;
 using Arbitrage.General;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.Utils
 {
@@ -45,7 +38,7 @@ namespace Arbitrage.Utils
                 bgList.Add(new(houseData.house, houseGame));
             }
 
-            return bgList.OrderBy(x => x.Game.Value).Reverse().ToList();
+            return bgList.OrderByDescending(x => x.Game.Value).ToList();
         }
 
         public HouseBetGame? GetBestOdd(BetGame game)
@@ -105,26 +98,9 @@ namespace Arbitrage.Utils
         {
             string eventString = "<" + startTime.ToString() + ">";
 
-            foreach (Participant participant in teams)
-            {
-                eventString += "{" + participant.Name + "}";
-            }
-
-            foreach (HouseOdds house in odds)
-            {
-                eventString += "[" + house.ToString() + "]";
-            }
-
-            return eventString;
-        }
-
-        public string MatchDataString()
-        {
-            string eventString = "<" + startTime.ToString() + ">";
-
             foreach (var houseData in data)
             {
-                eventString += houseData.MatchDataString() + System.Environment.NewLine;
+                eventString += houseData + System.Environment.NewLine;
             }
 
             return eventString;

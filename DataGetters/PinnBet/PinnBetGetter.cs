@@ -1,18 +1,10 @@
-﻿using Arbitrage.General;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.PinnBet
 {
     public class PinnBetGetter
     {
-        List<int> matchEventIds = new List<int>();
-
         public List<JsonMatchResponse> GetMatches(int sportId)
         {
             List<JsonMatchResponse> matches = new();
@@ -21,7 +13,6 @@ namespace Arbitrage.DataGetters.PinnBet
 
             while (true)
             {
-                //Console.WriteLine("AdmiralBetGetter page offset: " + offset);
                 var respose = GetPage(offset, sportId);
 
                 if (respose == null || respose.competitions == null || respose.competitions.Count == 0)
