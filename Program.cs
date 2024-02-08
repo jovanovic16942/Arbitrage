@@ -29,7 +29,7 @@ List <DataLoader> dataLoaders = new()
 // Load the data in parallel
 Parallel.ForEach(dataLoaders, loader =>
 {
-    _ = loader.Load();
+    _ = loader.Load(p: false);
 });
 
 // Match data from different sources
@@ -53,7 +53,12 @@ foreach(var s  in sortd.Where(x  => x.combinations.Any()))
     allCombos.AddRange(s.combinations);
 }
 
-var bestComboooos = allCombos.Where(x => x.profit > 0.01).OrderByDescending(x => x.profit).ToList();
+
+var t0 = allCombos.Where(x => x.profit < 0.02).OrderByDescending(x => x.profit).ToList();
+var t1 = allCombos.Where(x => x.profit >= 0.02 && x.profit < 0.05).OrderByDescending(x => x.profit).ToList();
+var t2 = allCombos.Where(x => x.profit >= 0.05 && x.profit < 0.08).OrderByDescending(x => x.profit).ToList();
+var t3 = allCombos.Where(x => x.profit >= 0.08).OrderByDescending(x => x.profit).ToList();
+
 
 var x = 2;
 //var res = arb.GetResults(success);

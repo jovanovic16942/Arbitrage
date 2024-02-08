@@ -35,9 +35,9 @@ namespace Arbitrage.DataGetters.SuperBet
 
             foreach (var matchId in matchIds)
             {
-                var matchResp = _getter.GetMatchResponse(matchId);
                 try
                 {
+                    var matchResp = _getter.GetMatchResponse(matchId);
                     ParseJsonMatchResp(matchResp);
                 } catch (Exception ex)
                 {

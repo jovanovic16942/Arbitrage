@@ -49,7 +49,6 @@ namespace Arbitrage.DataGetters.Mozzart
 
         public List<JsonRoot> GetOdds(IEnumerable<int> matchIds, List<string> subgamesIds)
         {
-
             // create a new RestSharp client
             var client = new RestClient("https://www.mozzartbet.com");
 

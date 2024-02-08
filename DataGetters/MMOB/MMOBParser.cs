@@ -174,7 +174,7 @@ namespace Arbitrage.DataGetters.MMOB
             {213, new(BetGameType.OVER, GamePeriod.H2, thr: 0.5) },
             {214, new(BetGameType.OVER, GamePeriod.H2, thr: 1.5) },
             {215, new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
-            {216, new(BetGameType.OVER, GamePeriod.H2, thr: 2.5) },
+            {216, new(BetGameType.OVER, GamePeriod.H2, thr: 3.5) }, // check
 
             {239, new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 0.5) },
             {247, new(BetGameType.UNDER, GamePeriod.M, Team.T1, thr: 1.5) },
