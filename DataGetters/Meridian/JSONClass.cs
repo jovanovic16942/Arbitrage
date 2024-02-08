@@ -13,11 +13,16 @@ namespace Arbitrage.DataGetters.Meridian
 
     public class JsonEvent
     {
+        public string id { get; set; }
         public int leagueId { get; set; }
+        public string leagueName { get; set; }
         public string name { get; set; }
         public List<JsonTeam> team { get; set; }
         public string startTime { get; set; }
         public List<JsonSelection> standardShortMarkets { get; set; }
+        public List<JsonSelection> market { get; set; }
+
+        public int sportId;
 
     }
 

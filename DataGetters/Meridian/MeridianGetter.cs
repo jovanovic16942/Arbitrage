@@ -1,12 +1,6 @@
 ﻿using Arbitrage.General;
 using Newtonsoft.Json;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.Meridian
 {
@@ -14,13 +8,13 @@ namespace Arbitrage.DataGetters.Meridian
     {
         public MeridianGetter() { }
 
-        public List<JsonMatchResponse> GetMatches()
+        public List<JsonMatchResponse> GetMatches(int sportId)
         {
             var responses = new List<JsonMatchResponse>();
 
             string formattedDateTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
-            string baseUrl = "https://meridianbet.rs/sails/sport/58/date/";
+            string baseUrl = "https://meridianbet.rs/sails/sport/" + sportId + "/date/";  //basket 55 - 58 f
             string urlFilter = "/filter/oneDay/offset/";
             const string urlPositon = "?filterPositions=0,0,0";
 
@@ -35,9 +29,6 @@ namespace Arbitrage.DataGetters.Meridian
                 }
 
                 responses.Add(response);
-
-                //Console.WriteLine("MeridianGetter request offset: " + offset);
-                Thread.Sleep(Constants.SleepTime);
             }
 
             return responses;
@@ -45,6 +36,8 @@ namespace Arbitrage.DataGetters.Meridian
 
         private JsonMatchResponse GetMatchResponse(string url)
         {
+            Thread.Sleep(Constants.SleepTimeShort);
+
             var client = new RestClient(url);
 
             var request = new RestRequest("", Method.Get);
@@ -52,6 +45,19 @@ namespace Arbitrage.DataGetters.Meridian
             RestResponse response = client.Execute(request);
 
             JsonMatchResponse matchResponse = JsonConvert.DeserializeObject<JsonMatchResponse>(response.Content);
+
+            return matchResponse;
+        }
+
+        public JsonEvent GetOddsResponse(string matchId)
+        {
+            var client = new RestClient("https://meridianbet.rs/sails/events/");
+
+            var request = new RestRequest(matchId, Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            JsonEvent matchResponse = JsonConvert.DeserializeObject<JsonEvent>(response.Content);
 
             return matchResponse;
         }

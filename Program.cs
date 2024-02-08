@@ -29,7 +29,8 @@ List <DataLoader> dataLoaders = new()
 // Load the data in parallel
 Parallel.ForEach(dataLoaders, loader =>
 {
-    _ = loader.Load(p: false);
+    //_ = loader.Load(p: false);
+    _ = loader.Load(new List<Sport> { Sport.Football });
 });
 
 // Match data from different sources
