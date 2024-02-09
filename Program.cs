@@ -26,11 +26,16 @@ List <DataLoader> dataLoaders = new()
     new DataLoader(BettingHouse.BetOle),
 };
 
+List<Sport> sportsToGet = new()
+{
+    Sport.Football,
+    Sport.Basketball,
+};
+
 // Load the data in parallel
 Parallel.ForEach(dataLoaders, loader =>
 {
-    //_ = loader.Load(p: false);
-    _ = loader.Load(new List<Sport> { Sport.Football });
+    _ = loader.Load(sportsToGet, false);
 });
 
 // Match data from different sources

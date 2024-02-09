@@ -1,6 +1,8 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using NLog;
+using System.ComponentModel;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Arbitrage.MatchMatcher
 {
@@ -41,7 +43,7 @@ namespace Arbitrage.MatchMatcher
                 {
                     candidate.startTime.Equals(match.startTime),
                     candidate.sport.Equals(match.sport),
-                    !candidate.data.Any(x => x.house == match.house),
+                    //!candidate.data.Any(x => x.house == match.house),
                 };
 
                 return conditions.All(x => x);
@@ -69,31 +71,68 @@ namespace Arbitrage.MatchMatcher
                     bestMatch = potentialMatch;
                     bestMatchScore = score;
 
-                    if (score > BEST_SCORE_THR)
-                    {
-                        break;
-                    }
+                    //if (score > BEST_SCORE_THR)
+                    //{
+                    //    break;
+                    //}
                 }
             }
 
-            if (bestMatch != null)
-            {
-                log.Info("Matched: " + match + " with: " + bestMatch);
-                bestMatch.data.Add(match);
-            }
-            else
+            if (bestMatch == null)
             {
                 log.Info("Found: " + filteredMatches.Count + "candidates. Unable to match: " + match);
                 matched.Add(new(match));
+                return;
             }
+
+            // Check if a match was already made from same house as bestMatch and choose better match
+            var prevMatch = bestMatch.data.FirstOrDefault(x => x.house == match.house);
+            if (prevMatch == null)
+            {
+                log.Info("Matched: " + match + " with: " + bestMatch);
+                bestMatch.data.Add(match);
+                return;
+            }
+
+            var prevScore = CompareMatchToEvent(prevMatch, bestMatch);
+            if (prevScore > bestMatchScore)
+            {
+                log.Info(string.Format("Matched: {0} with: {1}, but a better match was present: {2}", match, bestMatch, prevMatch));
+            }
+            else if (prevScore == bestMatchScore)
+            {
+                log.Info(string.Format("Matched: {0} with: {1}, but found equal match: {2}, keeping both", match, bestMatch, prevMatch));
+                bestMatch.data.Add(match);
+            }
+            else // if (bestMatchScore > prevScore)
+            {
+                log.Info(string.Format("Matched: {0} with: {1}, replacing worse match: {2}", match, bestMatch, prevMatch));
+                bestMatch.data.Remove(prevMatch);
+                bestMatch.data.Add(match);
+            }
+
+
+        }
+
+        private static HouseMatchData GetBetterMatch(HouseMatchData match1, HouseMatchData match2, EventData refData) 
+        {
+            return null;
         }
 
         private static double CompareMatchToEvent(HouseMatchData match, EventData potentialMatch)
         {
             var totalScore = 0.0;
+            var cnt = potentialMatch.data.Count;
 
-            foreach(var houseData in potentialMatch.data)
+            foreach (var houseData in potentialMatch.data)
             {
+                // Do not compare to data from same house
+                if (houseData.house == match.house) 
+                {
+                    cnt--;
+                    continue; 
+                }
+
                 var score = CompareMatches(match, houseData);
                 
                 if (score < MIN_SCORE_THR)
@@ -104,7 +143,7 @@ namespace Arbitrage.MatchMatcher
                 totalScore += score;
             }
 
-            return totalScore / potentialMatch.data.Count;
+            return totalScore / cnt;
         }
 
         /// <summary>
