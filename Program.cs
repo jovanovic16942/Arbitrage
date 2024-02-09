@@ -38,27 +38,23 @@ Parallel.ForEach(dataLoaders, loader =>
     _ = loader.Load(sportsToGet, false);
 });
 
-// Match data from different sources
-var unmatched = dataLoaders.Select(x => x.GetData()).Where(x => x != null && x.Any()).ToList();
-var matched = MatchMatcher.MatchMatches(unmatched!);
-var success = matched.Where(x => x.data.Count > 1).ToList();
+// Run MatchMatcher
+var loadedData = dataLoaders.Select(x => x.GetData()).Where(x => x != null && x.Any()).ToList();
+var allEvents = MatchMatcher.MatchMatches(loadedData!);
+var matchedEvents = allEvents.Where(x => x.data.Count > 1).ToList();
 
-var bestMatched = matched.MaxBy(x => x.data.Count);
+var bestMatched = allEvents.MaxBy(x => x.data.Count);
 
-// Get betting advice
+// Run Arbitrage
 var arb = new ArbitrageCalculator();
-
-arb.ProcessResults(success);
-
-var sortd = success.OrderByDescending(x => x.combinations.Count);
+arb.ProcessResults(matchedEvents);
+var results = matchedEvents.Where(x => x.combinations.Any()).OrderByDescending(x => x.combinations.First().profit);
 
 var allCombos = new List<Combination>();
-
-foreach(var s  in sortd.Where(x  => x.combinations.Any()))
+foreach(var s in results)
 {
     allCombos.AddRange(s.combinations);
 }
-
 
 var t0 = allCombos.Where(x => x.profit < 0.02).OrderByDescending(x => x.profit).ToList();
 var t1 = allCombos.Where(x => x.profit >= 0.02 && x.profit < 0.05).OrderByDescending(x => x.profit).ToList();
@@ -66,14 +62,6 @@ var t2 = allCombos.Where(x => x.profit >= 0.05 && x.profit < 0.08).OrderByDescen
 var t3 = allCombos.Where(x => x.profit >= 0.08).OrderByDescending(x => x.profit).ToList();
 
 
-var x = 2;
-//var res = arb.GetResults(success);
-//var best = res.Where(x => x.profit > 0.02).ToList();
-
-//ArbitrageCalculator.PrintCombinations(arb.GetBetList());
-//ArbitrageCalculator.ShowStakes(arb.GetBetList(), 10000);
-
-var a = 2;
-
-
-var b = 2;
+var BP = "BreakPoint";
+// Debug stop
+var stop = 0;

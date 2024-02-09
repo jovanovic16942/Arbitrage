@@ -1,13 +1,10 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using NLog;
-using System.ComponentModel;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Arbitrage.MatchMatcher
 {
     // TODO
-
     /*
      * 
      * [2024-02-01 20:39:06.9204] [INFO] [MatchMatcher.cs:74] Matched: {U.A.N.L.- TIGRES U23}{U.N.A.M.- PUMAS U23}[OktagonBet] with: <03/02/2024 16:00:00>{ANNAN}{ALLOA}[PinnBet]
@@ -18,7 +15,7 @@ namespace Arbitrage.MatchMatcher
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         private static readonly double MIN_SCORE_THR = 0.5;
-        private static readonly double BEST_SCORE_THR = 0.9;
+        private static readonly double BEST_SCORE_THR = 0.95;
 
         public static List<EventData> MatchMatches(List<List<HouseMatchData>> datas)
         {
@@ -32,10 +29,19 @@ namespace Arbitrage.MatchMatcher
                 }
             }
 
-            return matchedMatches;
+            var matched = matchedMatches.Where(x => x.data.Count > 1).ToList();
+            var unmatched = matchedMatches.Where(x => x.data.Count == 1).ToList();
+
+            // Second pass for unmatched matches
+            foreach (var match in unmatched)
+            {
+                MatchMatch(matched, match.data.First(), true);
+            }
+
+            return matched;
         }
 
-        private static void MatchMatch(List<EventData> matched, HouseMatchData match)
+        private static void MatchMatch(List<EventData> matched, HouseMatchData match, bool filterHouses = false)
         {
             bool matchFilter(EventData candidate)
             {
@@ -43,8 +49,12 @@ namespace Arbitrage.MatchMatcher
                 {
                     candidate.startTime.Equals(match.startTime),
                     candidate.sport.Equals(match.sport),
-                    //!candidate.data.Any(x => x.house == match.house),
                 };
+
+                if (filterHouses)
+                {
+                    conditions.Add(!candidate.data.Any(x => x.house == match.house));
+                }
 
                 return conditions.All(x => x);
             }
@@ -71,10 +81,10 @@ namespace Arbitrage.MatchMatcher
                     bestMatch = potentialMatch;
                     bestMatchScore = score;
 
-                    //if (score > BEST_SCORE_THR)
-                    //{
-                    //    break;
-                    //}
+                    if (score > BEST_SCORE_THR)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -98,6 +108,7 @@ namespace Arbitrage.MatchMatcher
             if (prevScore > bestMatchScore)
             {
                 log.Info(string.Format("Matched: {0} with: {1}, but a better match was present: {2}", match, bestMatch, prevMatch));
+                matched.Add(new(match));
             }
             else if (prevScore == bestMatchScore)
             {
@@ -105,18 +116,12 @@ namespace Arbitrage.MatchMatcher
                 bestMatch.data.Add(match);
             }
             else // if (bestMatchScore > prevScore)
-            {
+             {
                 log.Info(string.Format("Matched: {0} with: {1}, replacing worse match: {2}", match, bestMatch, prevMatch));
                 bestMatch.data.Remove(prevMatch);
                 bestMatch.data.Add(match);
+                matched.Add(new(prevMatch));
             }
-
-
-        }
-
-        private static HouseMatchData GetBetterMatch(HouseMatchData match1, HouseMatchData match2, EventData refData) 
-        {
-            return null;
         }
 
         private static double CompareMatchToEvent(HouseMatchData match, EventData potentialMatch)
@@ -221,7 +226,7 @@ namespace Arbitrage.MatchMatcher
             separators ??= new char[] { ' ', '.', '-' };
             return str.Split(separators).Where(x => x.Length > 0).ToArray();
         }
-
+        
         /// <summary>
         /// Return similarity score between two tokens
         /// </summary>

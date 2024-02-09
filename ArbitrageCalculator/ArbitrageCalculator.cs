@@ -12,6 +12,7 @@ namespace Arbitrage.ArbitrageCalculator
 
         public void ProcessResults(List<EventData> events)
         {
+            // TODO  this can be paralel
             for (int i = 0; i < events.Count; i++)
             {
                 ProcessEvent(events.ElementAt(i));
@@ -76,6 +77,9 @@ namespace Arbitrage.ArbitrageCalculator
                     eventData.combinations.Add(comb);
                 }
             }
+
+            // Sort the results
+            eventData.combinations.Sort((x, y) => y.profit.CompareTo(x.profit));
         }
 
         public static double CalculateArbitrage(double v1, double v2, double investment = 1)
