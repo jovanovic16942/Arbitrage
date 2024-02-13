@@ -15,15 +15,15 @@ List <DataLoader> dataLoaders = new()
     //new DataLoader(new StarBetParser()),
     //new DataLoader(new OlimpParser()),
     //new DataLoader(new Bet365Parser()),
-    new DataLoader(BettingHouse.Meridian), // IN PROGRESS
-    new DataLoader(BettingHouse.PinnBet),
-    new DataLoader(BettingHouse.Mozzart),
-    new DataLoader(BettingHouse.AdmiralBet),
-    new DataLoader(BettingHouse.SuperBet),
-    new DataLoader(BettingHouse.MerkurXTip),
-    new DataLoader(BettingHouse.MaxBet),
-    new DataLoader(BettingHouse.OktagonBet),
-    new DataLoader(BettingHouse.BetOle),
+    new(BettingHouse.Meridian),
+    new(BettingHouse.PinnBet),
+    new(BettingHouse.Mozzart),
+    new(BettingHouse.AdmiralBet),
+    new(BettingHouse.SuperBet),
+    new(BettingHouse.MerkurXTip),
+    new(BettingHouse.MaxBet),
+    new(BettingHouse.OktagonBet),
+    new(BettingHouse.BetOle),
 };
 
 List<Sport> sportsToGet = new()

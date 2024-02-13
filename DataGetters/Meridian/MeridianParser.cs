@@ -110,6 +110,19 @@ namespace Arbitrage.DataGetters.Meridian
             {
                 BetGame game = betGameFromString[bgKey].Clone();
 
+                // Determine which quarter from template name
+                if (game.period == GamePeriod.Q1)
+                {
+                    try
+                    {
+                        game.SetPeriod(chToQuarter[sel.templateName.Trim()[..5]]);
+                    } 
+                    catch (Exception e)
+                    {
+                        log.Error("Neam pojma brate: " + e);
+                    }
+                }
+
                 if (sel.overUnder != null)
                 {
                     var thr = double.Parse(sel.overUnder);
@@ -121,72 +134,67 @@ namespace Arbitrage.DataGetters.Meridian
             }
         }
 
+        static readonly Dictionary<string, GamePeriod> chToQuarter = new()
+        {
+            {"[[1]]", GamePeriod.Q1 },
+            {"[[2]]", GamePeriod.Q2 },
+            {"[[3]]", GamePeriod.Q3 },
+            {"[[4]]", GamePeriod.Q4 },
+        };
+
         /// <summary>
         /// Maps (templateId, name) => BetGame
         /// </summary>
         static readonly Dictionary<Tuple<string, string>, BetGame> betGameFromString = new()
         {
             /// BASKETBALL
-            //{2291, new(BetGameType.W1_X_0, GamePeriod.H1) },
-            //{2292, new(BetGameType.W2_X_0, GamePeriod.H1) },
-            //{2293, new(BetGameType.W1_X_0, GamePeriod.H2) },
-            //{2294, new(BetGameType.W2_X_0, GamePeriod.H2) },
+            {new("3741", "[[Rival1]]"), new(BetGameType.W1) },
+            {new("3741", "[[Rival2]]"), new(BetGameType.W2) },
+            {new("3747", "[[Rival1]]"), new(BetGameType.WX1) },
+            {new("3747", "draw"), new(BetGameType.WXX) },
+            {new("3747", "[[Rival2]]"), new(BetGameType.WX2) },
 
-            //{2355, new(BetGameType.W1_X_0, GamePeriod.Q1) },
-            //{2356, new(BetGameType.W2_X_0, GamePeriod.Q1) },
-            //{2357, new(BetGameType.W1_X_0, GamePeriod.Q2) },
-            //{2358, new(BetGameType.W2_X_0, GamePeriod.Q2) },
-            //{2359, new(BetGameType.W1_X_0, GamePeriod.Q3) },
-            //{2360, new(BetGameType.W2_X_0, GamePeriod.Q3) },
-            //{2361, new(BetGameType.W1_X_0, GamePeriod.Q4) },
-            //{2362, new(BetGameType.W2_X_0, GamePeriod.Q4) },
+            {new("3763", "[[Rival1]]"), new(BetGameType.W1_X_0, GamePeriod.H1) },
+            {new("3763", "[[Rival2]]"), new(BetGameType.W2_X_0, GamePeriod.H1) },
+            {new("3760", "[[Rival1]]"), new(BetGameType.WX1, GamePeriod.H1) },
+            {new("3760", "draw"), new(BetGameType.WXX, GamePeriod.H1) },
+            {new("3760", "[[Rival2]]"), new(BetGameType.WX2, GamePeriod.H1) },
 
-            //{2371, new(BetGameType.W1_X_0, GamePeriod.Q1, Team.T1) },
-            //{2372, new(BetGameType.W2_X_0, GamePeriod.Q1, Team.T1) },
+            {new("5259", "[[Rival1]]"), new(BetGameType.W1_X_0, GamePeriod.H2) },
+            {new("5259", "[[Rival2]]"), new(BetGameType.W2_X_0, GamePeriod.H2) },
+            {new("5258", "[[Rival1]]"), new(BetGameType.WX1, GamePeriod.H2) },
+            {new("5258", "draw"), new(BetGameType.WXX, GamePeriod.H2) },
+            {new("5258", "[[Rival2]]"), new(BetGameType.WX2, GamePeriod.H2) },
 
-            //{746, new(BetGameType.W1) },
-            //{747, new(BetGameType.W2) },
+            {new("3742", "[[under]]"), new(BetGameType.UNDER) },
+            {new("3742", "[[over]]"), new(BetGameType.OVER) },
 
-            //{754, new(BetGameType.WX1) },
-            //{755, new(BetGameType.WXX) },
-            //{756, new(BetGameType.WX2) },
+            {new("3761", "[[under]]"), new(BetGameType.UNDER, GamePeriod.H1) },
+            {new("3761", "[[over]]"), new(BetGameType.OVER, GamePeriod.H1) },
+            {new("5257", "[[under]]"), new(BetGameType.UNDER, GamePeriod.H2) },
+            {new("5257", "[[over]]"), new(BetGameType.OVER, GamePeriod.H2) },
+            {new("4362", "[[under]]"), new(BetGameType.UNDER, GamePeriod.H1, Team.T1) },
+            {new("4362", "[[over]]"), new(BetGameType.OVER, GamePeriod.H1, Team.T1) },
+            {new("4363", "[[under]]"), new(BetGameType.UNDER, GamePeriod.H1, Team.T2) },
+            {new("4363", "[[over]]"), new(BetGameType.OVER, GamePeriod.H1, Team.T2) },
 
-            //{772, new(BetGameType.WX1, GamePeriod.Q1) },
-            //{773, new(BetGameType.WXX, GamePeriod.Q1) },
-            //{774, new(BetGameType.WX2, GamePeriod.Q1) },
-            //{784, new(BetGameType.WX1, GamePeriod.Q2) },
-            //{785, new(BetGameType.WXX, GamePeriod.Q2) },
-            //{786, new(BetGameType.WX2, GamePeriod.Q2) },
-            //{792, new(BetGameType.WX1, GamePeriod.Q3) },
-            //{793, new(BetGameType.WXX, GamePeriod.Q3) },
-            //{794, new(BetGameType.WX2, GamePeriod.Q3) },
-            //{795, new(BetGameType.WX1, GamePeriod.Q4) },
-            //{796, new(BetGameType.WXX, GamePeriod.Q4) },
-            //{797, new(BetGameType.WX2, GamePeriod.Q4) },
+            // TODO H2 T1-T2
 
-            //{821, new(BetGameType.UNDER)}, // + OT
-            //{822, new(BetGameType.OVER)},
-            //{2299, new(BetGameType.UNDER, GamePeriod.M, Team.T1)},
-            //{2300, new(BetGameType.OVER, GamePeriod.M, Team.T1)},
-            //{2301, new(BetGameType.UNDER, GamePeriod.M, Team.T2)},
-            //{2302, new(BetGameType.OVER, GamePeriod.M, Team.T2)},
+            {new("3751", "[[under]]"), new(BetGameType.UNDER, tm: Team.T1) },
+            {new("3751", "[[over]]"), new(BetGameType.OVER, tm: Team.T1) },
+            {new("3753", "[[under]]"), new(BetGameType.UNDER, tm: Team.T2) },
+            {new("3753", "[[over]]"), new(BetGameType.OVER, tm: Team.T2) },
 
-            //{779, new(BetGameType.UNDER, GamePeriod.H1)},
-            //{780, new(BetGameType.OVER, GamePeriod.H1)},
-            //{891, new(BetGameType.UNDER, GamePeriod.H2)},
-            //{892, new(BetGameType.OVER, GamePeriod.H2)},
-
-            //{775, new(BetGameType.UNDER, GamePeriod.Q1)},
-            //{776, new(BetGameType.OVER, GamePeriod.Q1)},
-            //{787, new(BetGameType.UNDER, GamePeriod.Q2)},
-            //{788, new(BetGameType.OVER, GamePeriod.Q2)},
-            //{800, new(BetGameType.UNDER, GamePeriod.Q3)},
-            //{801, new(BetGameType.OVER, GamePeriod.Q3)},
-            //{825, new(BetGameType.UNDER, GamePeriod.Q4)},
-            //{826, new(BetGameType.OVER, GamePeriod.Q4)},
-
-            //{2373, new(BetGameType.UNDER, GamePeriod.Q1, Team.T2)},
-            //{2374, new(BetGameType.OVER, GamePeriod.Q1, Team.T2)},
+            // Same for all quarters, handled in the parser
+            {new("3758", "[[Rival1]]"), new(BetGameType.W1_X_0, GamePeriod.Q1) },
+            {new("3758", "[[Rival2]]"), new(BetGameType.W2_X_0, GamePeriod.Q1) },
+            {new("3754", "[[Rival1]]"), new(BetGameType.WX1, GamePeriod.Q1) },
+            {new("3754", "draw"), new(BetGameType.WXX, GamePeriod.Q1) },
+            {new("3754", "[[Rival2]]"), new(BetGameType.WX2, GamePeriod.Q1) },
+            {new("3755", "[[under]]"), new(BetGameType.UNDER, GamePeriod.Q1) },
+            {new("3755", "[[over]]"), new(BetGameType.OVER, GamePeriod.Q1) },
+            
+            // TODO Quarters per Team
 
             ///// FOOTBALL
             {new("3999", "[[Rival1]]"), new(BetGameType.WX1) },
