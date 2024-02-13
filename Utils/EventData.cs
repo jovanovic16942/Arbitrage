@@ -47,53 +47,6 @@ namespace Arbitrage.Utils
             return sortedOdds.FirstOrDefault();
         }
 
-        /// <summary>
-        /// DEPRECATED
-        /// </summary>
-        public List<Participant> teams = new();
-        /// <summary>
-        /// DEPRECATED
-        /// </summary>
-        public List<HouseOdds> odds = new();
-
-        /// <summary>
-        /// Deprecated constructor
-        /// </summary>
-        /// <param name="time"></param>
-        /// <param name="participants"></param>
-        public EventData(DateTime time, List<Participant> participants)
-        {
-            startTime = time;
-            teams = participants;
-        }
-
-        //public Ticket GetBestOdd(BettingGames game)
-        //{
-        //    BettingHouse bestHouse = BettingHouse.DefaultHouse;
-        //    double bestValue = 0.0;
-        //    double sumWithoutBest = 0.0;
-
-        //    foreach (var houseOdds in odds)
-        //    {
-        //        var value = houseOdds.GetValue(game);
-        //        // Add odd value to total sumWithoutBest
-        //        sumWithoutBest += value;
-
-        //        if (value > bestValue)
-        //        {
-        //            sumWithoutBest -= value;
-        //            sumWithoutBest += bestValue;
-        //            bestValue = value;
-        //            bestHouse = houseOdds.House;
-        //        }
-        //    }
-
-        //    double avg = sumWithoutBest / (odds.Count - 1);
-        //    double risk = bestValue - avg;
-
-        //    return new Ticket(bestHouse, game, bestValue, risk);
-        //}
-
         public override string ToString()
         {
             string eventString = "<" + startTime.ToString() + ">";

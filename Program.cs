@@ -56,9 +56,9 @@ foreach(var s in results)
     allCombos.AddRange(s.combinations);
 }
 
-var t0 = allCombos.Where(x => x.profit < 0.02).OrderByDescending(x => x.profit).ToList();
-var t1 = allCombos.Where(x => x.profit >= 0.02 && x.profit < 0.05).OrderByDescending(x => x.profit).ToList();
-var t2 = allCombos.Where(x => x.profit >= 0.05 && x.profit < 0.08).OrderByDescending(x => x.profit).ToList();
+var t0 = allCombos.Where(x => x.profit < 0.01).OrderByDescending(x => x.profit).ToList();
+var t1 = allCombos.Where(x => x.profit >= 0.01 && x.profit < 0.04).OrderByDescending(x => x.profit).ToList();
+var t2 = allCombos.Where(x => x.profit >= 0.04 && x.profit < 0.08).OrderByDescending(x => x.profit).ToList();
 var t3 = allCombos.Where(x => x.profit >= 0.08).OrderByDescending(x => x.profit).ToList();
 
 
