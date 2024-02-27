@@ -1,5 +1,4 @@
-﻿using Arbitrage.DataGetters.MaxBet;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using Arbitrage.Utils;
 using NLog;
 
@@ -12,7 +11,7 @@ namespace Arbitrage.DataGetters.MMOB
     {
         protected MMOBGetter _getter;
 
-        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+        protected static readonly Logger log = LogManager.GetCurrentClassLogger();
         public MMOBParser(BettingHouse house, MMOBGetter getter) : base(house) 
         {
             _getter = getter;
@@ -49,36 +48,42 @@ namespace Arbitrage.DataGetters.MMOB
                 HouseMatchData hmd = new(House, sport, startTime, jsonMatch.home.Trim(), jsonMatch.away.Trim());
 
                 // Add odds
-                foreach (var (oddID, oddValue) in jsonMatch.odds)
-                {
-                    try
-                    {
-                        if (betGameFromID.Keys.Contains(oddID))
-                        {
-                            BetGame game = betGameFromID[oddID].Clone();
-                            game.Value = oddValue;
-
-                            // Special parsing for basketball odds
-                            if (sport is Sport.Basketball && game.type is BetGameType.OVER or BetGameType.UNDER)
-                            {
-                                var thr = GetThreshold(oddID, jsonMatch.betParams);
-                                game.SetThreshold(thr);
-                            }
-
-                            hmd.AddBetGame(game);
-                        }
-                    } catch (Exception ex)
-                    {
-                        log.Error("Exception while parsing bet game:");
-                        log.Error(ex);
-                    }
-                }
+                ParseJsonBetGames(jsonMatch, ref hmd, sport);
 
                 _parsedData.Add(hmd);
             } catch (Exception e)
             {
                 log.Error("Exception while parsing match:");
                 log.Error(e);
+            }
+        }
+
+        protected virtual void ParseJsonBetGames(JsonMatch jsonMatch, ref Utils.HouseMatchData hmd, Sport sport)
+        {
+            foreach (var (oddID, oddValue) in jsonMatch.odds)
+            {
+                try
+                {
+                    if (betGameFromID.Keys.Contains(oddID))
+                    {
+                        BetGame game = betGameFromID[oddID].Clone();
+                        game.Value = oddValue;
+
+                        // Special parsing for basketball odds
+                        if (sport is Sport.Basketball && game.type is BetGameType.OVER or BetGameType.UNDER)
+                        {
+                            var thr = GetThreshold(oddID, jsonMatch.betParams);
+                            game.SetThreshold(thr);
+                        }
+
+                        hmd.AddBetGame(game);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Exception while parsing bet game:");
+                    log.Error(ex);
+                }
             }
         }
 

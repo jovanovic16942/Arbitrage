@@ -15,7 +15,7 @@ namespace Arbitrage.DataGetters.Meridian
             string formattedDateTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
 
             string baseUrl = "https://meridianbet.rs/sails/sport/" + sportId + "/date/";  //basket 55 - 58 f
-            string urlFilter = "/filter/oneDay/offset/";
+            string urlFilter = "/filter/all/offset/";
             const string urlPositon = "?filterPositions=0,0,0";
 
             for(int offset = 0; ; offset += 20)

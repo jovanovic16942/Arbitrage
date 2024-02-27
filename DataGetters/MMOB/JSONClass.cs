@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Arbitrage.DataGetters.SoccerBet;
+using Newtonsoft.Json;
 
 namespace Arbitrage.DataGetters.MMOB
 {
@@ -24,8 +25,21 @@ namespace Arbitrage.DataGetters.MMOB
         public long leagueId;
         public bool superMatch;
 
+        //for soccerbet
+        public Dictionary<int, Dictionary<string, JsonBetData>> betMap { get; set; }
+
         [JsonProperty("params")]
         public JsonBetParams betParams;
+    }
+
+    public class JsonBetData
+    {
+        public int bpc { get; set; }
+        public int tt { get; set; }
+        public string s { get; set; }
+        public double ov { get; set; }
+        public int bc { get; set; }
+        public string sv { get; set; }
     }
 
     public class JsonBetParams

@@ -9,6 +9,10 @@ namespace Arbitrage.General
     public abstract class Parser : IParser
     {
         // TODO for all parsers - check if responses are null everywhere - handle exceptions and runtime errors
+
+        /// <summary>
+        /// DEPRECATED
+        /// </summary>
         protected MatchesData _data;
 
         protected List<HouseMatchData> _parsedData = new();

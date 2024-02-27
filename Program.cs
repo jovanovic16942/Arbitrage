@@ -3,18 +3,19 @@ using Arbitrage.MatchMatcher;
 using Arbitrage.ArbitrageCalculator;
 using Arbitrage.General;
 
-// TODO TOP BET
-
+// TODO
+// topbet
+// efbet
 // TODO over under kvote proveriti gde se koriste bez overtimea
 
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
-    //new DataLoader(new SoccerBetParser()),
-    //new DataLoader(new BalkanBetParser()),
-    //new DataLoader(new StarBetParser()),
-    //new DataLoader(new OlimpParser()),
-    //new DataLoader(new Bet365Parser()),
+    //new DataLoader(new BalkanBetParser()),  // TODO basket/football odds
+    //new DataLoader(new StarBetParser()),  // TODO basket/football odds
+    //new DataLoader(new OlimpParser()),  // TODO basket/football odds
+    //new DataLoader(new Bet365Parser()),  // TODO basket/football odds
+    new(BettingHouse.SoccerBet), // TODO basket odds
     new(BettingHouse.Meridian),
     new(BettingHouse.PinnBet),
     new(BettingHouse.Mozzart),
@@ -33,6 +34,12 @@ List<Sport> sportsToGet = new()
 };
 
 // Load the data in parallel
+/* TODO vidi sa mikicom: 
+ * Mozda bi ovo vredelo prepakovati
+ * 1. Load da vrati odma, on da startuje novi thread u kome se skidaju podaci
+ * 2. Da zovemo drugi metod koji ceka i vraca podatke u kome mozemo podesiti timeout ako nesto zabode da vrati error
+ * 
+ */
 Parallel.ForEach(dataLoaders, loader =>
 {
     _ = loader.Load(sportsToGet, false);
