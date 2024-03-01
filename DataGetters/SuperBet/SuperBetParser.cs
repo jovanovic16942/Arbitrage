@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.SuperBet
 
         protected override void ParseFootball()
         {
-            _matchResponse = _getter.GetMatches();
+            _matchResponse ??= _getter.GetMatches();
 
             var footballMatches = _matchResponse.data.Where(x => x.sportId == 5).ToList();
 

@@ -23,8 +23,8 @@ namespace Arbitrage.Utils
             this.house = house;
             this.sport = sport;
             this.startTime = startTime;
-            team1 = t1.ToUpper();
-            team2 = t2.ToUpper();
+            team1 = t1.Trim().ToUpper();
+            team2 = t2.Trim().ToUpper();
             betGames = new();
         }
 

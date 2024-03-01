@@ -11,10 +11,10 @@ using Arbitrage.General;
 // Prepare data loaders
 List <DataLoader> dataLoaders = new()
 {
-    //new DataLoader(new BalkanBetParser()),  // TODO basket/football odds
-    //new DataLoader(new StarBetParser()),  // TODO basket/football odds
-    //new DataLoader(new OlimpParser()),  // TODO basket/football odds
-    //new DataLoader(new Bet365Parser()),  // TODO basket/football odds
+    new(BettingHouse.BalkanBet),  // TODO basket/football odds
+    new(BettingHouse.StarBet),  // TODO basket/football odds
+    //new(BettingHouse.Olimp),  // TODO bugs basket/football odds
+    new(BettingHouse.Bet365),  // TODO basket/football odds
     new(BettingHouse.SoccerBet), // TODO basket odds
     new(BettingHouse.Meridian),
     new(BettingHouse.PinnBet),

@@ -1,10 +1,5 @@
 ﻿using Arbitrage.General;
 using Arbitrage.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arbitrage.DataGetters.Bet365
 {
@@ -12,34 +7,36 @@ namespace Arbitrage.DataGetters.Bet365
     {
         private readonly Bet365Getter _getter = new();
 
+        private List<JsonSport> _sportResp;
+
         public Bet365Parser() : base(BettingHouse.Bet365)
         {
         }
 
-        protected override void UpdateData()
+        protected override void ParseFootball()
         {
-            var jsonResp = _getter.GetLeagues();
+            _sportResp ??= _getter.GetLeagues();
 
-            if (jsonResp == null || jsonResp.Count == 0) { return; }
+            if (_sportResp == null || _sportResp.Count == 0) { return; }
 
-            foreach (var jsonSport in jsonResp) 
+            foreach (var jsonSport in _sportResp) 
             {
-                ParseJsonSport(jsonSport);
+                if (jsonSport.sportType != "S") continue;
+                ParseJsonSport(jsonSport, Sport.Football);
             }
         }
 
-        private void ParseJsonSport(JsonSport jsonSport)
+        private void ParseJsonSport(JsonSport jsonSport, Sport sport)
         {
-            if (jsonSport == null || jsonSport.leagues == null) { return; }
-            if (jsonSport.sportType != "S" || jsonSport.leagues.Count == 0) { return; }
+            if (jsonSport == null || jsonSport.leagues == null || jsonSport.leagues.Count == 0) { return; }
 
             foreach (var jsonLeague in jsonSport.leagues)
             {
-                ParseJsonLeague(jsonLeague);
+                ParseJsonLeague(jsonLeague, sport);
             }
         }
 
-        private void ParseJsonLeague(JsonLeague jsonLeague)
+        private void ParseJsonLeague(JsonLeague jsonLeague, Sport sport)
         {
             if (jsonLeague == null || jsonLeague.numOfMatches == 0) { return; }
 
@@ -51,7 +48,7 @@ namespace Arbitrage.DataGetters.Bet365
                 
                 foreach (var jsonMatch in leagueMatchesResp.matchList)
                 {
-                    TryParseJsonMatch(jsonMatch);
+                    TryParseJsonMatch(jsonMatch, sport);
                 }
 
             } catch (Exception e)
@@ -60,18 +57,13 @@ namespace Arbitrage.DataGetters.Bet365
             }
         }
 
-        private void TryParseJsonMatch(JsonMatch jsonMatch)
+        private void TryParseJsonMatch(JsonMatch jsonMatch, Sport sport)
         {
             try
             {
-                if (jsonMatch.sport.Trim() != "S") { return; }
-
                 DateTime startTime = DateTimeConverter.DateTimeFromLong(jsonMatch.kickOffTime, 1);
 
-                Participant p1 = new(jsonMatch.home.Trim());
-                Participant p2 = new(jsonMatch.away.Trim());
-
-                Match match = new(startTime, p1, p2);
+                HouseMatchData hmd = new(House, sport, startTime, jsonMatch.home, jsonMatch.away);
 
                 // Add odds
                 var matchId = jsonMatch.id;
@@ -79,11 +71,10 @@ namespace Arbitrage.DataGetters.Bet365
 
                 foreach (var jsonBetGroup in jsonMatchResp.odBetPickGroups)
                 {
-                    TryParseBetGroup(match, jsonBetGroup);
+                    TryParseBetGroup(hmd, jsonBetGroup);
                 }
 
-                _data.Insert(match);
-
+                _parsedData.Add(hmd);
             }
             catch
             {
@@ -92,7 +83,7 @@ namespace Arbitrage.DataGetters.Bet365
             }
         }
 
-        private void TryParseBetGroup(Match match, JsonBetGroup jsonBetGroup)
+        private void TryParseBetGroup(HouseMatchData hmd, JsonBetGroup jsonBetGroup)
         {
             if (jsonBetGroup.tipTypes == null || !jsonBetGroup.tipTypes.Any()) { return; } // log
 
@@ -102,7 +93,9 @@ namespace Arbitrage.DataGetters.Bet365
                 {
                     if (betGameFromString.ContainsKey(jsonBet.name))
                     {
-                        match.TryAddBetGame(betGameFromString[jsonBet.name],  jsonBet.value);
+                        BetGame game = betGameFromString[jsonBet.name].Clone();
+                        game.Value =  jsonBet.value;
+                        hmd.AddBetGame(game);
                     }
                 } catch
                 {
@@ -112,60 +105,46 @@ namespace Arbitrage.DataGetters.Bet365
         }
 
         /// <summary>
-        /// Map bet game name from json response name to BettingGames enum
+        /// Map bet game name from json response name to BetGame
         /// </summary>
-        static readonly Dictionary<string, BettingGames> betGameFromString = new()
+        static readonly Dictionary<string, BetGame> betGameFromString = new()
         {
-            {"1", BettingGames._1 },
-            {"X", BettingGames._X },
-            {"2", BettingGames._2 },
-            {"12", BettingGames._12 },
-            {"1X", BettingGames._1X },
-            {"X2",BettingGames._X2 },
-            {"1P1", BettingGames._1_I },
-            {"1PX", BettingGames._X_I },
-            {"1P2", BettingGames._2_I },
-            {"1P 12", BettingGames._12_I },
-            {"1P 1X", BettingGames._1X_I },
-            {"1P X2", BettingGames._X2_I },
-            {"2P1", BettingGames._1_II },
-            {"2PX", BettingGames._X_II },
-            {"2P2", BettingGames._2_II },
-            {"2P 12", BettingGames._12_II },
-            {"2P 1X", BettingGames._1X_II },
-            {"2P X2", BettingGames._X2_II },
-            {"GG", BettingGames._GG },
-            {"NG", BettingGames._NG },
-            {"1P GG", BettingGames._GG_I },
-            {"1P NG", BettingGames._NG_I },
-            {"2P GG", BettingGames._GG_II },
-            {"2P NG", BettingGames._NG_II },
-            {"0-1", BettingGames._UG_0_1 },
-            {"0-2", BettingGames._UG_0_2 },
-            {"0-3", BettingGames._UG_0_3 },
-            {"0-4", BettingGames._UG_0_4 },
-            {"0-5", BettingGames._UG_0_5 },
-            {"0-6", BettingGames._UG_0_6 },
-            {"1-2", BettingGames._UG_1_2 },
-            {"1-3", BettingGames._UG_1_3 },
-            {"1-4", BettingGames._UG_1_4 },
-            {"1-5", BettingGames._UG_1_5 },
-            {"1-6", BettingGames._UG_1_6 },
-            {"2-3", BettingGames._UG_2_3 },
-            {"2-4", BettingGames._UG_2_4 },
-            {"2-5", BettingGames._UG_2_5 },
-            {"2-6", BettingGames._UG_2_6 },
-            {"3-4", BettingGames._UG_3_4 },
-            {"3-5", BettingGames._UG_3_5 },
-            {"3-6", BettingGames._UG_3_6 },
-            {"4-5", BettingGames._UG_4_5 },
-            {"4-6", BettingGames._UG_4_6 },
-            {"5-6", BettingGames._UG_5_6 },
-            {"2+", BettingGames._UG_2_PLUS },
-            {"3+", BettingGames._UG_3_PLUS },
-            {"4+", BettingGames._UG_4_PLUS },
-            {"5+", BettingGames._UG_5_PLUS },
-            {"6+", BettingGames._UG_6_PLUS },
+            {"1", new(BetGameType.WX1) },
+            {"X", new(BetGameType.WXX) },
+            {"2", new(BetGameType.WX2) },
+            {"12", new(BetGameType.D12) },
+            {"1X", new(BetGameType.D1X) },
+            {"X2", new(BetGameType.DX2) },
+            {"1P1", new(BetGameType.WX1, GamePeriod.H1) },
+            {"1PX", new(BetGameType.WXX, GamePeriod.H1) },
+            {"1P2", new(BetGameType.WX2, GamePeriod.H1) },
+            {"1P 12", new(BetGameType.D12, GamePeriod.H1) },
+            {"1P 1X", new(BetGameType.D1X, GamePeriod.H1) },
+            {"1P X2", new(BetGameType.DX2, GamePeriod.H1) },
+            {"2P1", new(BetGameType.WX1, GamePeriod.H2) },
+            {"2PX", new(BetGameType.WXX, GamePeriod.H2) },
+            {"2P2", new(BetGameType.WX2, GamePeriod.H2) },
+            {"2P 12", new(BetGameType.D12, GamePeriod.H2) },
+            {"2P 1X", new(BetGameType.D1X, GamePeriod.H2) },
+            {"2P X2", new(BetGameType.DX2, GamePeriod.H2) },
+            {"GG", new(BetGameType.GG) },
+            {"NG", new(BetGameType.NG) },
+            {"1P GG", new(BetGameType.GG, GamePeriod.H1) },
+            {"1P NG", new(BetGameType.NG, GamePeriod.H1) },
+            {"2P GG", new(BetGameType.GG, GamePeriod.H2) },
+            {"2P NG", new(BetGameType.NG, GamePeriod.H2) },
+
+            {"0-1", new(BetGameType.UNDER,  thr: 1.5) },
+            {"0-2", new(BetGameType.UNDER,  thr: 2.5) },
+            {"0-3", new(BetGameType.UNDER,  thr: 3.5) },
+            {"0-4", new(BetGameType.UNDER,  thr: 4.5) },
+            {"0-5", new(BetGameType.UNDER, thr : 5.5) },
+            {"0-6", new(BetGameType.UNDER, thr : 6.5) },
+            {"2+", new(BetGameType.OVER,  thr: 1.5) },
+            {"3+", new(BetGameType.OVER,  thr: 2.5) },
+            {"4+", new(BetGameType.OVER,  thr: 3.5) },
+            {"5+", new(BetGameType.OVER,  thr: 4.5) },
+            {"6+", new(BetGameType.OVER,  thr: 5.5) },
         };
     }
 }

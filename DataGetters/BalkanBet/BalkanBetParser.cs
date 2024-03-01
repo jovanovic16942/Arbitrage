@@ -1,11 +1,6 @@
-﻿using Arbitrage.DataGetters.PinnBet;
-using Arbitrage.General;
+﻿using Arbitrage.General;
 using Arbitrage.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
 
 namespace Arbitrage.DataGetters.BalkanBet
 {
@@ -13,87 +8,102 @@ namespace Arbitrage.DataGetters.BalkanBet
     {
         private readonly BalkanBetGetter _getter = new();
 
+        protected static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         public BalkanBetParser() : base(BettingHouse.BalkanBet) { }
 
-        protected override void UpdateData()
+        protected override void ParseFootball()
         {
-            var idsResp = _getter.GetMatchIds();
+            var idsResp = _getter.GetMatchIdsFootball();
 
             foreach(var ev in idsResp.data.events)
             {
                 try
                 {
                     var resp = _getter.GetMatchResponse(ev.a);
-                    ParseMatchResponse(resp);
+                    ParseMatchResponse(resp, Sport.Football);
                 } catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    log.Error("Exception while parsing match response" + ex.Message);
                 }
             }
         }
 
-        private void ParseMatchResponse(JsonMatchResponse resp)
+        private void ParseMatchResponse(JsonMatchResponse resp, Sport sport)
         {
             DateTime startTime = DateTime.Parse(resp.data.startsAt);
 
-            Participant participant1 = new(resp.data.competitors.First(x => x.type == 1).name);
-            Participant participant2 = new(resp.data.competitors.First(x => x.type == 2).name);
+            string team1 = resp.data.competitors.First(x => x.type == 1).name;
+            string team2 = resp.data.competitors.First(x => x.type == 2).name;
 
-            Match match = new(startTime, participant1, participant2);
+            HouseMatchData match = new(House, sport, startTime, team1, team2);
 
             foreach (var jsonMarket in resp.data.markets)
             {
+                if (jsonMarket == null || jsonMarket.outcomes == null)
+                {
+                    continue;
+                }
+
                 foreach (var jsonOdd in jsonMarket.outcomes)
                 {
-                    var sgName = jsonOdd.name;
-                    if (betGameFromString.ContainsKey(sgName))
+                    try
                     {
-                        match.TryAddBetGame(betGameFromString[sgName], jsonOdd.odd);
+                        var sgName = jsonOdd.name;
+                        if (betGameFromString.ContainsKey(sgName))
+                        {
+                            BetGame game = betGameFromString[sgName].Clone();
+                            game.Value = jsonOdd.odd;
+                            match.AddBetGame(game);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error("Exception while parsing betgame: " + e);
                     }
                 }
             }
 
-            _data.Insert(match);
+            _parsedData.Add(match);
         }
 
         /// <summary>
-        /// Map bet game name from json response to BetGameConfig
+        /// Map bet game name from json response to BetGame
         /// </summary>
-        static readonly Dictionary<string, BettingGames> betGameFromString = new()
+        static readonly Dictionary<string, BetGame> betGameFromString = new()
         {
-            {"1", BettingGames._1 },
-            {"X", BettingGames._X },
-            {"2", BettingGames._2 },
-            {"12", BettingGames._12 },
-            {"1X", BettingGames._1X },
-            {"X2",BettingGames._X2 },
-            {"I 1", BettingGames._1_I },
-            {"I X", BettingGames._X_I },
-            {"I 2", BettingGames._2_I },
-            {"I 12", BettingGames._12_I },
-            {"I 1X", BettingGames._1X_I },
-            {"I X2", BettingGames._X2_I },
-            {"II 1", BettingGames._1_II },
-            {"II X", BettingGames._X_II },
-            {"II 2", BettingGames._2_II },
-            {"II 12", BettingGames._12_II },
-            {"II 1X", BettingGames._1X_II },
-            {"II X2", BettingGames._X2_II },
-            {"GG", BettingGames._GG },
-            {"NG", BettingGames._NG },
-            {"I GG", BettingGames._GG_I },
-            {"NE I GG", BettingGames._NG_I },
-            {"II GG", BettingGames._GG_II },
-            {"NE 2 GG", BettingGames._NG_II },
-            {"0-1", BettingGames._UG_0_1 },
-            {"0-2", BettingGames._UG_0_2 },
-            {"0-3", BettingGames._UG_0_3 },
-            {"0-4", BettingGames._UG_0_4 },
-            {"2+", BettingGames._UG_2_PLUS },
-            {"23", BettingGames._UG_2_3 },
-            {"3+", BettingGames._UG_3_PLUS },
-            {"4+", BettingGames._UG_4_PLUS },
-            {"5+", BettingGames._UG_5_PLUS },
+            {"1", new(BetGameType.WX1) },
+            {"X", new(BetGameType.WXX) },
+            {"2", new(BetGameType.WX2) },
+            {"12", new(BetGameType.D12) },
+            {"1X", new(BetGameType.D1X) },
+            {"X2", new(BetGameType.DX2) },
+            {"I 1", new(BetGameType.WX1, GamePeriod.H1) },
+            {"I X", new(BetGameType.WXX, GamePeriod.H1) },
+            {"I 2", new(BetGameType.WX2, GamePeriod.H1) },
+            {"I 12", new(BetGameType.D12, GamePeriod.H1) },
+            {"I 1X", new(BetGameType.D1X, GamePeriod.H1) },
+            {"I X2", new(BetGameType.DX2, GamePeriod.H1) },
+            {"II 1", new(BetGameType.WX1, GamePeriod.H2) },
+            {"II X", new(BetGameType.WXX, GamePeriod.H2) },
+            {"II 2", new(BetGameType.WX2, GamePeriod.H2) },
+            {"II 12", new(BetGameType.D12, GamePeriod.H2) },
+            {"II 1X", new(BetGameType.D1X, GamePeriod.H2) },
+            {"II X2", new(BetGameType.DX2, GamePeriod.H2) },
+            {"GG", new(BetGameType.GG) },
+            {"NG", new(BetGameType.NG) },
+            {"I GG", new(BetGameType.GG, GamePeriod.H1) },
+            {"NE I GG", new(BetGameType.NG, GamePeriod.H1) },
+            {"II GG", new(BetGameType.GG, GamePeriod.H2) },
+            {"NE 2 GG", new(BetGameType.NG, GamePeriod.H2) },
+            {"0-1", new(BetGameType.UNDER, thr: 1.5) },
+            {"0-2", new(BetGameType.UNDER, thr: 2.5) },
+            {"0-3", new(BetGameType.UNDER, thr: 3.5) },
+            {"0-4", new(BetGameType.UNDER, thr: 4.5) },
+            {"2+", new(BetGameType.OVER, thr: 1.5) },
+            {"3+", new(BetGameType.OVER, thr: 2.5)},
+            {"4+", new(BetGameType.OVER, thr: 3.5) },
+            {"5+", new(BetGameType.OVER, thr: 4.5) },
         };
     }
 }

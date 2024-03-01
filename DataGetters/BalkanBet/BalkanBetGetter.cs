@@ -5,7 +5,7 @@ namespace Arbitrage.DataGetters.BalkanBet
 {
     public class BalkanBetGetter
     {
-        public JsonMatchIdsResponse GetMatchIds()
+        public JsonMatchIdsResponse GetMatchIdsFootball()
         {
             string currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
 
