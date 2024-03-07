@@ -33,7 +33,7 @@ namespace Arbitrage.DataGetters.Olimp
             }
 
             // TODO FIXME Vraca null 
-            var footbalNode = html.DocumentNode.SelectSingleNode(".//div[@id_str='meniLevoPonudaID']//li[@class='has-children']//label[contains(.,'Fudbal')]");
+            var footbalNode = html.DocumentNode.SelectSingleNode(".//div[@id='meniLevoPonudaID']//li[@class='has-children']//label[contains(.,'Fudbal')]");
 
             var leagueNodes = footbalNode.ParentNode.SelectNodes(".//ul[contains(@class, 'cd-accordion-menu')]//li[@class='has-children']//ul[contains(@class,'group')]//li//label");
 
@@ -73,7 +73,7 @@ namespace Arbitrage.DataGetters.Olimp
                 return;
             }
 
-            var matcheNodes = html.DocumentNode.SelectNodes(".//tr[contains(@id_str,'pkp_scroll')]");
+            var matcheNodes = html.DocumentNode.SelectNodes(".//tr[contains(@id,'pkp_scroll')]");
 
             HashSet<string> matchIDs = new HashSet<string>();
 
@@ -82,7 +82,7 @@ namespace Arbitrage.DataGetters.Olimp
             {
                 try
                 {
-                    var matchId = matcheNode.Attributes["id_str"].Value.Replace("pkp_scroll_", "").Replace("_ID", "");
+                    var matchId = matcheNode.Attributes["id"].Value.Replace("pkp_scroll_", "").Replace("_ID", "");
                     matchIDs.Add(matchId);
                 }
                 catch
