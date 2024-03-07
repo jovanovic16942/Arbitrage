@@ -6,8 +6,21 @@ namespace Arbitrage.MatchMatcher
 {
     // TODO
     /*
+     * Create unit tests :) Or move successful matches to DB
      * 
+     * Issue #1
      * [2024-02-01 20:39:06.9204] [INFO] [MatchMatcher.cs:74] Matched: {U.A.N.L.- TIGRES U23}{U.N.A.M.- PUMAS U23}[OktagonBet] with: <03/02/2024 16:00:00>{ANNAN}{ALLOA}[PinnBet]
+     * 
+     * Issue #2
+     * [2024-03-02 11:12:29.3543] [INFO] [MatchMatcher.cs:102] Matched: {NORTH DAKOTA}{SOUTH DAKOTA}[MerkurXTip] with: <02/03/2024 20:00:00>{NORTH DAKOTA STATE BISON}{SOUTH DAKOTA STATE JACKRABBITS}[Meridian]
+{NORTH DAKOTA STATE BISON}{SOUTH DAKOTA STATE}[SuperBet]
+
+[2024-03-02 11:12:29.3543] [INFO] [MatchMatcher.cs:110] Matched: {NORTH DAKOTA ST}{SOUTH DAKOTA ST.}[MerkurXTip] with: <02/03/2024 20:00:00>{NORTH DAKOTA STATE BISON}{SOUTH DAKOTA STATE JACKRABBITS}[Meridian]
+{NORTH DAKOTA STATE BISON}{SOUTH DAKOTA STATE}[SuperBet]
+{NORTH DAKOTA}{SOUTH DAKOTA}[MerkurXTip]
+, but a better match was present: {NORTH DAKOTA}{SOUTH DAKOTA}[MerkurXTip]
+[2024-03-02 11:12:29.3543] [INFO] [MatchMatcher.cs:102] Matched: {TEXAS}{OKLAHOMA STATE}[MerkurXTip] with: <02/03/2024 20:00:00>{TEXAS LONGHORNS}{OKLAHOMA STATE COWBOYS}[Meridian]
+{TEXAS LONGHORNS}{OKLAHOMA COWBOYS}[SuperBet]
      * 
      * */
     public class MatchMatcher

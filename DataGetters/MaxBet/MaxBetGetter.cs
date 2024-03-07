@@ -13,7 +13,7 @@ namespace Arbitrage.DataGetters.MaxBet
 
         public JsonMatchResponse GetMatches(string leagueId, string sport)
         {
-            Thread.Sleep(Constants.SleepTime);
+            Thread.Sleep(Constants.SleepTimeShort);
             string url = "https://www.maxbet.rs/restapi/offer/sr/sport/" + sport + "/league/" + leagueId + "/mob?annex=3&desktopVersion=2.24.43&locale=sr";
 
             var client = new RestClient(url);
@@ -29,6 +29,7 @@ namespace Arbitrage.DataGetters.MaxBet
 
         public List<string> GetLeagues(string sport)
         {
+            Thread.Sleep(Constants.SleepTimeShort);
             string url = "https://www.maxbet.rs/restapi/offer/sr/categories/sport/" + sport + "/l?annex=3&desktopVersion=2.24.43&locale=sr";
 
             var client = new RestClient(url);

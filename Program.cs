@@ -13,9 +13,9 @@ List <DataLoader> dataLoaders = new()
 {
     new(BettingHouse.BalkanBet),  // TODO basket/football odds
     new(BettingHouse.StarBet),  // TODO basket/football odds
-    //new(BettingHouse.Olimp),  // TODO bugs basket/football odds
+    new(BettingHouse.Olimp),  // TODO basket/football odds
     new(BettingHouse.Bet365),  // TODO basket/football odds
-    new(BettingHouse.SoccerBet), // TODO basket odds
+    new(BettingHouse.SoccerBet),
     new(BettingHouse.Meridian),
     new(BettingHouse.PinnBet),
     new(BettingHouse.Mozzart),
